@@ -1,0 +1,99 @@
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  font-family: bitF1;
+  border-radius: 15px;
+  padding-bottom: 5%;
+  margin-top: 50%;
+  transition: all 0.5s ease-in-out;
+}
+
+.timer.expanded {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  margin-top: 0;
+  border-radius: 0;
+}
+
+.time-display {
+  font-family: bitF1;
+  font-size: 100px;
+  margin-bottom: 80px;
+  color: whitesmoke;
+  display: flex; /* Flexbox to manage layout */
+  align-items: center; /* Center align the inputs */
+  transition: all 0.5s ease-in-out;
+}
+
+.timer.expanded .time-display {
+  font-size: 200px; /* Increase size when expanded */
+}
+
+.time-input {
+  width: 130px; /* Adjusted width for visibility */
+  border: none;
+  background: transparent;
+  font-family: bitF1;
+  color: whitesmoke;
+  font-size: 100px;
+  text-align: center;
+  outline: none;
+  appearance: none;
+  line-height: 1; /* Ensures the content height fits */
+  padding: 0; /* Removes any default padding */
+}
+
+.time-input:hover, .time-input:focus {
+  background: rgba(255, 255, 255, 0.2); /* Light background on hover and focus */
+}
+
+.controls {
+  margin-top: 20px;
+}
+
+.timer.expanded .controls {
+  display: none; /* Hide controls when expanded */
+}
+
+.expanded-controls {
+  position: absolute;
+  bottom: 50px;
+  display: flex;
+  gap: 20px; /* Space between buttons */
+  transition: all 0.5s ease-in-out;
+}
+
+.timer:not(.expanded) .expanded-controls {
+  display: none; /* Hide expanded controls when not in expanded state */
+}
+
+.controls button, .expanded-controls button {
+  font-family: bitF1;
+  font-size: 40px;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 10px 20px;
+}
+
+.controls button:disabled, .expanded-controls button:disabled {
+  background-color: #3f51b5;
+  cursor: not-allowed;
+}
+
+.controls button:enabled, .expanded-controls button:enabled {
+  background-color: #3f51b5;
+}
+
+
+
+
+

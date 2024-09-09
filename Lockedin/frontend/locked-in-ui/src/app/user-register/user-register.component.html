@@ -1,0 +1,13 @@
+<div class="register-container">
+  <div id="formContent">
+    <div class="alert alert-warning" *ngIf="invalidRegister">{{errorMessage}}</div>
+    <div class="alert alert-success" *ngIf="RegisterSuccess">{{successMessage}}</div>
+    <h2>Register</h2>
+    <form>
+      <input type="text" id="username" class="fadeIn second" [(ngModel)]="username" name="username" placeholder="username" required>
+      <input type="password" id="email" class="fadeIn third" [(ngModel)]="email" name="email" placeholder="email" required>
+      <input type="password" id="password" class="fadeIn third" [(ngModel)]="password" name="password" placeholder="password" required>
+      <input type="submit" (click)=handleRegister() class="fadeIn fourth" value="Register">
+    </form>
+  </div>
+</div>

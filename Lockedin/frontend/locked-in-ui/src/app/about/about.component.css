@@ -1,0 +1,29 @@
+.about-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7); /* Slightly transparent background */
+  border-radius: 10px; /* Rounded corners for a smoother look */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* Shadow for depth */
+  color: #ffffff; /* White text to contrast the dark background */
+  font-family: 'bitF1', sans-serif; /* Retro-style font */
+  text-align: center; /* Center text alignment */
+}
+
+.about-title {
+  font-size: 32px; /* Large title size */
+  margin-bottom: 20px;
+  color: #ffcc00; /* Retro yellow color */
+}
+
+.about-text {
+  font-size: 18px; /* Standard text size */
+  line-height: 1.6; /* Space between lines */
+  margin-bottom: 20px;
+}
+
+.about-signature {
+  font-size: 20px; /* Slightly larger for emphasis */
+  font-style: italic; /* Italicize the signature */
+  color: #ff6699; /* A retro pink color for the signature */
+}

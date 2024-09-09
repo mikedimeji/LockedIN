@@ -1,0 +1,27 @@
+<div class="timer" [ngClass]="{'expanded': isExpanded}">
+  <div class="time-display">
+    <input type="text" [value]="formatTime(hours)" (input)="handleInputChange($event, 'hours')" [disabled]="isRunning" class="time-input">
+    :
+    <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
+    :
+    <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
+  </div>
+
+  <!-- Controls shown only in non-expanded state -->
+  <div class="controls" *ngIf="!isExpanded">
+    <button (click)="startTimer()">Start</button>
+  </div>
+
+  <!-- Controls shown only in expanded state -->
+  <div class="expanded-controls" *ngIf="isExpanded">
+    <button (click)="pauseTimer()">Pause</button>
+    <button (click)="openConfirmDialog()">Reset</button>
+  </div>
+</div>
+
+
+
+
+
+
+

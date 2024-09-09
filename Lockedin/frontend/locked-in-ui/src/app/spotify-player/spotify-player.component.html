@@ -1,0 +1,28 @@
+<div *ngIf="!accessToken">
+  <button (click)="login()">Login to Spotify</button>
+</div>
+
+<div *ngIf="accessToken">
+  <div>
+    <input type="text" placeholder="Search for tracks" #searchInput />
+    <button (click)="searchTracks(searchInput.value)">Search</button>
+  </div>
+
+  <div *ngIf="searchResults.length > 0">
+    <h3>Search Results:</h3>
+    <ul>
+      <li *ngFor="let track of searchResults">
+        {{ track.name }} by {{ track.artists[0].name }}
+        <button (click)="playTrack(track.uri)">Play</button>
+      </li>
+    </ul>
+  </div>
+
+  <button (click)="playTrack('spotify:track:4iV5W9uYEdYUVa79Axb7Rh')">Play Track</button>
+  <button (click)="pausePlayback()">Pause</button>
+  <button (click)="nextTrack()">Next</button>
+  <button (click)="previousTrack()">Previous</button>
+</div>
+
+
+

@@ -1,0 +1,12 @@
+<div class="themes-container">
+  <h1>Select a Theme</h1>
+  <div class="themes-gallery">
+    <img *ngFor="let theme of themes"
+         [src]="theme"
+         [alt]="theme"
+         class="theme-image"
+         (click)="changeTheme(theme)"
+         [class.selected]="theme === selectedTheme">
+  </div>
+</div>
+

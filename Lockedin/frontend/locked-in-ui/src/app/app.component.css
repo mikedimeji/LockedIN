@@ -1,0 +1,118 @@
+/* Container for the sidenav */
+.sidenav {
+  position: fixed;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 10px;
+  z-index: 1000;
+}
+
+/* Styling for each nav item */
+.nav-item {
+  width: 50px;
+  height: 50px;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.nav-item:hover {
+  background: rgba(128, 0, 128, 0.6);
+  transform: scale(1.05);
+}
+
+/* Hero section */
+/* Hero section */
+.hero {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Background video */
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure video covers entire container */
+  z-index: -1; /* Place video behind other content */
+}
+
+/* Background image */
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover; /* Ensure image covers entire container */
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1; /* Place image behind other content */
+}
+
+/* Login container */
+.login-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.login-button {
+  padding: 10px 20px;
+  font-family: bitF1;
+  font-size: 18px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
+}
+
+.spotify-player {
+  margin-top: 10px; /* Space between the player and the buttons */
+  display: flex;
+  justify-content: center;
+}
+
+.spotify-player button {
+  background-color: #1db954;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.spotify-player button:hover {
+  background-color: #1ed760;
+}
+
+
+
+
+
+
+
+
+
+
+
+

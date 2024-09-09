@@ -1,0 +1,45 @@
+<div class="login-container">
+  <button class="login-button" (click)="showRegister()">Register</button>
+  <button class="login-button" (click)="showLogin()">Login</button>
+
+  <!-- Spotify Player Component -->
+  <app-spotify-player></app-spotify-player>
+</div>
+
+<!-- Minimalist sidenav sitting on top of the background -->
+<div class="sidenav">
+  <img class="nav-item" src="assets/images/homeretro.png" alt="Home" title="Home" routerLink="/timer">
+  <img class="nav-item" src="assets/images/disksssssss1.png" alt="Games" title="Games" (click)="navigateTo('about')">
+  <img class="nav-item" src="assets/images/savessssss1.png" alt="Themes" title="Themes" (click)="navigateTo('themes')">
+  <img class="nav-item" src="assets/images/heartsssss1.png" alt="About" title="About" (click)="navigateTo('about')">
+</div>
+
+<!-- Hero section with dynamic background -->
+<div class="hero">
+  <!-- Conditionally render background video or image -->
+  <video *ngIf="isVideoBackground" autoplay muted loop playsinline class="background-video">
+    <source [src]="selectedTheme" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div *ngIf="!isVideoBackground" class="background-image" [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}"></div>
+
+  <!-- Other content of your app -->
+  <router-outlet></router-outlet>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
