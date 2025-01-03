@@ -24,7 +24,7 @@ CREATE TABLE revisiontopic (
 -- Sample data insertion (optional)
 INSERT INTO user (username, email, password, role) VALUES
                                                        ('john_doe', 'john@example.com', 'password123', 'ROLE_USER'),
-                                                       ('admin', 'admin@example.com', 'adminpass', 'ROLE_ADMIN');
+                                                       ('admin', 'admin@example.com', '$2a$10$EixZaYVK1fsbw1Zfbx3OpI.QnJIsw2REedFf8RgC2pvXbZSZceFpW', 'ROLE_ADMIN');
 
 INSERT INTO revisiontopic (user_id, title, description, pomodoro_number) VALUES
                                                                              (1, 'Math Revision', 'Algebra and Geometry', 5),
@@ -33,3 +33,5 @@ INSERT INTO revisiontopic (user_id, title, description, pomodoro_number) VALUES
 -- Ensure that the AUTO_INCREMENT values start from a specific number if needed
 ALTER TABLE user AUTO_INCREMENT = 1;
 ALTER TABLE revisiontopic AUTO_INCREMENT = 1;
+
+

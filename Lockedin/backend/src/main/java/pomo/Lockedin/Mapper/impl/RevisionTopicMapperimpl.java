@@ -2,6 +2,7 @@ package pomo.Lockedin.Mapper.impl;
 
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pomo.Lockedin.Mapper.Mapper;
 import pomo.Lockedin.dto.RevisionTopicDTO;
@@ -11,7 +12,7 @@ import pomo.Lockedin.entities.RevisionTopic;
 @Component
 public class RevisionTopicMapperimpl implements Mapper<RevisionTopicDTO, RevisionTopic> {
 
-
+    @Autowired
     private ModelMapper modelMapper;
 
 

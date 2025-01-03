@@ -1,6 +1,7 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { isPlatformBrowser, NgIf, NgClass } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -10,10 +11,10 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   styleUrls: ['./timer.component.css'],
   imports: [
     NgClass,
-    NgIf
+    NgIf,
   ]
 })
-export class TimerComponent {
+export class TimerComponent implements OnInit{
 
   minutes: number = 25;
   seconds: number = 0;
@@ -25,12 +26,29 @@ export class TimerComponent {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private route: ActivatedRoute
   ) {
     // Only create the audio object if we're running in the browser
     if (isPlatformBrowser(this.platformId)) {
       this.audio = new Audio('/assets/sounds/soundbit.wav');
     }
+  }
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      const duration = params['duration'];
+      if(duration) {
+        this.setDuration(+duration);
+        this.startTimer();
+      }
+    })
+  }
+
+  setDuration(durationInMinutes: number): void {
+    this.hours = Math.floor(durationInMinutes / 60);
+    this.minutes = durationInMinutes % 60;
+    this.seconds = 0;
   }
 
   startTimer(): void {

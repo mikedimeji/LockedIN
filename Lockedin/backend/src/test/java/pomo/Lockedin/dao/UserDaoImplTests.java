@@ -43,7 +43,7 @@ public class UserDaoImplTests {
         String tEmail = "oladimeji.michael12345@gmail.com";
 
 
-        userTest.findUserByEmail(tEmail);
+        userTest.findUserByEmailOrUsername(tEmail);
 
 
         verify(jdbcTemplate).query(

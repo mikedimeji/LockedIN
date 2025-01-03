@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import pomo.Lockedin.Requests.AuthenticationRequest;
 import pomo.Lockedin.Requests.RegisterRequest;
@@ -16,7 +19,7 @@ import pomo.Lockedin.entities.User;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationService implements UserDetailsService{
 
     private final UserDaoImpl userDao;
     private final PasswordEncoder passwordEncoder;
@@ -24,6 +27,12 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Check if email already exists
+        if (userDao.findUserByEmailOrUsername(request.getEmail()).isPresent()) {
+            // If email is already taken, throw an exception or return a response
+            throw new IllegalArgumentException("Email Taken");
+        }
+
         var user = User.builder()
                 .username(request.getUsername())
                 .email(request.getEmail())
@@ -32,13 +41,11 @@ public class AuthenticationService {
                 .build();
         userDao.createUser(user);
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
-
-
-
-        
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -49,12 +56,20 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user = userDao.findUserByEmail(request.getEmail())
+        var user = userDao.findUserByEmailOrUsername(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
+                .refreshToken(refreshToken)
                 .build();
 
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userDao.findUserByEmailOrUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
     }
 }

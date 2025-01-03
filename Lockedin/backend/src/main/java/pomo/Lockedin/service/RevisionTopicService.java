@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import pomo.Lockedin.Mapper.Mapper;
 import pomo.Lockedin.dao.impl.RevisionTopicImpl;
 import pomo.Lockedin.dto.RevisionTopicDTO;
@@ -36,6 +37,14 @@ public class RevisionTopicService {
         } else {
             throw new RuntimeException("No Revision Topics Found For User Id: " + UserId);
         }
+    }
+
+    public RevisionTopicDTO createRevisionTopic(RevisionTopicDTO revisionTopicDTO) {
+
+        RevisionTopic revisionTopic = rtoMapper.mapTo(revisionTopicDTO);
+        revisionTopicRepo.createRevisionTopic(revisionTopic);
+        // Return the same DTO or fetch it again if needed
+        return rtoMapper.mapFrom(revisionTopic);
     }
 
 }

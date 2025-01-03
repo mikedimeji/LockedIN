@@ -1,6 +1,10 @@
+<!-- app.component.html -->
 <div class="login-container">
-  <button class="login-button" (click)="showRegister()">Register</button>
-  <button class="login-button" (click)="showLogin()">Login</button>
+  <button *ngIf="authService.isLoggedIn(); else showLoginRegister" class="login-button" (click)="onSignOut()">Sign Out</button>
+  <ng-template #showLoginRegister>
+    <button class="login-button" (click)="showRegister()">Register</button>
+    <button class="login-button" (click)="showLogin()">Login</button>
+  </ng-template>
 
   <!-- Spotify Player Component -->
   <app-spotify-player></app-spotify-player>
@@ -9,7 +13,7 @@
 <!-- Minimalist sidenav sitting on top of the background -->
 <div class="sidenav">
   <img class="nav-item" src="assets/images/homeretro.png" alt="Home" title="Home" routerLink="/timer">
-  <img class="nav-item" src="assets/images/disksssssss1.png" alt="Games" title="Games" (click)="navigateTo('about')">
+  <img class="nav-item" src="assets/images/disksssssss1.png" alt="planner" title="planner" (click)="navigateTo('planner')">
   <img class="nav-item" src="assets/images/savessssss1.png" alt="Themes" title="Themes" (click)="navigateTo('themes')">
   <img class="nav-item" src="assets/images/heartsssss1.png" alt="About" title="About" (click)="navigateTo('about')">
 </div>
@@ -26,6 +30,7 @@
   <!-- Other content of your app -->
   <router-outlet></router-outlet>
 </div>
+
 
 
 

@@ -1,6 +1,7 @@
 package pomo.Lockedin.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,16 +17,23 @@ import pomo.Lockedin.dao.impl.UserDaoImpl;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationConfig{
 
     private final UserDaoImpl userDaoimpl;
 
     @Bean
-    public UserDetailsService userDetailsService(){
-        return username -> userDaoimpl.findUserByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
-
+    public UserDetailsService userDetailsService() {
+        return username -> {
+            log.debug("Attempting to load user by username: {}", username);
+            return userDaoimpl.findUserByEmailOrUsername(username)
+                    .orElseThrow(() -> {
+                        log.error("User not found for username: {}", username);
+                        return new UsernameNotFoundException("User Not Found");
+                    });
+        };
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

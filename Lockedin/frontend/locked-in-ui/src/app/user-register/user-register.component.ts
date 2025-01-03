@@ -1,19 +1,19 @@
 import { Component } from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {CommonModule, NgIf} from "@angular/common";
-import {HttpClient, HttpClientModule} from "@angular/common/http";
-import {Router} from "@angular/router";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule, NgIf } from '@angular/common';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-register',
   standalone: true,
-    imports: [
-        HttpClientModule,
-        FormsModule,
-        NgIf,
-        ReactiveFormsModule,
-        CommonModule,
-    ],
+  imports: [
+    HttpClientModule,
+    FormsModule,
+    NgIf,
+    ReactiveFormsModule,
+    CommonModule,
+  ],
   templateUrl: './user-register.component.html',
   styleUrl: './user-register.component.css'
 })
@@ -26,11 +26,9 @@ export class UserRegisterComponent {
   errorMessage: string = '';
   successMessage: string = 'Register account successful';
 
-  constructor(private http: HttpClient, private router: Router) {
-  }
+  constructor(private http: HttpClient, private router: Router) {}
 
   validatePassword(password: string): boolean {
-
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
@@ -41,35 +39,43 @@ export class UserRegisterComponent {
   }
 
   handleRegister() {
-
-    //password logic
-    if (!this.validatePassword(this.password)){
+    if (!this.validatePassword(this.password)) {
       this.invalidRegister = true;
       this.errorMessage = 'Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters.';
       return;
     }
-    //username logic
+
     let bodyData = {
-      "username" : this.username,
-      "email" : this.email,
-      "password" : this.password,
+      "username": this.username,
+      "email": this.email,
+      "password": this.password,
     };
-    this.http.post("http://localhost:8080/api/home/auth/register", bodyData, {responseType: 'text'}).subscribe((resultData: any) =>
-    {
-      console.log(resultData);
-      this.RegisterSuccess = true;
 
-      if (resultData.message == "Email Taken"){
-        alert("this Email is already registered with an account, use a different email or log in");
+    this.http.post("http://localhost:8080/api/home/auth/register", bodyData).subscribe(
+      (resultData: any) => {
+        console.log(resultData);
+        if (resultData.token && resultData.refreshToken) {
+          localStorage.setItem('authToken', resultData.token);
+          localStorage.setItem('refreshToken', resultData.refreshToken);
+          
+          this.RegisterSuccess = true;
+          this.router.navigateByUrl('/');
+        } else if (resultData.message === "Email Taken") {
+          this.invalidRegister = true;
+          this.errorMessage = "This email is already registered. Use a different email or log in.";
+        }
+      },
+      (error: any) => {
+        console.error("An error occurred connecting to the server or servers are temporarily down", error);
+        this.invalidRegister = true;
+        this.errorMessage = "An error occurred. Please try again later.";
       }
+    );
+  }
 
-      else if(resultData.message == "Account Created"){
-        this.RegisterSuccess = true;
-        this.router.navigateByUrl('/log-in');
-
-      }
-
-    });
-
+  closeRegisterScreen() {
+    // Navigate back to home or login screen
+    this.router.navigateByUrl('/');
   }
 }
+

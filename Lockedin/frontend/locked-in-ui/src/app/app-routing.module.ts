@@ -5,6 +5,8 @@ import { UserLoginComponent } from './user-login/user-login.component';
 import { UserRegisterComponent } from './user-register/user-register.component';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import {ThemesComponent} from "./themes/themes.component";
+import { PlannerComponent } from './planner/planner.component';
+import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
   { path: '', redirectTo: '/timer', pathMatch: 'full' }, // Default route
@@ -13,6 +15,7 @@ const routes: Routes = [
   { path: 'login', component: UserLoginComponent },
   { path: 'register', component: UserRegisterComponent },
   { path: 'themes', component: ThemesComponent },
+  { path: 'planner', component: PlannerComponent, canActivate: [AuthGuard] },
 ];
 
 export const appRoutingProviders = [

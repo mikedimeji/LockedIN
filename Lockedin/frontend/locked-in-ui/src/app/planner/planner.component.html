@@ -1,1 +1,53 @@
-<p>planner works!</p>
+<div class="planner-container">
+  <h1 class="title">Retro Planner</h1>
+  <div class="topic-list">
+    <!-- Create Revision Topic Card -->
+    <div class="create-topic-card" (click)="toggleForm()">
+      <div class="card-content">
+        <p>+ Create New Topic</p>
+      </div>
+    </div>
+
+    <!-- Topic Cards -->
+    <div 
+      class="topic-card" 
+      *ngFor="let topic of topics; let i = index" 
+      [attr.data-index]="i"
+    >
+      <button class="swipe-left-btn" (click)="prevTopic(i)" [hidden]="i === 0">
+        &larr;
+      </button>
+      <h3 class="topic-title">{{ topic.title }}</h3>
+      <p class="topic-description">{{ topic.description }}</p>
+      <span class="pomodoro-count">Pomodoro Count: {{ topic.pomodoroNumber }}</span>
+      
+      <!-- Start Timer Icon -->
+      <img 
+        src="assets/start_icon.png" 
+        alt="Start Timer" 
+        class="start-icon" 
+        (click)="startTimer(topic.pomodoroNumber)" 
+      />
+
+      <button class="swipe-right-btn" (click)="nextTopic(i)" [hidden]="i === topics.length - 1">
+        &rarr;
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal for Form -->
+  <div class="modal" *ngIf="showForm">
+    <div class="modal-content">
+      <h2>Create a New Topic</h2>
+      <input type="text" [(ngModel)]="newTopic.title" placeholder="Enter Title" class="input-field" />
+      <textarea [(ngModel)]="newTopic.description" placeholder="Enter Description" class="input-field"></textarea>
+      <input type="number" [(ngModel)]="newTopic.pomodoroNumber" placeholder="Pomodoro Count" class="input-field" />
+      <button (click)="createTopic()" class="btn retro-btn">Create Topic</button>
+      <button (click)="toggleForm()" class="btn retro-btn close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+
+
+  

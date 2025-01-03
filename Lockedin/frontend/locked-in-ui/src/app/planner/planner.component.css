@@ -1,0 +1,186 @@
+/* General styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Press Start 2P', cursive;
+    background: #222222;
+    color: #ffffff;
+  }
+  
+  .planner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 3rem;
+    color: #00ff00;
+    text-shadow: 2px 2px 4px rgba(0, 255, 0, 0.6);
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .topic-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 50px;
+  }
+  
+  .topic-card {
+    background-color: #333;
+    border: 2px solid #00ff00;
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    transition: transform 0.3s ease;
+  }
+  
+  .topic-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .topic-title {
+    font-size: 1.5rem;
+    color: #00ff00;
+  }
+  
+  .topic-description {
+    font-size: 1rem;
+    color: #ffffff;
+    margin-top: 10px;
+  }
+  
+  .pomodoro-count {
+    font-size: 1.2rem;
+    color: #ff0000;
+    margin-top: 10px;
+  }
+  
+  /* Form styling */
+  .create-topic-form {
+    text-align: center;
+    background-color: #333;
+    padding: 20px;
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #222;
+    color: #fff;
+    border: 2px solid #00ff00;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+  
+  .input-field:focus {
+    border-color: #ff00ff;
+    outline: none;
+  }
+  
+  .retro-btn {
+    background-color: #ff00ff;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+  }
+  
+  .retro-btn:hover {
+    transform: scale(1.1);
+    background-color: #00ff00;
+  }
+  
+  .retro-btn:active {
+    transform: scale(1);
+  }
+
+  /* Create Topic Card */
+.create-topic-card {
+  background-color: #444;
+  border: 2px dashed #00ff00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px;
+  height: 150px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.create-topic-card:hover {
+  transform: scale(1.05);
+  background-color: #555;
+}
+
+.card-content p {
+  color: #00ff00;
+  font-size: 1.2rem;
+}
+
+/* Swipe Buttons */
+.swipe-left-btn,
+.swipe-right-btn {
+  background-color: transparent;
+  color: #00ff00;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.swipe-left-btn:hover,
+.swipe-right-btn:hover {
+  color: #ff00ff;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #222;
+  padding: 20px;
+  border: 2px solid #00ff00;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+}
+
+.close-btn {
+  background-color: #ff0000;
+  margin-top: 10px;
+}
+
+
+  

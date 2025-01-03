@@ -24,6 +24,7 @@
     "@angular/router": "^17.2.0",
     "@angular/ssr": "^17.2.1",
     "express": "^4.18.2",
+    "locked-in-ui": "file:",
     "rxjs": "~7.8.0",
     "spotify-web-api-js": "^1.5.2",
     "tslib": "^2.3.0",

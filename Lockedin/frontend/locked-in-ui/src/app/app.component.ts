@@ -9,6 +9,8 @@ import { UserRegisterComponent } from './user-register/user-register.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { ThemesComponent } from './themes/themes.component';
 import {SpotifyPlayerComponent} from "./spotify-player/spotify-player.component";
+import {PlannerComponent} from "./planner/planner.component";
+import { AuthService } from './auth.service'; // Import the AuthService
 
 @Component({
   standalone: true,
@@ -21,6 +23,7 @@ import {SpotifyPlayerComponent} from "./spotify-player/spotify-player.component"
     TimerComponent,
     UserRegisterComponent,
     UserLoginComponent,
+    PlannerComponent,
     ConfirmDialogComponent,
     RouterOutlet,
     RouterLink,
@@ -34,7 +37,7 @@ export class AppComponent implements OnInit {
   isRegisterMode = false;
   isLoginMode = false;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private router: Router) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private router: Router, public authService: AuthService) {}
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -59,6 +62,10 @@ export class AppComponent implements OnInit {
 
   showLogin() {
     this.router.navigate(['/login']);
+  }
+
+  onSignOut(): void {
+    this.authService.signOut();
   }
 }
 
