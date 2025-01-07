@@ -16,8 +16,9 @@ export class ThemesComponent {
     'assets/videos/gif2-watering.gif',
     'assets/videos/gif38bit-restaurant.gif',
     'assets/videos/gif1-Coumputerstore.gif',
-    'assets/videos/gif4-rainyfrog.gif',
-    'assets/videos/yumenikki.mp4'
+    'assets/videos/mario.gif',
+    'assets/videos/cathargic_day.gif',
+    'assets/videos/yumenikki.mp4',
   ];
 
   selectedTheme: string = this.themes[0]; // Default theme

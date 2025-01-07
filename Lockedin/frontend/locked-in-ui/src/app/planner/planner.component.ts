@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from "@angular/common";
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { HttpClient, HttpClientModule, HttpHeaders } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -21,25 +21,30 @@ export class PlannerComponent implements OnInit {
   newTopic = { title: '', description: '', pomodoroNumber: 1 };
   currentTopicIndex = 0; // Tracks the current topic being displayed
   showForm = false; // Toggles the display of the form modal
+  isCarousel = false; // Track whether to show carousel view or not
+  private audio: HTMLAudioElement | null = null;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object,) {
+    if (isPlatformBrowser(this.platformId)) {
+      this.audio = new Audio('/assets/sounds/click.mp3');
+      console.log('Audio object initialized:', this.audio);
+    }
+  }
 
   ngOnInit(): void {
     this.getRevisionTopics();
   }
 
-  // Get the JWT token from local storage
   private getAuthToken(): string | null {
     return localStorage.getItem('authToken');
   }
 
-  // Fetch all revision topics for the logged-in user
   getRevisionTopics(): void {
     const token = this.getAuthToken();
 
     if (!token) {
       console.log("User is not authenticated.");
-      this.router.navigateByUrl('/login'); // Redirect to login if no token is found
+      this.router.navigateByUrl('/login'); 
       return;
     }
 
@@ -54,7 +59,7 @@ export class PlannerComponent implements OnInit {
       )
       .subscribe(
         (response) => {
-          this.topics = response; // Update the topics array with the data fetched from the backend
+          this.topics = response;
         },
         (error) => {
           console.error('Error fetching revision topics:', error);
@@ -63,19 +68,17 @@ export class PlannerComponent implements OnInit {
       );
   }
 
-  // Create a new revision topic
   createTopic(): void {
     console.log("Creating topic");
     const token = this.getAuthToken();
 
     if (!token) {
       alert('User is not authenticated. Please log in.');
-      this.router.navigateByUrl('/login'); // Redirect to login if no token is found
+      this.router.navigateByUrl('/login');
       return;
     }
 
     if (!this.newTopic.title || !this.newTopic.description || this.newTopic.pomodoroNumber < 1) {
-      console.log("Error");
       alert('Please fill in all fields with valid values.');
       return;
     }
@@ -96,9 +99,9 @@ export class PlannerComponent implements OnInit {
       )
       .subscribe(
         (createdTopic) => {
-          this.topics.push(createdTopic); // Add the newly created topic to the list
-          this.newTopic = { title: '', description: '', pomodoroNumber: 1 }; // Reset the form fields
-          this.toggleForm(); // Close the modal after creation
+          this.topics.push(createdTopic);
+          this.newTopic = { title: '', description: '', pomodoroNumber: 1 };
+          this.toggleForm(); 
           alert('Revision topic created successfully!');
         },
         (error) => {
@@ -108,35 +111,54 @@ export class PlannerComponent implements OnInit {
       );
   }
 
-  // Navigate to the next topic
-  nextTopic(index: number): void {
-    if (index < this.topics.length - 1) {
-      this.currentTopicIndex = index + 1;
+  nextTopic(): void {
+    if (this.currentTopicIndex < this.topics.length - 1) {
+      this.currentTopicIndex++;
+      if (this.audio) {
+        this.audio.play();
+      }
     } else {
       alert("No more topics available.");
     }
   }
 
-  // Navigate to the previous topic
-  prevTopic(index: number): void {
-    if (index > 0) {
-      this.currentTopicIndex = index - 1;
+  prevTopic(): void {
+    if (this.currentTopicIndex > 0) {
+      this.currentTopicIndex--;
+      if (this.audio) {
+        this.audio.play();
+      }
     } else {
-      alert("This is the first topic.");
+      alert("No previous topics.");
     }
   }
 
   startTimer(pomodoroNumber: number): void {
-    const durationInMinutes = pomodoroNumber * 25; // Calculate total minutes
+    const durationInMinutes = pomodoroNumber * 25;
     console.log(`Starting timer for ${durationInMinutes} minutes.`);
-    // Route to the timer component with the duration as a parameter
     this.router.navigate(['/timer'], { queryParams: { duration: durationInMinutes } });
   }
 
-  // Toggle the visibility of the form modal
+  // Handle toggle between carousel and create topic view
+  toggleScreen(direction: string): void {
+    if (direction === 'down') {
+      if (this.audio) {
+        this.audio.play();
+      }
+      this.isCarousel = true; // Switch to carousel view
+    } else if (direction === 'up') {
+      if (this.audio) {
+        this.audio.play();
+      }
+      this.isCarousel = false; // Switch back to Create Topic view
+    }
+  }
+  
+
   toggleForm(): void {
     this.showForm = !this.showForm;
   }
 }
+
 
 

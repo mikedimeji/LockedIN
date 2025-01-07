@@ -1,52 +1,58 @@
 <div class="planner-container">
-  <h1 class="title">Retro Planner</h1>
-  <div class="topic-list">
-    <!-- Create Revision Topic Card -->
-    <div class="create-topic-card" (click)="toggleForm()">
+  <h1 class="title">Planner</h1>
+  
+  <div class="topic-display">
+    <!-- Down Arrow (only in Create Topic view) -->
+    <button class="nav-arrow down-arrow" (click)="toggleScreen('down')" *ngIf="!isCarousel">
+      <img src="assets/images/down_arrow.png" alt="Down Arrow" />
+    </button>
+
+    <!-- Create Topic Card -->
+    <div class="create-topic-card" *ngIf="!isCarousel" (click)="toggleForm()">
       <div class="card-content">
         <p>+ Create New Topic</p>
       </div>
     </div>
-
-    <!-- Topic Cards -->
-    <div 
-      class="topic-card" 
-      *ngFor="let topic of topics; let i = index" 
-      [attr.data-index]="i"
-    >
-      <button class="swipe-left-btn" (click)="prevTopic(i)" [hidden]="i === 0">
-        &larr;
+    
+    <!-- Topic Card with Navigation -->
+    <div class="topic-carousel-container" *ngIf="isCarousel">
+      <!-- Up Arrow -->
+      <button class="nav-arrow up-arrow" (click)="toggleScreen('up')">
+        <img src="assets/images/up_arrow.png" alt="Up Arrow" />
       </button>
-      <h3 class="topic-title">{{ topic.title }}</h3>
-      <p class="topic-description">{{ topic.description }}</p>
-      <span class="pomodoro-count">Pomodoro Count: {{ topic.pomodoroNumber }}</span>
-      
-      <!-- Start Timer Icon -->
-      <img 
-        src="assets/start_icon.png" 
-        alt="Start Timer" 
-        class="start-icon" 
-        (click)="startTimer(topic.pomodoroNumber)" 
-      />
 
-      <button class="swipe-right-btn" (click)="nextTopic(i)" [hidden]="i === topics.length - 1">
-        &rarr;
+      <!-- Left Arrow -->
+      <button class="nav-arrow left-arrow" (click)="prevTopic()" [hidden]="currentTopicIndex === 0">
+        <img src="assets/images/left_arrow2.png" alt="Left Arrow" />
+      </button>
+
+      <!-- Topic Card -->
+      <div class="topic-card">
+        <h3 class="topic-title">{{ topics[currentTopicIndex].title }}</h3>
+        <p class="topic-description">{{ topics[currentTopicIndex].description }}</p>
+        <span class="pomodoro-count">Pomodoro Count: {{ topics[currentTopicIndex].pomodoroNumber }}</span>
+        
+        <div class="start-icon" (click)="startTimer(topics[currentTopicIndex].pomodoroNumber)">
+          <img src="assets/images/start_icon2.png" alt="Start Timer" />
+        </div>
+      </div>
+
+      <!-- Right Arrow -->
+      <button class="nav-arrow right-arrow" (click)="nextTopic()" [hidden]="currentTopicIndex === topics.length - 1">
+        <img src="assets/images/right_arrow.png" alt="Right Arrow" />
       </button>
     </div>
   </div>
 
-  <!-- Modal for Form -->
+  <!-- Modal Form -->
   <div class="modal" *ngIf="showForm">
-    <div class="modal-content">
-      <h2>Create a New Topic</h2>
-      <input type="text" [(ngModel)]="newTopic.title" placeholder="Enter Title" class="input-field" />
-      <textarea [(ngModel)]="newTopic.description" placeholder="Enter Description" class="input-field"></textarea>
-      <input type="number" [(ngModel)]="newTopic.pomodoroNumber" placeholder="Pomodoro Count" class="input-field" />
-      <button (click)="createTopic()" class="btn retro-btn">Create Topic</button>
-      <button (click)="toggleForm()" class="btn retro-btn close-btn">Close</button>
-    </div>
+    <!-- ... modal content ... -->
   </div>
 </div>
+
+
+
+
 
 
 
