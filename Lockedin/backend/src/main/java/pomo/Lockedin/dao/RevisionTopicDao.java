@@ -9,4 +9,6 @@ public interface RevisionTopicDao{
     void createRevisionTopic(RevisionTopic revisionTopic);
 
     Optional<List<RevisionTopic>> getAllRevisionTopicsForUser(Long userId);
+
+    void deleteRevisionTopic(Long id);
 }

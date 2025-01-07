@@ -55,4 +55,10 @@ public class RevisionTopicController {
         return revisionTopicService.createRevisionTopic(revisionTopicDTO);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRevisionTopic(@PathVariable Long id) {
+        revisionTopicService.deleteRevisionTopicById(id);
+    }
+
 }

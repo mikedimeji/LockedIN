@@ -265,6 +265,79 @@ body {
 }
 
 
+/* form styling */
+
+.modal-content {
+  background-color: #222222;
+  border: 2px solid #43B57B;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(67, 181, 123, 0.6);
+  width: 90%;
+  max-width: 400px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #333333;
+  color: #ffffff;
+  border: 2px solid #43B57B;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.retro-btn {
+  background-color: #43B57B;
+  color: #ffffff;
+  font-size: 1.2rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+  margin: 5px;
+}
+
+.retro-btn:hover {
+  transform: scale(1.1);
+  background-color: #2d8c5f;
+}
+
+.retro-btn:active {
+  transform: scale(1);
+}
+
+.close-btn {
+  background-color: #ff4444;
+}
+
+.close-btn:hover {
+  background-color: #cc0000;
+}
+
+/* delete button styling */
+
+.delete-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}
+
+
+
+
 
 
 

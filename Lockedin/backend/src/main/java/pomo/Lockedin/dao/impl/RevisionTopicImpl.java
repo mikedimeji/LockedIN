@@ -36,6 +36,12 @@ public class RevisionTopicImpl implements RevisionTopicDao {
         return results.isEmpty() ? Optional.empty() : Optional.of(results);
     }
 
+    @Override
+    public void deleteRevisionTopic(Long id) {
+        String sql = "DELETE FROM revisiontopic WHERE revision_topic_id = ?";
+        jdbcTemplate.update(sql, id);  // Example using jdbcTemplate
+    }
+
     public static class RevisionTopicRowMapper implements RowMapper<RevisionTopic> {
         @Override
         public RevisionTopic mapRow(ResultSet rs, int rowNum) throws SQLException {

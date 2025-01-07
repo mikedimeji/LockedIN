@@ -47,4 +47,7 @@ public class RevisionTopicService {
         return rtoMapper.mapFrom(revisionTopic);
     }
 
+    public void deleteRevisionTopicById(Long id) {
+        revisionTopicRepo.deleteRevisionTopic(id);
+    }
 }
