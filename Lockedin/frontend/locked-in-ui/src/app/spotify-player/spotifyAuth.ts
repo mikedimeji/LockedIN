@@ -19,7 +19,16 @@ export class SpotifyAuthService {
   ) {}
 
   getAuthUrl(): string {
-    const scopes = 'user-read-playback-state user-modify-playback-state';
+    const scopes = [
+      'streaming',              // Required for Web Playback SDK
+      'user-read-email',       // Basic user info
+      'user-read-private',     // Basic user info
+      'user-read-playback-state',      // Read playback state
+      'user-modify-playback-state',    // Control playback
+      'user-read-currently-playing',   // Read current track
+      'app-remote-control'     // Remote control functionality
+    ].join(' ');
+
     return 'https://accounts.spotify.com/authorize' +
       '?response_type=code' +
       '&client_id=' + this.clientId +
@@ -44,6 +53,20 @@ export class SpotifyAuthService {
       return of(null);
     }
   }
+
+  refreshAccessToken(refreshToken: string): Observable<any> {
+    const body = new URLSearchParams();
+    body.set('grant_type', 'refresh_token');
+    body.set('refresh_token', refreshToken);
+  
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + btoa(this.clientId + ':' + this.clientSecret),
+    });
+  
+    return this.http.post(this.tokenEndpoint, body.toString(), { headers });
+  }
+  
 
   searchTracks(query: string, token: string) {
     const headers = new HttpHeaders({
