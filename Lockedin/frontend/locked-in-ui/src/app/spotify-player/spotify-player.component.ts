@@ -39,6 +39,16 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
   private retryAttempts = new BehaviorSubject<number>(0);
   private readonly MAX_RETRY_ATTEMPTS = 3;
   private readonly RETRY_DELAY = 1000;
+  dragging = false;
+  offsetX = 0;
+  offsetY = 0;
+  currentPlaybackPosition: number = 0;
+  playerPosition = { x: 16, y: 16 }; // Initial position
+  private isDragging = false;
+  private dragOffset = { x: 0, y: 0 };
+  isExpanded: boolean = false;
+  currentPlaylist: any = null;
+  private readonly PLAYLIST_ID = '4gZBb5gHqjAtPbghcNTVZW';
 
   constructor(
     private spotifyAuth: SpotifyAuthService,
@@ -58,19 +68,147 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
+  startDragging(event: MouseEvent, element: HTMLElement) {
+    this.isDragging = true;
+    const rect = element.getBoundingClientRect();
+    this.dragOffset = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+    // Prevent text selection while dragging
+    event.preventDefault();
+  }
+
+  // Add these methods to your component class
+  toggleExpanded() {
+    this.isExpanded = !this.isExpanded;
+    if (this.isExpanded && !this.currentPlaylist) {
+      this.loadPlaylist();
+    }
+  }
+
+  loadPlaylist() {
+    if (!this.accessToken) return;
+    
+    this.spotifyAuth.makeAuthorizedRequest(
+      `https://api.spotify.com/v1/playlists/${this.PLAYLIST_ID}`,
+      'GET',
+      null
+    ).subscribe({
+      next: (playlist: any) => {
+        this.currentPlaylist = playlist;
+        if (playlist.tracks.items.length > 0) {
+          // Optionally start playing the first track
+          // this.playTrack(playlist.tracks.items[0].track.uri);
+        }
+      },
+      error: (error) => {
+        this.setError('Error loading playlist: ' + error.message);
+      }
+    });
+  }
+  
+  formatDuration(ms: number): string {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+  
+  stopDragging() {
+    this.isDragging = false;
+  }
+  
+  onDragging(event: MouseEvent) {
+    if (this.isDragging) {
+      this.playerPosition = {
+        x: event.clientX - this.dragOffset.x,
+        y: event.clientY - this.dragOffset.y
+      };
+      // Keep the player within viewport bounds
+      this.playerPosition.x = Math.max(0, Math.min(window.innerWidth - 320, this.playerPosition.x));
+      this.playerPosition.y = Math.max(0, Math.min(window.innerHeight - 400, this.playerPosition.y));
+    }
+  }
+
+  togglePlayPause() {
+    if (this.isPlaying) {
+      // Pause playback
+      this.spotifyAuth.pausePlayback(this.spotifyAuth.accessToken!)
+        .pipe(
+          retryWhen(errors => 
+            errors.pipe(
+              delay(this.RETRY_DELAY),
+              take(3)
+            )
+          )
+        )
+        .subscribe({
+          next: () => {
+            this.isPlaying = false;
+            console.log('Playback paused');
+          },
+          error: (error) => {
+            if (error.status === 401) {
+              // Handle expired token
+              this.refreshTokenAndRetry(() => this.togglePlayPause());
+            } else {
+              this.setError('Error pausing playback: ' + error.message);
+            }
+          },
+        });
+    } else {
+      // Resume playback
+      const body = this.currentPlaybackPosition
+        ? { position_ms: this.currentPlaybackPosition }
+        : null;
+  
+      const url = `https://api.spotify.com/v1/me/player/play`;
+  
+      this.spotifyAuth
+        .makeAuthorizedRequest(url, 'PUT', body)
+        .pipe(
+          retryWhen(errors => 
+            errors.pipe(
+              delay(this.RETRY_DELAY),
+              take(3)
+            )
+          )
+        )
+        .subscribe({
+          next: () => {
+            this.isPlaying = true;
+            console.log('Playback resumed');
+          },
+          error: (error) => {
+            if (error.status === 401) {
+              // Handle expired token
+              this.refreshTokenAndRetry(() => this.togglePlayPause());
+            } else {
+              this.setError('Error resuming playback: ' + error.message);
+            }
+          },
+        });
+    }
+  }
+  
+  
+
   login() {
     if (isPlatformBrowser(this.platformId)) {
       window.location.href = this.spotifyAuth.getAuthUrl();
     }
   }
 
+  // In SpotifyPlayerComponent's getAccessToken method
   getAccessToken(code: string) {
     this.spotifyAuth.getAccessToken(code).subscribe({
       next: (response) => {
         this.accessToken = response.access_token;
+        this.spotifyAuth.accessToken = response.access_token;
         localStorage.setItem('spotify_access_token', response.access_token);
         localStorage.setItem('spotify_refresh_token', response.refresh_token);
         this.loadSpotifyPlayer();
+        this.loadPlaylist(); // Add this line to load playlist after authentication
       },
       error: (error) => {
         this.setError('Error getting access token: ' + error.message);
@@ -149,11 +287,14 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
       console.log('Device ID has gone offline', device_id);
     });
 
-    this.player.addListener('player_state_changed', (state: SpotifyPlayerState | null) => {
+    this.player.addListener('player_state_changed', (state: any) => {
       if (state) {
         this.isPlaying = !state.paused;
+        this.currentPlaybackPosition = state.position; // Capture current position
+        console.log('Current playback position:', this.currentPlaybackPosition);
       }
     });
+       
   }
 
   private connectPlayer() {
@@ -270,6 +411,33 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
+  resumePlayback() {
+    if (this.deviceId && this.spotifyAuth.accessToken) {
+      const url = `https://api.spotify.com/v1/me/player/play`;
+      const body = {
+        position_ms: this.currentPlaybackPosition, // Resume from the stored position
+        device_ids: [this.deviceId],
+      };
+  
+      this.spotifyAuth
+        .makeAuthorizedRequest(url, 'PUT', JSON.stringify(body))
+        .subscribe({
+          next: () =>
+            console.log(
+              'Playback resumed from position:',
+              this.currentPlaybackPosition
+            ),
+          error: (err) => this.setError('Error resuming playback: ' + err.message),
+        });
+    } else {
+      this.setError(
+        'Cannot resume playback. Ensure device ID and access token are available.'
+      );
+    }
+  }
+  
+  
+
   nextTrack() {
     if (this.accessToken) {
       this.spotifyAuth.nextTrack(this.accessToken)
@@ -357,6 +525,7 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             this.accessToken = response.access_token;
+            this.spotifyAuth.accessToken = response.access_token; // Set it in the service too
             localStorage.setItem('spotify_access_token', this.accessToken || '');
             if (response.refresh_token) {
               localStorage.setItem('spotify_refresh_token', response.refresh_token);

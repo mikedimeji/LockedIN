@@ -12,7 +12,15 @@ export class SpotifyAuthService {
   private redirectUri = 'http://localhost:4200/timer';
   private tokenEndpoint = 'https://accounts.spotify.com/api/token';
   private apiBase = 'https://api.spotify.com/v1';
+  private _accessToken: string | null = null;
 
+  set accessToken(token: string | null) {
+    this._accessToken = token;
+  }
+
+  get accessToken(): string | null {
+    return this._accessToken;
+  }
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -99,7 +107,19 @@ export class SpotifyAuthService {
     }, { headers });
   }
 
+  makeAuthorizedRequest(url: string, method: string, body: any) {
+    if (!this._accessToken) {
+      throw new Error('Access token is not set.');
+    }
 
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this._accessToken}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.request(method, url, { body, headers });
+  }
+  
   pausePlayback(accessToken: string): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${accessToken}`,

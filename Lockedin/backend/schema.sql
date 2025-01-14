@@ -8,7 +8,8 @@ CREATE TABLE user (
                       username VARCHAR(255) NOT NULL,
                       email VARCHAR(255) NOT NULL UNIQUE,
                       password VARCHAR(255) NOT NULL,
-                      role VARCHAR(50) NOT NULL
+                      role VARCHAR(50) NOT NULL,
+                      gold INT DEFAULT 0
 );
 
 -- Create the 'revisiontopic' table
@@ -21,6 +22,15 @@ CREATE TABLE revisiontopic (
                                FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE userstats (
+                            user_stats_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                            user_id BIGINT NOT NULL,
+                            hours_spent_revising_per_day FLOAT DEFAULT 0,
+                            days_revised_in_a_row INT DEFAULT 0,
+                            total_hours_revised FLOAT DEFAULT 0,
+                            FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
+);
+
 -- Sample data insertion (optional)
 INSERT INTO user (username, email, password, role) VALUES
                                                        ('john_doe', 'john@example.com', 'password123', 'ROLE_USER'),
@@ -29,6 +39,7 @@ INSERT INTO user (username, email, password, role) VALUES
 INSERT INTO revisiontopic (user_id, title, description, pomodoro_number) VALUES
                                                                              (1, 'Math Revision', 'Algebra and Geometry', 5),
                                                                              (2, 'Science Revision', 'Physics and Chemistry', 8);
+INSERT INTO userstats (user_id) SELECT user_id FROM user;
 
 -- Ensure that the AUTO_INCREMENT values start from a specific number if needed
 ALTER TABLE user AUTO_INCREMENT = 1;

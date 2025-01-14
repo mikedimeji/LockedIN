@@ -1,28 +1,105 @@
-<div *ngIf="!accessToken">
-  <button (click)="login()">Login to Spotify</button>
+<!-- Login View -->
+<div *ngIf="!accessToken" class="spotify-mini-player">
+  <button (click)="login()" class="login-button">
+    Login to Spotify to hear the full soundtrack
+  </button>
 </div>
 
-<div *ngIf="accessToken">
-  <div>
-    <input type="text" placeholder="Search for tracks" #searchInput />
-    <button (click)="searchTracks(searchInput.value)">Search</button>
+<!-- Player View -->
+<div *ngIf="accessToken" 
+     class="spotify-mini-player"
+     #playerElement
+     [class.expanded]="isExpanded"
+     [style.left.px]="playerPosition.x"
+     [style.top.px]="playerPosition.y"
+     (mousedown)="startDragging($event, playerElement)"
+     (document:mouseup)="stopDragging()"
+     (document:mousemove)="onDragging($event)">
+     
+  <!-- Header Bar -->
+  <div class="player-header">
+    <div class="window-controls">
+      <button class="control-icon">×</button>
+      <button class="control-icon">↗</button>
+      <button class="control-icon">⏲</button>
+      <button class="control-icon" (click)="toggleExpanded()">▶</button>
+    </div>
+    <span class="spotify-logo">Spotify</span>
   </div>
 
-  <div *ngIf="searchResults.length > 0">
-    <h3>Search Results:</h3>
-    <ul>
-      <li *ngFor="let track of searchResults">
-        {{ track.name }} by {{ track.artists[0].name }}
-        <button (click)="playTrack(track.uri)">Play</button>
-      </li>
-    </ul>
+  <!-- Main Content -->
+  <div class="player-content" [class.expanded]="isExpanded">
+    <!-- Expanded View Content -->
+    <div class="expanded-view" *ngIf="isExpanded && currentPlaylist">
+      <div class="playlist-header">
+        <img [src]="currentPlaylist?.images?.[0]?.url || '/assets/images/persona.jpg'" 
+             alt="Playlist Cover" 
+             class="playlist-cover">
+        <div class="playlist-info">
+          <h1>{{ currentPlaylist?.name }}</h1>
+          <h2>{{ currentPlaylist?.owner?.display_name }}</h2>
+          <button class="save-button">
+            <span class="plus-icon">+</span> Save on Spotify
+          </button>
+        </div>
+      </div>
+
+      <div class="playlist-tracks">
+        <div class="track-item" 
+             *ngFor="let track of currentPlaylist?.tracks?.items; let i = index"
+             (click)="playTrack(track.track.uri)">
+          <span class="track-number">{{ i + 1 }}</span>
+          <div class="track-info">
+            <span class="track-name">{{ track.track.name }}</span>
+            <span class="track-artist">{{ track.track.artists[0].name }}</span>
+          </div>
+          <span class="track-duration">{{ formatDuration(track.track.duration_ms) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact View Content -->
+    <div class="compact-view" *ngIf="!isExpanded">
+      <!-- Search Bar (visible on hover) -->
+      <div class="search-bar" (mousedown)="$event.stopPropagation()">
+        <input type="text"
+               placeholder="Enter your own Spotify playlist/song URL (optional)"
+               #searchInput
+               (click)="$event.stopPropagation()"
+               (keyup.enter)="searchTracks(searchInput.value)">
+        <button class="search-confirm" (click)="searchTracks(searchInput.value)">✓</button>
+      </div>
+
+      <!-- Playback Controls -->
+      <div class="playback-controls">
+        <button (click)="previousTrack()" class="skip-button">⏮</button>
+        <button (click)="togglePlayPause()" class="play-button">
+          {{ isPlaying ? '⏸' : '▶' }}
+        </button>
+        <button (click)="nextTrack()" class="skip-button">⏭</button>
+      </div>
+
+      <!-- Search Results -->
+      <div *ngIf="searchResults.length > 0" class="search-results">
+        <div *ngFor="let track of searchResults" class="track-item">
+          <div class="track-info">
+            <div class="track-name">{{ track.name }}</div>
+            <div class="track-artist">{{ track.artists[0].name }}</div>
+          </div>
+          <button class="play-track" (click)="playTrack(track.uri)">Play</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <button (click)="playTrack('spotify:track:4iV5W9uYEdYUVa79Axb7Rh')">Play Track</button>
-  <button (click)="pausePlayback()">Pause</button>
-  <button (click)="nextTrack()">Next</button>
-  <button (click)="previousTrack()">Previous</button>
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-toast">
+    {{ errorMessage }}
+  </div>
 </div>
+  
+  
+
 
 
 
