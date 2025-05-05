@@ -1,0 +1,58 @@
+<!-- Update ambience.component.html -->
+<div class="ambience-wrapper">
+  <div class="ambience-container" (click)="$event.stopPropagation()">
+    <div class="shimmer-1"></div>
+    <div class="shimmer-2"></div>
+    
+    <!-- Tab Navigation -->
+    <div class="ambience-tabs">
+      <div class="tab-button" 
+           [class.active]="activeTab === 'sounds'"
+           (click)="setActiveTab('sounds')">
+        Sounds
+      </div>
+      <div class="tab-button" 
+           [class.active]="activeTab === 'animations'"
+           (click)="setActiveTab('animations')">
+        Animations
+      </div>
+    </div>
+    
+    <!-- Content Area -->
+    <div class="ambience-content">
+      <!-- Add warning message when effects are disabled -->
+      <div *ngIf="warningMessage" class="warning-message">
+        {{ warningMessage }}
+      </div>
+      
+      <!-- Animations Tab Content -->
+      <div class="tab-content" *ngIf="activeTab === 'animations'">
+        <h2 class="content-title">Animations</h2>
+        
+        <div class="effects-list">
+          <div class="effect-item" *ngFor="let effect of effects" [class.disabled]="isEffectsDisabled">
+            <div class="effect-info">
+              <span class="effect-icon">{{ effect.icon }}</span>
+              <span class="effect-name">{{ effect.name }}</span>
+            </div>
+            <label class="toggle" [class.disabled]="isEffectsDisabled">
+              <input type="checkbox" 
+                     [checked]="effect.enabled" 
+                     (change)="toggleEffect(effect.id)"
+                     [disabled]="isEffectsDisabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <button class="reset-button" (click)="resetAll()" [disabled]="isEffectsDisabled">Reset All</button>
+      </div>
+      
+      <!-- Sounds Tab Content (placeholder) -->
+      <div class="tab-content" *ngIf="activeTab === 'sounds'">
+        <h2 class="content-title">Sounds</h2>
+        <p class="coming-soon">Sound effects coming soon!</p>
+      </div>
+    </div>
+  </div>
+</div>

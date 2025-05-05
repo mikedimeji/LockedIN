@@ -1,33 +1,114 @@
-<!-- app.component.html -->
-<div class="login-container">
-  <button *ngIf="authService.isLoggedIn(); else showLoginRegister" class="login-button" (click)="onSignOut()">Sign Out</button>
-  <ng-template #showLoginRegister>
-    <button class="login-button" (click)="showRegister()">Register</button>
-    <button class="login-button" (click)="showLogin()">Login</button>
-  </ng-template>
-
-  <!-- Spotify Player Component -->
-  <app-spotify-player></app-spotify-player>
+<!-- When not logged in -->
+<div *ngIf="!authService.isLoggedIn()" class="auth-buttons" ngSkipHydration>
+  <button class="register-button" (click)="showRegister()">Sign Up</button>
+  <button class="login-button" (click)="showLogin()">Login</button>
 </div>
 
-<!-- Minimalist sidenav sitting on top of the background -->
-<div class="sidenav">
-  <img class="nav-item" src="assets/images/homeretro.png" alt="Home" title="Home" routerLink="/timer">
-  <img class="nav-item" src="assets/images/disksssssss1.png" alt="planner" title="planner" (click)="navigateTo('planner')">
-  <img class="nav-item" src="assets/images/savessssss1.png" alt="Themes" title="Themes" (click)="navigateTo('themes')">
-  <img class="nav-item" src="assets/images/heartsssss1.png" alt="About" title="About" (click)="navigateTo('about')">
+<!-- When logged in - profile display -->
+<div *ngIf="authService.isLoggedIn()" class="profile-display" ngSkipHydration>
+  <div class="profile-pic">
+    <!-- Default profile image, can be replaced with user image later -->
+    <img src="assets/images/durarara1.jpg" alt="Profile">
+  </div>
+  <span class="username">{{ authService.getUsername() }}</span>
+  <button class="logout-button" (click)="onSignOut()">Sign Out</button>
 </div>
 
-<!-- Hero section with dynamic background -->
+<!-- Gold and Streak Display with ngIf to ensure it's shown only when logged in -->
+<div *ngIf="authService.isLoggedIn()" class="stats-display" ngSkipHydration>
+  <div class="stats-item">
+    <div class="icon-container">
+      <img src="assets/images/goldcoin.png" alt="Gold" title="Gold Balance">
+    </div>
+    <div class="value-container">
+      {{goldBalance}}
+    </div>
+  </div>
+  <div class="stats-item">
+    <div class="icon-container">
+      <img src="assets/images/fire.gif" alt="Streak" title="Current Streak">
+    </div>
+    <div class="value-container">
+      {{currentStreak}}
+    </div>
+  </div>
+</div>
+
+<!-- Spotify Player Component -->
+<app-spotify-player *ngIf="showSpotifyPlayer" ngSkipHydration></app-spotify-player>
+
+<!-- Ambience Component with closePanel event binding -->
+<app-ambience *ngIf="showAmbiencePanel" (closePanel)="toggleAmbiencePanel()" ngSkipHydration></app-ambience>
+
+<div class="nav-toggle-button" (click)="toggleNavVisibility()" [class.nav-hidden]="isNavHidden">
+  <span class="toggle-icon">
+    {{ isNavHidden ? '▼' : '▲' }}
+  </span>
+</div>
+
+<!-- Navigation bar -->
+<div class="retro-nav-container" [class.nav-hidden]="isNavHidden" ngSkipHydration>
+  <div class="retro-nav">
+    <div class="nav-item" routerLink="/themes" title="Theme">
+      <img src="assets/images/nav/theme.jpg" alt="Theme">
+      <span>Theme</span>
+    </div>
+    <div class="nav-item" (click)="toggleAmbiencePanel()" title="Ambience">
+      <img src="assets/images/nav/sun-cloud.png" alt="Ambience">
+      <span>Ambience</span>
+    </div>
+    <div class="nav-item" routerLink="/shop" title="shop">
+      <img src="assets/images/nav/two-coins.png" alt="shop">
+      <span>Shop</span>
+    </div>
+    <div class="nav-item" routerLink="/timer" title="Pomo">
+      <img src="assets/images/nav/alarm-clock.png" alt="Pomo">
+      <span>Pomo</span>
+    </div>
+    <div class="nav-item" (click)="toggleSpotifyPlayer()" title="Music">
+      <img src="assets/images/nav/musical-notes.png" alt="Music">
+      <span>Music</span>
+    </div>
+    <div class="nav-item" routerLink="/planner" title="Todo">
+      <img src="assets/images/nav/checklist.png" alt="Todo">
+      <span>Todo</span>
+    </div>
+    <div class="nav-item" routerLink="/stats" title="Stats">
+      <img src="assets/images/nav/star-flag.png" alt="Stats">
+      <span>Stats</span>
+    </div>
+    <div class="nav-item" (click)="navigateTo('journal')" title="Journal">
+      <img src="assets/images/nav/love-letter.png" alt="Journal">
+      <span>Journal</span>
+    </div>
+  </div>
+</div>
+
+<!-- Hero section with separate handling for GIFs -->
 <div class="hero">
-  <!-- Conditionally render background video or image -->
-  <video *ngIf="isVideoBackground" autoplay muted loop playsinline class="background-video">
+  <!-- MP4 videos -->
+  <video *ngIf="isVideoBackground && !selectedTheme.toLowerCase().endsWith('.gif')" 
+         autoplay muted loop playsinline 
+         class="background-video" 
+         ngSkipHydration>
     <source [src]="selectedTheme" type="video/mp4">
     Your browser does not support the video tag.
   </video>
-  <div *ngIf="!isVideoBackground" class="background-image" [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}"></div>
-
-  <!-- Other content of your app -->
+  
+  <!-- GIFs displayed as background images -->
+  <div *ngIf="isVideoBackground && selectedTheme.toLowerCase().endsWith('.gif')"
+       class="gif-background"
+       [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}"
+       ngSkipHydration>
+  </div>
+  
+  <!-- Static images -->
+  <div *ngIf="!isVideoBackground" 
+       class="background-image" 
+       [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}" 
+       ngSkipHydration>
+  </div>
+  
   <router-outlet></router-outlet>
 </div>
 

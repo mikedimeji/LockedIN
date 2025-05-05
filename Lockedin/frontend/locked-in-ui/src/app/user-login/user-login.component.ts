@@ -45,10 +45,14 @@ export class UserLoginComponent {
           } else {
             // If token is expired, remove it
             localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('username'); // Also remove username
           }
         } catch (error) {
           // If token decoding fails, remove the invalid token
           localStorage.removeItem('authToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('username'); // Also remove username
         }
       }
     }
@@ -59,47 +63,68 @@ export class UserLoginComponent {
     return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
   }
 
-  handleLogin() {
-    // Check if there's an existing token and skip the login process if valid
-    if (this.isBrowser()) {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        this.router.navigateByUrl('/timer');
-        return;
-      }
+  // Method to notify the app to refresh user data
+  private notifyAppToRefreshData(): void {
+    // 1. Dispatch a custom event
+    const refreshEvent = new CustomEvent('userDataRefreshNeeded', {
+      bubbles: true,
+      composed: true,
+      detail: { source: 'login' }
+    });
+    document.dispatchEvent(refreshEvent);
+    
+    // 2. Alternative approach: Modify app-root to trigger Angular change detection
+    const appRoot = document.querySelector('app-root');
+    if (appRoot) {
+      // Add a custom attribute that Angular can detect
+      appRoot.setAttribute('data-refresh-needed', Date.now().toString());
     }
+  }
 
+  handleLogin() {
     const bodyData = {
       email: this.email,
       password: this.password
     };
 
     // Call the login API
-    this.http.post<{ token?: string, refreshToken?: string, message?: string }>("http://localhost:8080/api/home/auth/Authenticate", bodyData)
-      .subscribe((resultData) => {
-        console.log(resultData);
+    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("http://localhost:8080/api/home/auth/Authenticate", bodyData)
+      .subscribe({
+        next: (resultData) => {
+          console.log(resultData);
 
-        //add && resultData.refreshToken when ready to if clause
-        if (resultData.token && resultData.refreshToken) {
-          // Successful login, store JWT token
-          console.log("Login successful, navigating to /timer");
-          this.loginSuccess = true;
-          if (this.isBrowser()) {
-            localStorage.setItem('authToken', resultData.token);
-            localStorage.setItem('refreshToken', resultData.refreshToken);
+          if (resultData.token && resultData.refreshToken) {
+            // Successful login, store JWT token
+            console.log("Login successful, navigating to /timer");
+            this.loginSuccess = true;
+            if (this.isBrowser()) {
+              localStorage.setItem('authToken', resultData.token);
+              localStorage.setItem('refreshToken', resultData.refreshToken);
+              // Also set last activity time
+              localStorage.setItem('lastActivityTime', Date.now().toString());
+              
+              // Store username if available
+              if (resultData.username) {
+                localStorage.setItem('username', resultData.username);
+              }
+            }
+            
+            // Notify app to refresh data
+            this.notifyAppToRefreshData();
+            
+            // Redirect to timer page
+            this.router.navigateByUrl('/timer');
+          } else {
+            // Handle errors (e.g., invalid email/password)
+            this.invalidLogin = true;
+            this.errorMessage = resultData.message || "Incorrect Email or Password";
           }
-
-          // Redirect to timer page
-          this.router.navigateByUrl('/timer');
-        } else {
-          // Handle errors (e.g., invalid email/password)
+        },
+        error: (error) => {
+          console.error("Error occurred during login:", error);
           this.invalidLogin = true;
-          this.errorMessage = resultData.message || "Incorrect Email or Password";
+          this.errorMessage = "An error occurred while connecting to the server.";
         }
-      }, (error) => {
-        console.error("Error occurred during login:", error);
-        this.invalidLogin = true;
-        this.errorMessage = "An error occurred while connecting to the server.";
       });
   }
 }

@@ -41,6 +41,31 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    @Override
+    public void updateUserGold(Long userId, int newGoldAmount) {
+        String sql = "UPDATE user SET gold = ? WHERE user_id = ?";
+        jdbcTemplate.update(sql, newGoldAmount, userId);
+        log.debug("Updated gold amount for user ID {}: {}", userId, newGoldAmount);
+    }
+
+    @Override
+    public int getUserGold(Long userId) {
+        String sql = "SELECT gold FROM user WHERE user_id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        } catch (Exception e) {
+            log.error("Error retrieving gold for user ID {}: {}", userId, e.getMessage());
+            return 0; // Default value if not found
+        }
+    }
+
+    @Override
+    public void incrementUserGold(Long userId, int amount) {
+        String sql = "UPDATE user SET gold = gold + ? WHERE user_id = ?";
+        jdbcTemplate.update(sql, amount, userId);
+        log.debug("Incremented gold for user ID {} by {}", userId, amount);
+    }
+
 
     public static class UserRowMapper implements RowMapper<User> {
         @Override
@@ -51,6 +76,7 @@ public class UserDaoImpl implements UserDao {
                     .email(rs.getString("email"))
                     .password(rs.getString("password"))
                     .role(Role.valueOf(rs.getString("role"))) // Dynamically map roles
+                    .gold(rs.getInt("gold"))
                     .build();
         }
     }

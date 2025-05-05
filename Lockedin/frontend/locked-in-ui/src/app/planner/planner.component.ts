@@ -22,6 +22,8 @@ export class PlannerComponent implements OnInit {
   currentTopicIndex = 0; // Tracks the current topic being displayed
   showForm = false; // Toggles the display of the form modal
   isCarousel = false; // Track whether to show carousel view or not
+  confirmingDelete = false; // For delete confirmation dialog
+  topicToDelete: number | null = null; // ID of topic to delete
   private audio: HTMLAudioElement | null = null;
 
   constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object,) {
@@ -75,6 +77,10 @@ export class PlannerComponent implements OnInit {
 
   createTopic(): void {
     console.log("Creating topic");
+    if (this.audio) {
+      this.audio.play().catch(err => console.error('Error playing audio:', err));
+    }
+    
     const token = this.getAuthToken();
 
     if (!token) {
@@ -108,6 +114,13 @@ export class PlannerComponent implements OnInit {
           this.newTopic = { title: '', description: '', pomodoroNumber: 1 };
           this.toggleForm(); 
           alert('Revision topic created successfully!');
+          
+          // If this is the first topic, suggest viewing it
+          if (this.topics.length === 1) {
+            setTimeout(() => {
+              this.toggleScreen('down');
+            }, 1000);
+          }
         },
         (error) => {
           console.error('Error creating revision topic:', error);
@@ -116,7 +129,28 @@ export class PlannerComponent implements OnInit {
       );
   }
 
+  // Show delete confirmation dialog
+  confirmDelete(revisionTopicId: number): void {
+    this.topicToDelete = revisionTopicId;
+    this.confirmingDelete = true;
+    if (this.audio) {
+      this.audio.play().catch(err => console.error('Error playing audio:', err));
+    }
+  }
+  
+  // Cancel deletion
+  cancelDelete(): void {
+    this.confirmingDelete = false;
+    this.topicToDelete = null;
+    if (this.audio) {
+      this.audio.play().catch(err => console.error('Error playing audio:', err));
+    }
+  }
+
   deleteTopic(revisionTopicId: number): void {
+    // Close the confirmation dialog
+    this.confirmingDelete = false;
+    
     console.log('Topics:', this.topics);
     console.log('Current topic index:', this.currentTopicIndex);
     console.log('Current topic:', this.topics[this.currentTopicIndex]);
@@ -124,6 +158,7 @@ export class PlannerComponent implements OnInit {
 
     if (!revisionTopicId) {
       console.error('Topic ID is undefined');
+      this.topicToDelete = null;
       return;
     }
 
@@ -149,10 +184,12 @@ export class PlannerComponent implements OnInit {
             this.toggleScreen('up'); // Go back to create view
           }
           alert('Revision topic deleted successfully!');
+          this.topicToDelete = null; // Reset the topic to delete
         },
         (error) => {
           console.error('Error deleting revision topic:', error);
           alert('Failed to delete revision topic.');
+          this.topicToDelete = null; // Reset even on error
         }
       );
   }
@@ -161,7 +198,7 @@ export class PlannerComponent implements OnInit {
     if (this.currentTopicIndex < this.topics.length - 1) {
       this.currentTopicIndex++;
       if (this.audio) {
-        this.audio.play();
+        this.audio.play().catch(err => console.error('Error playing audio:', err));
       }
     } else {
       alert("No more topics available.");
@@ -172,7 +209,7 @@ export class PlannerComponent implements OnInit {
     if (this.currentTopicIndex > 0) {
       this.currentTopicIndex--;
       if (this.audio) {
-        this.audio.play();
+        this.audio.play().catch(err => console.error('Error playing audio:', err));
       }
     } else {
       alert("No previous topics.");
@@ -182,18 +219,21 @@ export class PlannerComponent implements OnInit {
   startTimer(pomodoroNumber: number): void {
     const durationInMinutes = pomodoroNumber * 25;
     console.log(`Starting timer for ${durationInMinutes} minutes.`);
+    if (this.audio) {
+      this.audio.play().catch(err => console.error('Error playing audio:', err));
+    }
     this.router.navigate(['/timer'], { queryParams: { duration: durationInMinutes } });
   }
 
   toggleScreen(direction: string): void {
     if (direction === 'down') {
       if (this.audio) {
-        this.audio.play();
+        this.audio.play().catch(err => console.error('Error playing audio:', err));
       }
       this.isCarousel = true; // Switch to carousel view
     } else if (direction === 'up') {
       if (this.audio) {
-        this.audio.play();
+        this.audio.play().catch(err => console.error('Error playing audio:', err));
       }
       this.isCarousel = false; // Switch back to Create Topic view
     }
@@ -201,6 +241,9 @@ export class PlannerComponent implements OnInit {
 
   toggleForm(): void {
     this.showForm = !this.showForm;
+    if (this.audio) {
+      this.audio.play().catch(err => console.error('Error playing audio:', err));
+    }
   }
 }
 

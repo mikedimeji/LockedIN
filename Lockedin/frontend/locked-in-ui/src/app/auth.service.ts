@@ -1,12 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private router: Router, private http: HttpClient) {}
+  private tokenRefreshInProgress = false;
+
+  constructor(private router: Router, private http: HttpClient) {
+    this.checkSessionOnStartup();
+  }
 
   // Check if the code is running in a browser environment
   private isBrowser(): boolean {
@@ -20,6 +25,71 @@ export class AuthService {
     }
     const token = localStorage.getItem('authToken');
     return !!token;
+  }
+
+  // Check session on application startup
+  private checkSessionOnStartup(): void {
+    if (!this.isBrowser()) {
+      return;
+    }
+
+    // Get the last activity timestamp
+    const lastActivity = localStorage.getItem('lastActivityTime');
+    const currentTime = Date.now();
+    
+    // If no last activity or it was more than 12 hours ago (or your preferred timeout),
+    // force a token refresh or sign out
+    if (!lastActivity || (currentTime - parseInt(lastActivity)) > 12 * 60 * 60 * 1000) {
+      console.log('Session expired due to inactivity, attempting token refresh');
+      this.attemptTokenRefresh();
+    } else {
+      // Update last activity
+      this.updateLastActivity();
+    }
+  }
+
+  // Attempt to refresh the token
+  private attemptTokenRefresh(): void {
+    const refreshToken = this.getRefreshToken();
+    
+    if (!refreshToken) {
+      this.signOut();
+      return;
+    }
+
+    if (this.tokenRefreshInProgress) {
+      return;
+    }
+
+    this.tokenRefreshInProgress = true;
+    
+    this.refreshAccessToken().subscribe({
+      next: (data) => {
+        if (data && data.token) {
+          localStorage.setItem('authToken', data.token);
+          if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken);
+          }
+          this.updateLastActivity();
+          this.tokenRefreshInProgress = false;
+        } else {
+          this.signOut();
+        }
+      },
+      error: () => {
+        this.signOut();
+        this.tokenRefreshInProgress = false;
+      }
+    });
+  }
+
+  getUsername(): string {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+      return 'User';
+    }
+    
+    const username = localStorage.getItem('username');
+    return username || 'User'; // Return a default if username is not found
   }
 
   // Log out the user by removing the token from localStorage
@@ -36,6 +106,13 @@ export class AuthService {
     return this.isBrowser() ? localStorage.getItem('refreshToken') : null;
   }
 
+  // Update last activity timestamp
+  private updateLastActivity(): void {
+    if (this.isBrowser() && this.isLoggedIn()) {
+      localStorage.setItem('lastActivityTime', Date.now().toString());
+    }
+  }
+
   // Attempt to refresh the access token using the refresh token
   refreshAccessToken(): Observable<any> {
     const refreshToken = this.getRefreshToken();
@@ -50,6 +127,5 @@ export class AuthService {
     });
   }
 }
-import { HttpClient } from '@angular/common/http';
 
 

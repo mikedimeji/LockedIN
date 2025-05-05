@@ -4,6 +4,7 @@ import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // Disable CSRF protection
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/home/auth/**").permitAll() // Allow unauthenticated access to specified endpoint
+                        //.requestMatchers(HttpMethod.POST, "/api/home/gold/pomodoro-reward").permitAll() // Temporarily allow this endpoint
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
                 .sessionManagement(session -> session

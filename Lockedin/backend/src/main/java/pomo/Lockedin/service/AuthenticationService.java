@@ -1,7 +1,6 @@
 package pomo.Lockedin.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +18,7 @@ import pomo.Lockedin.entities.User;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService implements UserDetailsService{
+public class AuthenticationService implements UserDetailsService {
 
     private final UserDaoImpl userDao;
     private final PasswordEncoder passwordEncoder;
@@ -38,6 +37,7 @@ public class AuthenticationService implements UserDetailsService{
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .gold(5)
                 .build();
         userDao.createUser(user);
         var jwtToken = jwtService.generateToken(user);
@@ -45,11 +45,11 @@ public class AuthenticationService implements UserDetailsService{
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .refreshToken(refreshToken)
+                .username(user.getUsername())  // Include username in response
                 .build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -63,8 +63,8 @@ public class AuthenticationService implements UserDetailsService{
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .refreshToken(refreshToken)
+                .username(user.getUsername())  // Include username in response
                 .build();
-
     }
 
     @Override

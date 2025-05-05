@@ -21,6 +21,14 @@ interface SpotifyPlayerState {
   paused: boolean;
 }
 
+interface TrackInfo {
+  name: string;
+  artist: string;
+  duration: number;
+  uri: string;
+  albumArt?: string;
+}
+
 @Component({
   selector: 'app-spotify-player',
   standalone: true,
@@ -49,6 +57,22 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
   isExpanded: boolean = false;
   currentPlaylist: any = null;
   private readonly PLAYLIST_ID = '4gZBb5gHqjAtPbghcNTVZW';
+  initialTrackId: string = '2pn1zRkKjBmumnDPJTznsO'; // ALSU TEAM - Real and Ideal track ID
+  defaultTrackInfo: TrackInfo = {
+    name: 'Real and Ideal',
+    artist: 'ALSU TEAM',
+    duration: 0,
+    uri: `spotify:track:${this.initialTrackId}`,
+    albumArt: undefined
+  };
+
+
+  // New properties
+  volume: number = 0.5;
+  progressPercentage: number = 0;
+  trackDuration: number = 0;
+  currentTrackInfo: TrackInfo = this.defaultTrackInfo;
+  private progressInterval: any = null;
 
   constructor(
     private spotifyAuth: SpotifyAuthService,
@@ -57,15 +81,55 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      // Check for saved token first
+      const savedToken = localStorage.getItem('spotify_access_token');
+      if (savedToken) {
+        this.accessToken = savedToken;
+        this.spotifyAuth.accessToken = savedToken;
+        this.loadSpotifyPlayer();
+      }
+      
+      // Then check URL params
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       if (code) {
         this.getAccessToken(code);
+      } else {
+        // Load the Spotify SDK if we didn't have a code
+        this.loadSpotifyPlayer();
       }
-      
-      // Load the Spotify SDK
-      this.loadSpotifyPlayer();
     }
+  }
+
+  loadInitialTrack() {
+    if (!this.accessToken || !this.deviceId) {
+      console.log('Cannot load initial track yet - missing token or device');
+      return;
+    }
+    
+    console.log('Loading initial track: Real and Ideal');
+    
+    // Also fetch track info for display
+    this.spotifyAuth.makeAuthorizedRequest(
+      `https://api.spotify.com/v1/tracks/${this.initialTrackId}`,
+      'GET',
+      null
+    ).subscribe({
+      next: (track: any) => {
+        console.log('Initial track info loaded:', track);
+        this.currentTrackInfo = {
+          name: track.name,
+          artist: track.artists[0].name,
+          duration: track.duration_ms,
+          uri: track.uri,
+          albumArt: track.album?.images?.[0]?.url
+        };
+      },
+      error: (error) => {
+        console.error('Error loading track info:', error);
+        // Keep using the default track info
+      }
+    });
   }
 
   startDragging(event: MouseEvent, element: HTMLElement) {
@@ -208,7 +272,9 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
         localStorage.setItem('spotify_access_token', response.access_token);
         localStorage.setItem('spotify_refresh_token', response.refresh_token);
         this.loadSpotifyPlayer();
-        this.loadPlaylist(); // Add this line to load playlist after authentication
+        this.loadPlaylist();
+        // We don't need to call loadInitialTrack() here because it will be called 
+        // from the 'ready' event listener in setupPlayerListeners
       },
       error: (error) => {
         this.setError('Error getting access token: ' + error.message);
@@ -264,37 +330,55 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     this.player.addListener('initialization_error', ({ message }: SpotifyPlayerError) => {
       this.setError('Failed to initialize: ' + message);
     });
-
+  
     this.player.addListener('authentication_error', ({ message }: SpotifyPlayerError) => {
       this.handleAuthError(message);
     });
-
+  
     this.player.addListener('account_error', ({ message }: SpotifyPlayerError) => {
       this.setError('Failed to validate Spotify account: ' + message);
     });
-
+  
     this.player.addListener('playback_error', ({ message }: SpotifyPlayerError) => {
       this.handlePlaybackError(message);
     });
-
+  
     this.player.addListener('ready', ({ device_id }: SpotifyPlayerReady) => {
       this.deviceId = device_id;
       console.log('Ready with Device ID', device_id);
       this.transferPlaybackHere();
+      
+      // Schedule loading the initial track after transfer completes
+      setTimeout(() => {
+        this.loadInitialTrack();
+      }, 1000);
     });
-
+  
     this.player.addListener('not_ready', ({ device_id }: SpotifyPlayerReady) => {
       console.log('Device ID has gone offline', device_id);
     });
-
+  
     this.player.addListener('player_state_changed', (state: any) => {
       if (state) {
         this.isPlaying = !state.paused;
-        this.currentPlaybackPosition = state.position; // Capture current position
-        console.log('Current playback position:', this.currentPlaybackPosition);
+        this.currentPlaybackPosition = state.position;
+        
+        // Update track info and album art when track changes
+        if (state.track_window && state.track_window.current_track) {
+          const track = state.track_window.current_track;
+          
+          this.currentTrackInfo = {
+            name: track.name,
+            artist: track.artists[0].name,
+            duration: track.duration_ms,
+            uri: track.uri,
+            albumArt: track.album?.images?.[0]?.url // Get album art from player state
+          };
+          
+          console.log('Current track updated:', this.currentTrackInfo);
+        }
       }
     });
-       
   }
 
   private connectPlayer() {
@@ -328,40 +412,19 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  searchTracks(query: string) {
-    if (this.accessToken) {
-      this.spotifyAuth.searchTracks(query, this.accessToken)
-        .pipe(
-          retryWhen(errors => 
-            errors.pipe(
-              delay(this.RETRY_DELAY),
-              take(3)
-            )
-          )
-        )
-        .subscribe({
-          next: (results) => {
-            this.searchResults = results.tracks.items;
-            this.errorMessage = '';
-          },
-          error: (error) => {
-            if (error.status === 401) {
-              this.refreshTokenAndRetry(() => this.searchTracks(query));
-            } else {
-              this.setError('Error searching tracks: ' + error.message);
-            }
-          }
-        });
-    }
+/**
+ * Enhanced search function with better error handling
+ */
+searchTracks(query: string) {
+  if (!query || query.trim() === '') {
+    console.log('Empty search query');
+    return;
   }
-
-  playTrack(uri: string) {
-    if (!this.accessToken || !this.deviceId) {
-      this.setError('Missing Access Token or Device ID.');
-      return;
-    }
-
-    this.spotifyAuth.playTrack(uri, this.accessToken, this.deviceId)
+  
+  if (this.accessToken) {
+    this.errorMessage = 'Searching...'; // Show loading state
+    
+    this.spotifyAuth.searchTracks(query, this.accessToken)
       .pipe(
         retryWhen(errors => 
           errors.pipe(
@@ -371,21 +434,74 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
         )
       )
       .subscribe({
-        next: () => {
-          console.log('Track playback started.');
-          this.errorMessage = '';
+        next: (results) => {
+          if (results && results.tracks && results.tracks.items) {
+            this.searchResults = results.tracks.items;
+            console.log(`Found ${this.searchResults.length} tracks`);
+            this.errorMessage = '';
+          } else {
+            this.searchResults = [];
+            this.setError('No results found');
+          }
         },
         error: (error) => {
+          console.error('Search error:', error);
           if (error.status === 401) {
-            this.refreshTokenAndRetry(() => this.playTrack(uri));
-          } else if (error.status === 429) {
-            this.handlePlaybackError('Rate limit exceeded. Please wait before trying again.');
+            this.refreshTokenAndRetry(() => this.searchTracks(query));
           } else {
-            this.setError('Error playing track: ' + error.message);
+            this.setError('Error searching tracks: ' + error.message);
           }
+          this.searchResults = []; // Clear results on error
         }
       });
+  } else {
+    this.setError('Please log in to search tracks');
   }
+}
+
+  /**
+ * Enhanced playTrack function with better 404 handling
+ */
+playTrack(uri: string) {
+  if (!this.accessToken || !this.deviceId) {
+    this.setError('Missing Access Token or Device ID.');
+    return;
+  }
+
+  this.errorMessage = 'Loading track...'; // Show loading state
+
+  this.spotifyAuth.playTrack(uri, this.accessToken, this.deviceId)
+    .pipe(
+      retryWhen(errors => 
+        errors.pipe(
+          delay(this.RETRY_DELAY),
+          take(3)
+        )
+      )
+    )
+    .subscribe({
+      next: () => {
+        console.log('Track playback started.');
+        this.errorMessage = '';
+        this.isPlaying = true;
+      },
+      error: (error) => {
+        console.error('Play track error:', error);
+        if (error.status === 401) {
+          this.refreshTokenAndRetry(() => this.playTrack(uri));
+        } else if (error.status === 429) {
+          this.handlePlaybackError('Rate limit exceeded. Please wait before trying again.');
+        } else if (error.status === 404) {
+          // Handle common 404 errors gracefully
+          console.log('404 error playing track (common with free accounts)');
+          this.errorMessage = 'Playback requires Spotify Premium';
+          setTimeout(() => this.errorMessage = '', 3000);
+        } else {
+          this.setError('Error playing track: ' + error.message);
+        }
+      }
+    });
+}
 
   pausePlayback() {
     if (this.accessToken) {
@@ -542,10 +658,47 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setError(message: string) {
-    this.errorMessage = message;
-    console.error(message);
+  /**
+ * Enhanced error handling function with timeout
+ */
+private setError(message: string) {
+  this.errorMessage = message;
+  console.error(message);
+  
+  // Clear error message after 3 seconds
+  setTimeout(() => {
+    if (this.errorMessage === message) {
+      this.errorMessage = '';
+    }
+  }, 3000);
+}
+
+/**
+ * Handle image errors (for when album art fails to load)
+ */
+handleImageError(event: any) {
+  event.target.style.display = 'none';
+  const parent = event.target.parentElement;
+  
+  if (parent) {
+    // Create SVG placeholder
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'album-art');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('width', '48');
+    svg.setAttribute('height', '48');
+    
+    // Add SVG content
+    svg.innerHTML = `
+      <rect width="100" height="100" fill="#1E3A8A"/>
+      <rect y="65" width="100" height="35" fill="#0284C7"/>
+      <circle cx="25" cy="35" r="10" fill="#FBBF24"/>
+      <path d="M0 65 L30 40 L45 55 L70 30 L100 65" fill="#0369A1"/>
+    `;
+    
+    parent.prepend(svg);
   }
+}
 
   ngOnDestroy() {
     this.destroy$.next();

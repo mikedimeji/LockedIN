@@ -59,7 +59,7 @@ public class UserAuthController {
 
             String newAccessToken = jwtService.generateToken(userDetails);
 
-            return ResponseEntity.ok(new AuthenticationResponse(newAccessToken, refreshToken));
+            return ResponseEntity.ok(new AuthenticationResponse(newAccessToken, refreshToken, username));
 
         }
         catch (Exception e) {

@@ -4,27 +4,392 @@
   background: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
   color: #fff;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+  border: 2px solid #3b5bd9; /* Base blue border */
+  overflow: hidden;
 }
 
+/* Shimmering effect using multiple pseudo-elements */
+.themes-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 12px;
+  border: 2px solid #5271ff;
+  box-shadow: 0 0 10px rgba(82, 113, 255, 0.6);
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* First shimmer layer */
+.themes-container::after {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  height: 400%;
+  width: 400%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(82, 113, 255, 0.4) 25%,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0) 35%
+  );
+  transform: rotate(30deg);
+  animation: shimmer 8s infinite linear;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Create additional shimmer elements with different angles and speeds */
+.themes-container .shimmer-1,
+.themes-container .shimmer-2 {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.themes-container .shimmer-1::after {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  height: 400%;
+  width: 400%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(82, 113, 255, 0.3) 25%, 
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0) 35%
+  );
+  transform: rotate(70deg);
+  animation: shimmer 12s infinite linear;
+}
+
+.themes-container .shimmer-2::after {
+  content: '';
+  position: absolute;
+  top: -150%;
+  left: -150%;
+  height: 400%;
+  width: 400%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(82, 113, 255, 0.2) 45%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 55%
+  );
+  transform: rotate(130deg);
+  animation: shimmer 15s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-50%) translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50%) rotate(360deg);
+  }
+}
+
+/* Header section with title and toggle */
+.header-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+h1 {
+  font-size: 28px;
+  color: #5271ff;
+  text-shadow: 0 0 10px rgba(82, 113, 255, 0.5);
+  margin: 0;
+}
+
+/* Toggle Switch Styling */
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-container span {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.3s ease;
+}
+
+.toggle-container span.active {
+  color: #5271ff;
+  font-weight: bold;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #5271ff;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #5271ff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Category Tabs */
+.category-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.category-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 80px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.category-tab:hover {
+  background: rgba(82, 113, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+.category-tab.active {
+  background: rgba(82, 113, 255, 0.3);
+  border: 1px solid #5271ff;
+  box-shadow: 0 0 15px rgba(82, 113, 255, 0.3);
+}
+
+.category-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 8px;
+}
+
+/* Themes Gallery */
 .themes-gallery {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+.theme-item {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 10px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 10px;
+}
+
+.theme-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.theme-item.selected {
+  border-color: #ffcc00;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
 }
 
 .theme-image {
-  width: 100px;
-  height: 100px;
-  margin: 10px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.theme-image:hover {
-  transform: scale(1.05);
+.theme-item:hover .theme-image {
+  transform: scale(1.1);
 }
 
-.theme-image.selected {
-  border-color: #ffcc00; /* Highlight color for the selected theme */
+/* Live Badge */
+.live-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(82, 113, 255, 0.8);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  z-index: 2;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Premium Theme Styling */
+.premium-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+  z-index: 3;
+}
+
+.lock-icon {
+  font-size: 32px;
+  color: #ffcc00;
+  margin-bottom: 10px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.premium-label {
+  display: flex;
+  align-items: center;
+  background: #ffcc00;
+  color: #000;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+}
+
+.gold-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+}
+
+/* Empty state styling */
+.empty-state {
+  padding: 30px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.empty-state p {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .header-section {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .category-tab {
+    width: 70px;
+    padding: 8px;
+  }
+  
+  .theme-item {
+    width: 120px;
+    height: 120px;
+    margin: 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-tab {
+    width: 60px;
+    padding: 6px;
+  }
+  
+  .category-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .theme-item {
+    width: 100px;
+    height: 100px;
+    margin: 5px;
+  }
 }

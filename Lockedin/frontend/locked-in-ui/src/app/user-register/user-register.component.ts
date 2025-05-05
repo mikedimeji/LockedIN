@@ -51,12 +51,17 @@ export class UserRegisterComponent {
       "password": this.password,
     };
 
-    this.http.post("http://localhost:8080/api/home/auth/register", bodyData).subscribe(
+    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("http://localhost:8080/api/home/auth/register", bodyData).subscribe(
       (resultData: any) => {
         console.log(resultData);
         if (resultData.token && resultData.refreshToken) {
           localStorage.setItem('authToken', resultData.token);
           localStorage.setItem('refreshToken', resultData.refreshToken);
+          
+          // Store username if available
+          if (resultData.username) {
+            localStorage.setItem('username', resultData.username);
+          }
           
           this.RegisterSuccess = true;
           this.router.navigateByUrl('/');

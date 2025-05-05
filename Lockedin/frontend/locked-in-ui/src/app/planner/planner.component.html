@@ -4,7 +4,7 @@
   <div class="topic-display">
     <!-- Down Arrow (only in Create Topic view) -->
     <button class="nav-arrow down-arrow" (click)="toggleScreen('down')" *ngIf="!isCarousel && !showForm && topicExists()">
-      <img src="assets/images/down_arrow.png" alt="Down Arrow" />
+      <!-- No img needed - CSS handles the arrow -->
     </button>
 
     <!-- Create Topic Card -->
@@ -18,17 +18,16 @@
     <div class="topic-carousel-container" *ngIf="isCarousel && !showForm">
       <!-- Up Arrow -->
       <button class="nav-arrow up-arrow" (click)="toggleScreen('up')">
-        <img src="assets/images/up_arrow.png" alt="Up Arrow" />
+        <!-- No img needed - CSS handles the arrow -->
       </button>
 
       <!-- Left Arrow -->
       <button class="nav-arrow left-arrow" (click)="prevTopic()" [hidden]="currentTopicIndex === 0">
-        <img src="assets/images/left_arrow2.png" alt="Left Arrow" />
+        <!-- No img needed - CSS handles the arrow -->
       </button>
 
       <!-- Topic Card -->
       <div class="topic-card">
-        <!-- Add this debug line temporarily -->
         <h3 class="topic-title">{{ topics[currentTopicIndex].title }}</h3>
         <p class="topic-description">{{ topics[currentTopicIndex].description }}</p>
         <span class="pomodoro-count">Pomodoro Count: {{ topics[currentTopicIndex].pomodoroNumber }}</span>
@@ -37,14 +36,14 @@
           <img src="assets/images/start_icon2.png" alt="Start Timer" />
         </div>
 
-        <button class="delete-button" (click)="deleteTopic(topics[currentTopicIndex].revisionTopicId)">
+        <button class="delete-button" (click)="confirmDelete(topics[currentTopicIndex].revisionTopicId)">
           Delete
         </button>
       </div>
 
       <!-- Right Arrow -->
       <button class="nav-arrow right-arrow" (click)="nextTopic()" [hidden]="currentTopicIndex === topics.length - 1">
-        <img src="assets/images/right_arrow.png" alt="Right Arrow" />
+        <!-- No img needed - CSS handles the arrow -->
       </button>
     </div>
   </div>
@@ -79,12 +78,24 @@
           min="1"
           required
         />
-        <div>
+        <div class="button-container">
           <button type="submit" class="retro-btn">Save</button>
           <button type="button" class="retro-btn close-btn" (click)="toggleForm()">Cancel</button>
         </div>
       </form>
     </div>    
+  </div>
+  
+  <!-- Delete Confirmation Dialog -->
+  <div class="modal" *ngIf="confirmingDelete">
+    <div class="confirm-dialog">
+      <h3>Confirm Delete</h3>
+      <p>Are you sure you want to delete this topic?</p>
+      <div class="button-container">
+        <button class="retro-btn" (click)="deleteTopic(topicToDelete!)" *ngIf="topicToDelete !== null">Yes, Delete</button>
+        <button class="retro-btn close-btn" (click)="cancelDelete()">Cancel</button>
+      </div>
+    </div>
   </div>
 </div>
 

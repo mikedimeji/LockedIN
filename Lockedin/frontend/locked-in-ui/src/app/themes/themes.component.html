@@ -1,12 +1,59 @@
 <div class="themes-container">
-  <h1>Select a Theme</h1>
+  <div class="shimmer-1"></div>
+  <div class="shimmer-2"></div>
+  
+  <div class="header-section">
+    <h1>Select a Theme</h1>
+    
+    <!-- Toggle Switch -->
+    <div class="toggle-container">
+      <span [class.active]="!showLiveThemes">Static</span>
+      <label class="switch">
+        <input type="checkbox" [checked]="showLiveThemes" (change)="toggleLiveThemes()">
+        <span class="slider round"></span>
+      </label>
+      <span [class.active]="showLiveThemes">Live</span>
+    </div>
+  </div>
+  
+  <!-- Category Tabs -->
+  <div class="category-tabs">
+    <div *ngFor="let category of categories" 
+         class="category-tab"
+         [class.active]="selectedCategory === category.id"
+         (click)="filterThemes(category.id)">
+      <img [src]="category.icon" [alt]="category.name" class="category-icon">
+      <span>{{ category.name }}</span>
+    </div>
+  </div>
+  
+  <!-- Themes Gallery -->
   <div class="themes-gallery">
-    <img *ngFor="let theme of themes"
-         [src]="theme"
-         [alt]="theme"
-         class="theme-image"
-         (click)="changeTheme(theme)"
-         [class.selected]="theme === selectedTheme">
+    <div *ngFor="let theme of filteredThemes" 
+         class="theme-item"
+         [class.selected]="isSelected(theme.path)"
+         (click)="changeTheme(theme)">
+      <img [src]="theme.path" [alt]="theme.name" class="theme-image">
+      
+      <!-- Premium Theme Overlay -->
+      <div *ngIf="theme.premium" class="premium-overlay">
+        <div class="lock-icon">🔒</div>
+        <div class="premium-label">
+          <img src="assets/images/goldcoin.png" alt="Gold" class="gold-icon">
+          <span>500</span>
+        </div>
+      </div>
+      
+      <!-- Live indicator badge -->
+      <div *ngIf="theme.isLive" class="live-badge">
+        LIVE
+      </div>
+    </div>
+  </div>
+  
+  <!-- Empty state message -->
+  <div *ngIf="filteredThemes.length === 0" class="empty-state">
+    <p>No themes available for the selected filters. Try a different category or toggle between live/static themes.</p>
   </div>
 </div>
 
