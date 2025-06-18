@@ -1,0 +1,444 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main Container */
+.spotify-mini-player {
+  position: fixed;
+  width: 300px;
+  background-color: rgba(59, 130, 246, 0.6);
+  background: linear-gradient(rgba(33, 150, 243, 0.7), rgba(59, 130, 246, 0.6));
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  color: white;
+  /* Ensure only one instance is interactive */
+  pointer-events: all;
+}
+
+/* Handle multiple Spotify players - hide inactive one */
+.spotify-mini-player:not(:hover):not(:active) {
+  opacity: 0.05;
+  transition: opacity 0.5s ease;
+}
+
+.spotify-mini-player:hover, .spotify-mini-player:active {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Active player (being dragged) should always be visible */
+.spotify-mini-player:active {
+  opacity: 1;
+  z-index: 1001; /* Ensure it's on top */
+}
+
+/* Player Content */
+.player-content {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  flex-wrap: nowrap;
+}
+
+/* Album Art */
+.album-art {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+/* Album Art Container */
+.album-art-container {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+/* Track Info */
+.track-info {
+  flex-grow: 1;
+  min-width: 0;
+  margin-right: 10px;
+  overflow: hidden;
+}
+
+.track-name {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.track-artist {
+  font-size: 12px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Header Bar */
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.control-icon {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  padding: 4px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.control-icon:hover {
+  color: #fff;
+}
+
+.spotify-logo {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.spotify-icon {
+  width: 18px;
+  height: 18px;
+  margin-left: 4px;
+}
+
+/* Controls */
+.playback-controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+  margin: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-button:hover {
+  opacity: 1;
+}
+
+.play-button {
+  width: 32px;
+  height: 32px;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 6px;
+  color: #2563eb;
+  transition: all 0.2s ease;
+}
+
+.play-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Preview Label */
+.preview-label {
+  font-size: 10px;
+  padding: 2px 6px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  margin-top: 2px;
+  display: inline-block;
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-bar input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-bar input:focus {
+  outline: none;
+}
+
+.search-confirm {
+  background: none;
+  border: none;
+  color: rgb(83, 215, 106);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.search-confirm:hover {
+  transform: scale(1.2);
+}
+
+/* Login Button */
+.login-button {
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  margin: 12px;
+}
+
+.login-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.login-text {
+  color: white;
+  font-size: 13px;
+  text-align: center;
+  margin: 10px;
+  line-height: 1.4;
+}
+
+/* Info Tooltip */
+.info-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.info-tooltip .tooltip-text {
+  visibility: hidden;
+  width: 180px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  left: -80px;
+  top: 30px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.info-tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+.info-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* Additional Icons */
+.add-button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.more-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  margin-left: 4px;
+}
+
+.more-button:hover {
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .spotify-mini-player {
+    width: calc(100% - 32px);
+    margin: 16px;
+  }
+}
+
+/* Search Results */
+.search-results {
+  background-color: rgba(41, 98, 255, 0.85);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Search track item styles - separate from main player */
+.track-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.track-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-album-art-container {
+  width: 40px;
+  height: 40px;
+  margin-right: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.search-album-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Separate styling for search result text */
+.search-track-info {
+  flex-grow: 1;
+  min-width: 0;
+  margin-right: 8px;
+  overflow: hidden;
+}
+
+.search-track-name {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+}
+
+.search-track-artist {
+  font-size: 12px;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.play-track-btn {
+  background: none;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.play-track-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Error Toast */
+.error-toast {
+  background-color: rgba(220, 38, 38, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 8px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Verified icons removed from track names to avoid display issues */
+.verified-icon {
+  display: none;
+}
+
+  

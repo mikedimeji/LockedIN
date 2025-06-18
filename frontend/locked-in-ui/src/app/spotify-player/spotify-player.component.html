@@ -1,0 +1,177 @@
+<!-- Login View -->
+<div *ngIf="!accessToken" class="spotify-mini-player"
+     #playerElement
+     [style.left.px]="playerPosition.x"
+     [style.top.px]="playerPosition.y"
+     (mousedown)="startDragging($event, playerElement)"
+     (document:mouseup)="stopDragging()"
+     (document:mousemove)="onDragging($event)">
+  <div class="player-header">
+    <div class="window-controls">
+      <button class="control-icon">×</button>
+      <button class="control-icon">⤢</button>
+      <button class="control-icon">?</button>
+    </div>
+    <span class="spotify-logo">
+      Spotify
+      <!-- Inline Spotify SVG Icon -->
+      <svg class="spotify-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+        <circle cx="12" cy="12" r="11" fill="#1DB954"/>
+        <path d="M17.9 10.9c-0.2-0.3-0.6-0.4-0.9-0.2-2.5 1.5-5.6 1.9-9.3 1-0.4-0.1-0.7 0.1-0.8 0.5-0.1 0.4 0.1 0.7 0.5 0.8 4.1 0.9 7.6 0.5 10.4-1.2 0.3-0.2 0.4-0.6 0.1-0.9z" fill="white"/>
+        <path d="M16.8 13.7c-0.1-0.2-0.4-0.3-0.7-0.2-2.1 1.3-4.8 1.6-7.9 0.9-0.3-0.1-0.6 0.1-0.7 0.4-0.1 0.3 0.1 0.6 0.4 0.7 3.4 0.8 6.4 0.4 8.8-1.1 0.3-0.1 0.3-0.5 0.1-0.7z" fill="white"/>
+        <path d="M15.9 16.4c-0.1-0.2-0.3-0.2-0.5-0.1-1.8 1.1-4.1 1.4-6.8 0.7-0.2-0.1-0.5 0.1-0.5 0.3-0.1 0.2 0.1 0.5 0.3 0.5 2.9 0.7 5.5 0.4 7.5-0.9 0.2-0.1 0.2-0.3 0-0.5z" fill="white"/>
+      </svg>
+    </span>
+  </div>
+  
+  <div class="player-content">
+    <!-- Single Album Art Container -->
+    <div class="album-art-container">
+      <img *ngIf="currentTrackInfo?.albumArt" 
+          [src]="currentTrackInfo.albumArt" 
+          alt="Album Cover" 
+          class="album-art"
+          (error)="handleImageError($event)">
+          
+      <svg *ngIf="!currentTrackInfo?.albumArt" class="album-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48">
+        <rect width="100" height="100" fill="#1E3A8A"/>
+        <rect y="65" width="100" height="35" fill="#0284C7"/>
+        <circle cx="25" cy="35" r="10" fill="#FBBF24"/>
+        <path d="M0 65 L30 40 L45 55 L70 30 L100 65" fill="#0369A1"/>
+        <path d="M80 45 C87 40, 95 40, 100 45 L100 35 L80 35 Z" fill="#FBBF24"/>
+      </svg>
+    </div>
+    
+    <div class="track-info">
+      <div class="track-name">
+        {{ currentTrackInfo.name || 'Real and Ideal' }}
+      </div>
+      <div class="track-artist">{{ currentTrackInfo.artist || 'ALSU TEAM' }}</div>
+      <span class="preview-label">Preview</span>
+    </div>
+  </div>
+  
+  <div class="login-text">
+    Login to Spotify to hear the full soundtrack.
+    <div class="info-tooltip">
+      <button class="info-button">?</button>
+      <span class="tooltip-text">Click on the ? button on the widget to find out why</span>
+    </div>
+  </div>
+  
+  <button (click)="login()" class="login-button">
+    Login to Spotify
+  </button>
+</div>
+
+<!-- Player View -->
+<div *ngIf="accessToken" 
+     class="spotify-mini-player"
+     #playerElement
+     [style.left.px]="playerPosition.x"
+     [style.top.px]="playerPosition.y"
+     (mousedown)="startDragging($event, playerElement)"
+     (document:mouseup)="stopDragging()"
+     (document:mousemove)="onDragging($event)">
+     
+  <!-- Header Bar -->
+  <div class="player-header">
+    <div class="window-controls">
+      <button class="control-icon">×</button>
+      <button class="control-icon">⤢</button>
+      <button class="control-icon">?</button>
+      <button class="control-icon" (click)="toggleExpanded()">▶</button>
+    </div>
+    <span class="spotify-logo">
+      Spotify
+      <!-- Inline Spotify SVG Icon -->
+      <svg class="spotify-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+        <circle cx="12" cy="12" r="11" fill="#1DB954"/>
+        <path d="M17.9 10.9c-0.2-0.3-0.6-0.4-0.9-0.2-2.5 1.5-5.6 1.9-9.3 1-0.4-0.1-0.7 0.1-0.8 0.5-0.1 0.4 0.1 0.7 0.5 0.8 4.1 0.9 7.6 0.5 10.4-1.2 0.3-0.2 0.4-0.6 0.1-0.9z" fill="white"/>
+        <path d="M16.8 13.7c-0.1-0.2-0.4-0.3-0.7-0.2-2.1 1.3-4.8 1.6-7.9 0.9-0.3-0.1-0.6 0.1-0.7 0.4-0.1 0.3 0.1 0.6 0.4 0.7 3.4 0.8 6.4 0.4 8.8-1.1 0.3-0.1 0.3-0.5 0.1-0.7z" fill="white"/>
+        <path d="M15.9 16.4c-0.1-0.2-0.3-0.2-0.5-0.1-1.8 1.1-4.1 1.4-6.8 0.7-0.2-0.1-0.5 0.1-0.5 0.3-0.1 0.2 0.1 0.5 0.3 0.5 2.9 0.7 5.5 0.4 7.5-0.9 0.2-0.1 0.2-0.3 0-0.5z" fill="white"/>
+      </svg>
+    </span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="player-content">
+    <!-- Single Album Art Container -->
+    <div class="album-art-container">
+      <img *ngIf="currentTrackInfo?.albumArt" 
+          [src]="currentTrackInfo.albumArt" 
+          alt="Album Cover" 
+          class="album-art"
+          (error)="handleImageError($event)">
+          
+      <svg *ngIf="!currentTrackInfo?.albumArt" class="album-art" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48">
+        <rect width="100" height="100" fill="#1E3A8A"/>
+        <rect y="65" width="100" height="35" fill="#0284C7"/>
+        <circle cx="25" cy="35" r="10" fill="#FBBF24"/>
+        <path d="M0 65 L30 40 L45 55 L70 30 L100 65" fill="#0369A1"/>
+        <path d="M80 45 C87 40, 95 40, 100 45 L100 35 L80 35 Z" fill="#FBBF24"/>
+      </svg>
+    </div>
+         
+    <div class="track-info">
+      <div class="track-name">
+        {{ currentTrackInfo.name || 'Real and Ideal' }}
+      </div>
+      <div class="track-artist">{{ currentTrackInfo.artist || 'ALSU TEAM' }}</div>
+      <span class="preview-label">Preview</span>
+    </div>
+    
+    <div class="playback-controls">
+      <button (click)="previousTrack()" class="control-button">
+        ⏮
+      </button>
+      <button (click)="togglePlayPause()" class="play-button">
+        {{ isPlaying ? '⏸' : '▶' }}
+      </button>
+      <button (click)="nextTrack()" class="control-button">
+        ⏭
+      </button>
+    </div>
+  </div>
+  
+  <!-- Search Bar -->
+  <div class="search-bar" (mousedown)="$event.stopPropagation()">
+    <input type="text"
+           placeholder="Enter your own Spotify playlist/song URL (optional)"
+           #searchInput
+           (click)="$event.stopPropagation()"
+           (keyup.enter)="searchTracks(searchInput.value)">
+    <button class="search-confirm" (click)="searchTracks(searchInput.value)">✓</button>
+  </div>
+
+  <!-- Search Results -->
+  <div *ngIf="searchResults.length > 0" class="search-results">
+    <div *ngFor="let track of searchResults" class="track-item" (click)="playTrack(track.uri)">
+      <!-- Use a single container for track art -->
+      <div class="search-album-art-container">
+        <img *ngIf="track.album?.images && track.album.images.length > 0" 
+             [src]="track.album.images[0].url" 
+             alt="Album Cover" 
+             class="search-album-art"
+             (error)="handleImageError($event)">
+      </div>
+      
+      <div class="search-track-info">
+        <div class="search-track-name">{{ track.name }}</div>
+        <div class="search-track-artist">{{ track.artists[0].name }}</div>
+      </div>
+      <button class="play-track-btn">▶</button>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-toast">
+    {{ errorMessage }}
+  </div>
+</div>
+  
+  
+
+
+
+

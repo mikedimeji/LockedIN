@@ -1,0 +1,809 @@
+.retro-nav-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  bottom: 32px;
+  z-index: 100;
+  transition: all 0.3s ease;
+  pointer-events: none; /* Let clicks pass through the container but not the actual nav */
+}
+
+/* Make sure the nav itself captures clicks */
+.retro-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: rgba(11, 25, 43, 0.85);
+  border-radius: 40px;
+  padding: 8px 16px;
+  max-width: 420px;
+  width: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+  pointer-events: auto; /* Make the nav bar itself clickable */
+}
+
+/* Expanded state on hover */
+.retro-nav:hover {
+  max-width: 680px;
+  padding: 12px 24px;
+  width: 90%;
+}
+
+/* Nav items in compact state */
+.retro-nav .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 2px; /* Reduced horizontal padding */
+  margin: 0 2px; /* Reduced margin */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  position: relative;
+}
+
+/* When expanded, add more spacing back */
+.retro-nav:hover .nav-item {
+  padding: 8px 4px;
+  margin: 0 4px;
+}
+
+/* Images always visible */
+.retro-nav .nav-item img {
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  margin-bottom: 0;
+}
+
+/* Text hidden by default */
+.retro-nav .nav-item span {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+/* Show text on navbar hover */
+.retro-nav:hover .nav-item span {
+  opacity: 0.9;
+  max-height: 20px;
+  margin-top: 4px;
+}
+
+/* Hover effects */
+.retro-nav .nav-item:hover {
+  color: white;
+}
+
+.retro-nav .nav-item:hover img {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Active item styling */
+.retro-nav .nav-item.active {
+  color: #ffb627; /* Orange/yellow color similar to the Track icon in the image */
+}
+
+.retro-nav .nav-item.active img {
+  opacity: 1;
+}
+
+.retro-nav .nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; /* Adjusted position for compact view */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background-color: #ffb627;
+  border-radius: 50%;
+}
+
+/* Adjust dot position when expanded */
+.retro-nav:hover .nav-item.active::after {
+  bottom: 0;
+}
+
+/* Coming Soon Navigation Items */
+.retro-nav .nav-item.coming-soon {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.retro-nav .nav-item.coming-soon img {
+  opacity: 0.4;
+  filter: grayscale(30%);
+}
+
+.retro-nav .nav-item.coming-soon span {
+  opacity: 0.6;
+}
+
+/* Coming Soon Tooltip */
+.retro-nav .nav-item.coming-soon::before {
+  content: 'Coming Soon';
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #ffb627;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+  border: 1px solid rgba(255, 182, 39, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.retro-nav .nav-item.coming-soon:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* When nav is expanded, adjust tooltip position */
+.retro-nav:hover .nav-item.coming-soon::before {
+  bottom: -40px;
+}
+
+/* Prevent click events on coming soon items */
+.retro-nav .nav-item.coming-soon:hover {
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+}
+
+.retro-nav .nav-item.coming-soon:hover img {
+  opacity: 0.4;
+  transform: none; /* Prevent the normal hover scale effect */
+}
+
+/* Override normal nav item hover effects for coming soon items */
+.retro-nav .nav-item.coming-soon:hover {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .retro-nav {
+    padding: 8px 12px;
+    max-width: 340px;
+  }
+  
+  .retro-nav:hover {
+    max-width: 450px;
+    padding: 10px 16px;
+  }
+  
+  .retro-nav .nav-item {
+    padding: 6px 1px;
+    margin: 0 1px;
+  }
+  
+  .retro-nav:hover .nav-item {
+    padding: 6px 2px;
+    margin: 0 2px;
+  }
+  
+  .retro-nav .nav-item img {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .retro-nav .nav-item span {
+    font-size: 10px;
+  }
+  
+  /* Responsive adjustments for coming soon tooltips */
+  .retro-nav .nav-item.coming-soon::before {
+    font-size: 10px;
+    padding: 4px 8px;
+    bottom: -32px;
+  }
+  
+  .retro-nav:hover .nav-item.coming-soon::before {
+    bottom: -36px;
+  }
+}
+
+/* Ensure the hero section doesn't have any positioning issues */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Background video */
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure video covers entire container */
+  z-index: -1; /* Place video behind other content */
+}
+
+/* Background image */
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover; /* Ensure image covers entire container */
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1; /* Place image behind other content */
+}
+
+.spotify-player {
+  margin-top: 10px; /* Space between the player and the buttons */
+  display: flex;
+  justify-content: center;
+}
+
+.spotify-player button {
+  background-color: #1db954;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.spotify-player button:hover {
+  background-color: #1ed760;
+}
+
+/* Gold and Streak Stats Display */
+.stats-display {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 16px;
+  border-radius: 20px;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.stats-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-container {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* For proper positioning of fire effect */
+}
+
+.icon-container img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Fire GIF transparent background effect */
+.icon-container img[src*="fire.gif"] {
+  mix-blend-mode: screen; /* Makes dark colors transparent */
+  filter: brightness(1.3) contrast(1.3); /* Enhance the fire effect */
+}
+
+.value-container {
+  color: white;
+  font-weight: bold;
+  font-family: Arial, sans-serif; /* Using a standard font for now */
+  font-size: 16px;
+  min-width: 20px;
+  text-align: center;
+  padding: 2px 4px; /* Add some padding */
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle background */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Coin rotation animation */
+@keyframes coinRotate {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+/* Gold coin rotation */
+.icon-container img[src*="gold-coin"] {
+  animation: coinRotate 4s linear infinite;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+/* Additional selectors to catch potential variations */
+.icon-container img[src*="fire-streak"] {
+  mix-blend-mode: screen;
+  filter: brightness(1.3) contrast(1.3);
+}
+
+.icon-container img[src*="goldcoin"] {
+  animation: coinRotate 4s linear infinite;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+}
+
+/* Updated Login/Register Button Styles */
+.login-button, .register-button {
+  padding: 10px 24px;
+  font-family: bitF1, sans-serif;
+  font-size: 18px;
+  background-color: #000000;  /* Black background */
+  color: #5271ff;  /* Blue text matching your start button */
+  border: 2px solid #5271ff;  /* Blue border */
+  border-radius: 20px;  /* Rounded corners */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin: 0 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.login-button:hover, .register-button:hover {
+  background-color: #5271ff;  /* Blue background on hover */
+  color: #000000;  /* Black text on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Container for the login/register buttons */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+/* Profile Display Styles - For after login */
+.profile-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 30px;
+  border: 2px solid #5271ff;
+}
+
+.username {
+  color: #5271ff;
+  font-weight: bold;
+  font-family: bitF1, sans-serif;
+  text-shadow: 0 0 5px rgba(82, 113, 255, 0.7);
+}
+
+.logout-button {
+  background-color: transparent;
+  border: none;
+  color: #ff5252;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px;
+  transition: all 0.2s ease;
+}
+
+.logout-button:hover {
+  color: #ff0000;
+  transform: scale(1.1);
+}
+
+/* GIF background styling */
+.gif-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+/* Hidden nav state - for future hide/show functionality */
+.retro-nav-container.nav-hidden {
+  transform: translateY(100px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Nav hint when nav is hidden - for future functionality */
+.nav-hint {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 24px;
+  background-color: rgba(11, 25, 43, 0.85);
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 99;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.nav-hint.visible {
+  opacity: 0.8;
+  pointer-events: auto;
+}
+
+.nav-hint span {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.nav-hint:hover {
+  opacity: 1;
+  background-color: rgba(24, 45, 78, 0.9);
+}
+
+.nav-toggle-button {
+  display: none; /* If it's not supposed to be visible */
+}
+
+/* Enhanced Profile Picture Container */
+.profile-pic-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #5271ff;
+  transition: all 0.3s ease;
+}
+
+.profile-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-pic-container:hover .profile-pic {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(82, 113, 255, 0.5);
+}
+
+/* Change PFP Button */
+.change-pfp-btn {
+  position: absolute;
+  top: 45px;
+  background: #5271ff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.profile-pic-container:hover .change-pfp-btn {
+  opacity: 1;
+}
+
+.change-pfp-btn:hover {
+  background: #6b82ff;
+  transform: translateY(-1px);
+}
+
+/* PFP Selector Overlay */
+.pfp-selector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2000;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* PFP Selector Panel - slides in from right */
+.pfp-selector-panel {
+  background: linear-gradient(135deg, rgba(11, 25, 43, 0.95), rgba(24, 45, 78, 0.95));
+  border-radius: 15px;
+  max-width: 400px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  animation: slideInFromRight 0.4s ease;
+  margin-top: 60px; /* Space from top */
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* PFP Selector Header */
+.pfp-selector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pfp-selector-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* PFP Grid */
+.pfp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 15px;
+  padding: 20px;
+}
+
+/* PFP Item */
+.pfp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+}
+
+.pfp-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+.pfp-item.selected {
+  border-color: #5271ff;
+  background: rgba(82, 113, 255, 0.1);
+}
+
+.pfp-item.unlocked:hover {
+  border-color: rgba(82, 113, 255, 0.5);
+}
+
+/* PFP Image Container */
+.pfp-image-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.pfp-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Premium Overlay for PFPs */
+.pfp-premium-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.pfp-premium-overlay .lock-icon {
+  font-size: 16px;
+  color: #ffd700;
+}
+
+.pfp-cost {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.gold-icon-small {
+  width: 12px;
+  height: 12px;
+}
+
+.pfp-cost span {
+  color: #ffd700;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Selected Indicator */
+.selected-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #5271ff;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Animated Badge */
+.animated-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: #ff6b35;
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+/* PFP Name */
+.pfp-name {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  text-align: center;
+  font-weight: 500;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pfp-item.selected .pfp-name {
+  color: #5271ff;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .pfp-selector-panel {
+    max-width: 350px;
+    margin-top: 10px;
+  }
+  
+  .pfp-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    padding: 15px;
+  }
+  
+  .pfp-image-container {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

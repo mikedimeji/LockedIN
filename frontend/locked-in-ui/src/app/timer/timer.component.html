@@ -1,0 +1,60 @@
+<div class="timer" [ngClass]="{'expanded': isExpanded}">
+  <div class="time-display" (mouseenter)="showTooltip()" (mouseleave)="hideTooltip()" (click)="handleTimeClick()">
+    <input type="text" [value]="formatTime(hours)" (input)="handleInputChange($event, 'hours')" [disabled]="isRunning" class="time-input">
+    :
+    <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
+    :
+    <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
+    
+    <!-- Pause/Resume Speech Bubble -->
+    <div class="speech-bubble" *ngIf="showPauseTooltip">
+      <div class="bubble-content">
+        <span>{{ getTooltipMessage() }}</span>
+      </div>
+      <div class="bubble-tail"></div>
+    </div>
+  </div>
+
+  <!-- Controls shown only in non-expanded state -->
+  <div class="controls" *ngIf="!isExpanded">
+    <button (click)="startTimer()">Start</button>
+  </div>
+
+  <!-- Controls shown only in expanded state -->
+  <div class="expanded-controls" *ngIf="isExpanded">
+    <button (click)="pauseTimer()">{{ isRunning ? 'Pause' : 'Resume' }}</button>
+    <button (click)="openConfirmDialog()">Reset</button>
+  </div>
+
+  <!-- Gold and streak earned message -->
+  <div class="reward-message" *ngIf="showGoldMessage" [ngClass]="{'show': showGoldMessage}">
+    <div class="reward-icons">
+      <div class="reward-icon" *ngIf="goldEarned > 0">
+        <img src="assets/images/goldcoin.png" alt="Gold">
+      </div>
+      <div class="reward-icon streak" *ngIf="streakUpdated">
+        <img src="assets/images/fire.gif" alt="Streak">
+      </div>
+    </div>
+    <div class="reward-text" [innerHTML]="getGoldMessage()"></div>
+  </div>
+  
+  <!-- Pause Confirmation Dialog -->
+  <div class="pause-confirm-dialog" *ngIf="showPauseConfirm" [ngClass]="{'show': showPauseConfirm}">
+    <div class="confirm-content">
+      <h3>Pause Timer?</h3>
+      <p>Pausing may reset current pomodoro progress.</p>
+      <div class="confirm-buttons">
+        <button class="confirm-yes" (click)="confirmPause(true)">Yes, Pause</button>
+        <button class="confirm-no" (click)="confirmPause(false)">No, Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+

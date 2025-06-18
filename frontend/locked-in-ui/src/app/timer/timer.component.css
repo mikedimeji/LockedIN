@@ -1,0 +1,319 @@
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  font-family: bitF1;
+  border-radius: 15px;
+  padding-bottom: 5%;
+  margin-top: 15%;
+  transition: all 0.5s ease-in-out;
+}
+
+.timer.expanded {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  margin-top: 0;
+  border-radius: 0;
+}
+
+.time-display {
+  font-family: bitF1;
+  font-size: 100px;
+  margin-bottom: 80px;
+  color: whitesmoke;
+  display: flex; /* Flexbox to manage layout */
+  align-items: center; /* Center align the inputs */
+  transition: all 0.5s ease-in-out;
+  position: relative; /* For speech bubble positioning */
+  cursor: pointer; /* Always show it's clickable */
+}
+
+.timer.expanded .time-display {
+  font-size: 200px; /* Increase size when expanded */
+}
+
+.time-input {
+  width: 130px; /* Adjusted width for visibility */
+  border: none;
+  background: transparent;
+  font-family: bitF1;
+  color: whitesmoke;
+  font-size: 100px;
+  text-align: center;
+  outline: none;
+  appearance: none;
+  line-height: 1; /* Ensures the content height fits */
+  padding: 0; /* Removes any default padding */
+  pointer-events: none; /* Make inputs non-interactive */
+}
+
+.time-input:hover, .time-input:focus {
+  background: rgba(255, 255, 255, 0.2); /* Light background on hover and focus */
+}
+
+/* Add this style for the controls */
+.controls {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.timer.expanded .controls {
+  display: none; /* Hide controls when expanded */
+}
+
+.expanded-controls {
+  position: absolute;
+  bottom: 35%;  /* Use percentage instead of fixed pixels */
+  left: 50%;
+  transform: translateX(-50%);  /* Center horizontally */
+  display: flex;
+  gap: 30px;
+  transition: all 0.5s ease-in-out;
+}
+
+.timer:not(.expanded) .expanded-controls {
+  display: none; /* Hide expanded controls when not in expanded state */
+}
+
+.controls button, .expanded-controls button {
+  font-family: bitF1;
+  font-size: 40px;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 10px 20px;
+}
+
+/* Add this for the buttons to ensure they're visible */
+.controls button {
+  margin: 0 10px;
+}
+
+.controls button:disabled, .expanded-controls button:disabled {
+  background-color: #3f51b5;
+  cursor: not-allowed;
+}
+
+.controls button:enabled, .expanded-controls button:enabled {
+  background-color: #3f51b5;
+}
+
+/* Reward message styles */
+.reward-message {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 15px 25px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 1000;
+  opacity: 0;
+  transition: all 0.5s ease;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  font-family: bitF1;
+}
+
+.reward-message.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.reward-icons {
+  display: flex;
+  gap: 10px;
+}
+
+.reward-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reward-icon img {
+  width: 30px;
+  height: 30px;
+}
+
+.reward-icon.streak img {
+  width: 36px;
+  height: 36px;
+}
+
+.reward-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #FFD700; /* Gold color */
+}
+
+/* Animation for completing timer */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.timer.completed .time-display {
+  animation: pulse 1s ease-in-out infinite;
+  color: #FFD700;
+}
+
+/* Speech Bubble Styles */
+.speech-bubble {
+  position: absolute;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 15px;
+  padding: 15px;
+  color: white;
+  font-size: 18px;
+  font-family: bitF1;
+  min-width: 200px;
+  max-width: 350px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid #5271ff;
+  z-index: 1000;
+  animation: bubblePop 0.3s ease-out;
+}
+
+@keyframes bubblePop {
+  0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+.bubble-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pause-icon, .play-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.bubble-tail {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #5271ff;
+}
+
+/* Pause Confirmation Dialog */
+.pause-confirm-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.pause-confirm-dialog.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.confirm-content {
+  background-color: rgba(0, 0, 0, 0.9);
+  border: 2px solid #5271ff;
+  border-radius: 15px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  color: white;
+  font-family: bitF1;
+  animation: scaleIn 0.3s ease-out;
+  box-shadow: 0 0 30px rgba(82, 113, 255, 0.5);
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.confirm-content h3 {
+  font-size: 28px;
+  margin-bottom: 15px;
+  color: #5271ff;
+}
+
+.confirm-content p {
+  font-size: 18px;
+  margin-bottom: 25px;
+  color: #ccc;
+}
+
+.confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.confirm-buttons button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: bitF1;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-yes {
+  background-color: #5271ff;
+  border: none;
+  color: white;
+}
+
+.confirm-no {
+  background-color: transparent;
+  border: 2px solid #5271ff;
+  color: #5271ff;
+}
+
+.confirm-yes:hover {
+  background-color: #3a59e5;
+  transform: translateY(-2px);
+}
+
+.confirm-no:hover {
+  background-color: rgba(82, 113, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+
+
+
+
+
+

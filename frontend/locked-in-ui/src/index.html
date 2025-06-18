@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LockedIN Aesthetic Workspace</title>
+  
+  <!-- Include Google Material Icons font -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@angular/material/prebuilt-themes/indigo-pink.css" rel="stylesheet">
+  
+  <!-- Define the global function needed by the Spotify SDK -->
+  <script>
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      console.log('Spotify Web Playback SDK is ready.');
+      // Initialize your player here or trigger the initialization from Angular
+    };
+  </script>
+  
+  <!-- Include the Spotify Web Playback SDK -->
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  
+  <!-- Ensure the Content Security Policy allows the required sources -->
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self' https://sdk.scdn.co https://fonts.googleapis.com https://fonts.gstatic.com;
+  script-src 'self' 'unsafe-inline' https://sdk.scdn.co;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' https://api.spotify.com https://accounts.spotify.com http://localhost:8080;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+</head>
+<body class="mat-typography">
+  <app-root></app-root>
+</body>
+</html>
+
+
+

@@ -1,0 +1,187 @@
+<!-- When not logged in -->
+<div *ngIf="!authService.isLoggedIn()" class="auth-buttons" ngSkipHydration>
+  <button class="register-button" (click)="showRegister()">Sign Up</button>
+  <button class="login-button" (click)="showLogin()">Login</button>
+</div>
+
+<!-- Update your existing profile-display div to include hover effect and click handler -->
+<div *ngIf="authService.isLoggedIn()" class="profile-display" ngSkipHydration>
+  <div class="profile-pic-container">
+    <div class="profile-pic">
+      <img [src]="selectedPfp" alt="Profile">
+    </div>
+    <!-- Change PFP Button that appears on hover -->
+    <button class="change-pfp-btn" (click)="togglePfpSelector()">
+      Change PFP
+    </button>
+  </div>
+  <span class="username">{{ authService.getUsername() }}</span>
+  <button class="logout-button" (click)="onSignOut()">Sign Out</button>
+</div>
+
+<!-- PFP Selector Overlay -->
+<div *ngIf="showPfpSelector" class="pfp-selector-overlay" (click)="closePfpSelector()">
+  <div class="pfp-selector-panel" (click)="$event.stopPropagation()">
+    <div class="pfp-selector-header">
+      <h3>Choose Profile Picture</h3>
+      <button class="close-btn" (click)="closePfpSelector()">×</button>
+    </div>
+    
+    <div class="pfp-grid">
+      <div *ngFor="let pfp of availablePfps" 
+           class="pfp-item"
+           [ngClass]="{
+             'selected': isPfpSelected(pfp.path),
+             'unlocked': pfp.unlocked,
+             'animated': pfp.isAnimated
+           }"
+           (click)="changePfp(pfp)">
+        
+        <!-- PFP Image -->
+        <div class="pfp-image-container">
+          <img [src]="pfp.path" [alt]="pfp.name" class="pfp-image">
+          
+          <!-- Premium overlay for locked PFPs -->
+          <div *ngIf="pfp.premium && !pfp.unlocked" class="pfp-premium-overlay">
+            <div class="lock-icon">🔒</div>
+            <div class="pfp-cost">
+              <img src="assets/images/goldcoin.png" alt="Gold" class="gold-icon-small">
+              <span>{{ pfp.goldCost }}</span>
+            </div>
+          </div>
+          
+          <!-- Selected indicator -->
+          <div *ngIf="isPfpSelected(pfp.path)" class="selected-indicator">
+            ✓
+          </div>
+          
+          <!-- Animated indicator -->
+          <div *ngIf="pfp.isAnimated && pfp.unlocked" class="animated-badge">
+            GIF
+          </div>
+        </div>
+        
+        <!-- PFP Name -->
+        <div class="pfp-name">{{ pfp.name }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gold and Streak Display with ngIf to ensure it's shown only when logged in -->
+<div *ngIf="authService.isLoggedIn()" class="stats-display" ngSkipHydration>
+  <div class="stats-item">
+    <div class="icon-container">
+      <img src="assets/images/goldcoin.png" alt="Gold" title="Gold Balance">
+    </div>
+    <div class="value-container">
+      {{goldBalance}}
+    </div>
+  </div>
+  <div class="stats-item">
+    <div class="icon-container">
+      <img src="assets/images/fire.gif" alt="Streak" title="Current Streak">
+    </div>
+    <div class="value-container">
+      {{currentStreak}}
+    </div>
+  </div>
+</div>
+
+<!-- Spotify Player Component -->
+<app-spotify-player *ngIf="showSpotifyPlayer" ngSkipHydration></app-spotify-player>
+
+<!-- Ambience Component with closePanel event binding -->
+<app-ambience *ngIf="showAmbiencePanel" (closePanel)="toggleAmbiencePanel()" ngSkipHydration></app-ambience>
+
+<div class="nav-toggle-button" (click)="toggleNavVisibility()" [class.nav-hidden]="isNavHidden">
+  <span class="toggle-icon">
+    {{ isNavHidden ? '▼' : '▲' }}
+  </span>
+</div>
+
+<!-- Update your navigation section in app.component.html -->
+<div class="retro-nav-container" [class.nav-hidden]="isNavHidden" ngSkipHydration>
+  <div class="retro-nav">
+    <div class="nav-item" routerLink="/themes" title="Theme">
+      <img src="assets/images/nav/theme.jpg" alt="Theme">
+      <span>Theme</span>
+    </div>
+    <div class="nav-item" (click)="toggleAmbiencePanel()" title="Ambience">
+      <img src="assets/images/nav/sun-cloud.png" alt="Ambience">
+      <span>Ambience</span>
+    </div>
+    <!-- Shop - Coming Soon -->
+    <div class="nav-item coming-soon" title="Coming Soon">
+      <img src="assets/images/nav/two-coins.png" alt="shop">
+      <span>Shop</span>
+    </div>
+    <div class="nav-item" routerLink="/timer" title="Pomo">
+      <img src="assets/images/nav/alarm-clock.png" alt="Pomo">
+      <span>Pomo</span>
+    </div>
+    <div class="nav-item" (click)="toggleSpotifyPlayer()" title="Music">
+      <img src="assets/images/nav/musical-notes.png" alt="Music">
+      <span>Music</span>
+    </div>
+    <div class="nav-item" routerLink="/planner" title="Todo">
+      <img src="assets/images/nav/checklist.png" alt="Todo">
+      <span>Todo</span>
+    </div>
+    <div class="nav-item" routerLink="/stats" title="Stats">
+      <img src="assets/images/nav/star-flag.png" alt="Stats">
+      <span>Stats</span>
+    </div>
+    <!-- Journal - Coming Soon -->
+    <div class="nav-item coming-soon" title="Coming Soon">
+      <img src="assets/images/nav/love-letter.png" alt="Journal">
+      <span>Journal</span>
+    </div>
+  </div>
+</div>
+
+<!-- Hero section with separate handling for GIFs -->
+<div class="hero">
+  <!-- MP4 videos -->
+  <video *ngIf="isVideoBackground && !selectedTheme.toLowerCase().endsWith('.gif')" 
+         autoplay muted loop playsinline 
+         class="background-video" 
+         ngSkipHydration>
+    <source [src]="selectedTheme" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  
+  <!-- GIFs displayed as background images -->
+  <div *ngIf="isVideoBackground && selectedTheme.toLowerCase().endsWith('.gif')"
+       class="gif-background"
+       [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}"
+       ngSkipHydration>
+  </div>
+  
+  <!-- Static images -->
+  <div *ngIf="!isVideoBackground" 
+       class="background-image" 
+       [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}" 
+       ngSkipHydration>
+  </div>
+  
+  <router-outlet></router-outlet>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
