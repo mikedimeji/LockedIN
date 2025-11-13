@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from "@angular/router";
 import { CommonModule } from "@angular/common";
 import { GoldStreakService } from '../gold-streak.service';
-
+import { UserPreferencesService } from '../user-preferences.service';
 // Define types for better type safety
 interface Theme {
   path: string;
@@ -82,18 +82,19 @@ allThemes: Theme[] = [
 
   constructor(
     private router: Router,
-    private goldStreakService: GoldStreakService ) {}
+    private goldStreakService: GoldStreakService,
+    private userPreferencesService: UserPreferencesService   ) {}
 
   ngOnInit(): void {
-    // Load the currently selected theme from localStorage
+    if (this.userPreferencesService.getCurrentPreferences()) {
+    // Load from backend service if available
+    const prefs = this.userPreferencesService.getCurrentPreferences();
+    this.selectedTheme = prefs?.selectedTheme || this.allThemes[0].path;
+  } else {
+    // Fallback to localStorage
     const savedTheme = localStorage.getItem('selectedTheme');
-    if (savedTheme) {
-      this.selectedTheme = savedTheme;
-    } else {
-      // Set default theme if none is saved
-      this.selectedTheme = this.allThemes[0].path;
-    }
-
+    this.selectedTheme = savedTheme || this.allThemes[0].path;
+  }
     // Check if there's a saved preference for live/static themes
     const showLive = localStorage.getItem('showLiveThemes');
     if (showLive !== null) {
@@ -194,29 +195,44 @@ private applyFilters(): void {
   this.updatePagination();
 }
 
- 
-/**
- * Handle theme selection and purchasing
- */
 changeTheme(theme: Theme): void {
   // If theme is free or already unlocked, apply it immediately
   if (!theme.premium || theme.unlocked) {
     this.selectedTheme = theme.path;
-    localStorage.setItem('selectedTheme', theme.path);
-    localStorage.setItem('isVideoBackground', String(theme.isLive));
     
-    // If switching to a live theme, clear all ambience effects
-    if (theme.isLive) {
-      this.clearAmbienceEffects();
-    }
+    // Save to backend if logged in
+    this.userPreferencesService.updateSelectedTheme(theme.path, theme.isLive).subscribe({
+      next: (prefs) => {
+        console.log('Theme updated on backend:', prefs);
+        
+        // Update localStorage as backup
+        localStorage.setItem('selectedTheme', theme.path);
+        localStorage.setItem('isVideoBackground', String(theme.isLive));
+        
+        // If switching to a live theme, clear all ambience effects
+        if (theme.isLive) {
+          this.clearAmbienceEffects();
+        }
+        
+        // Reload to apply the new theme
+        window.location.reload();
+      },
+      error: (error) => {
+        console.error('Error updating theme on backend:', error);
+        
+        // Fallback to localStorage
+        localStorage.setItem('selectedTheme', theme.path);
+        localStorage.setItem('isVideoBackground', String(theme.isLive));
+        
+        if (theme.isLive) {
+          this.clearAmbienceEffects();
+        }
+        
+        window.location.reload();
+      }
+    });
     
-    window.location.reload();
     return;
-  }
-
-  // Theme is premium and locked - handle purchase
-  if (theme.premium && !theme.unlocked) {
-    this.handleThemePurchase(theme);
   }
 
   // Theme is premium and locked - handle purchase
@@ -261,56 +277,49 @@ private handleThemePurchase(theme: Theme): void {
  * Process the theme purchase with backend integration
  */
 private purchaseTheme(theme: Theme, goldCost: number): void {
-  // Call backend to spend gold
-  this.goldStreakService.spendGold(goldCost).subscribe({
-    next: (response) => {
-      // Successfully spent gold on backend
-      console.log('Gold spent successfully:', response);
-      
-      // Update local gold balance with response from backend
-      this.userGoldBalance = response.goldBalance || response.currentGold || (this.userGoldBalance - goldCost);
-      
-      // Mark theme as unlocked
-      theme.unlocked = true;
-      
-      // Save changes to localStorage
-      localStorage.setItem('userGoldBalance', this.userGoldBalance.toString());
-      this.saveUnlockedThemes();
-      
-      // Apply the newly purchased theme
-      this.selectedTheme = theme.path;
-      localStorage.setItem('selectedTheme', theme.path);
-      localStorage.setItem('isVideoBackground', String(theme.isLive));
-      
-      // If switching to a live theme, clear all ambience effects
-      if (theme.isLive) {
-        this.clearAmbienceEffects();
-      }
+  // Use the new backend purchase method
+  this.userPreferencesService.purchaseTheme(theme.path, theme.name, goldCost).subscribe({
+    next: (result) => {
+      if (result.success) {
+        // Spend gold via existing service
+        this.goldStreakService.spendGold(goldCost).subscribe({
+          next: (goldResponse) => {
+            // Update local state
+            this.userGoldBalance = result.remainingGold || goldResponse.goldBalance || (this.userGoldBalance - goldCost);
+            theme.unlocked = true;
+            
+            // Update localStorage as backup
+            localStorage.setItem('userGoldBalance', this.userGoldBalance.toString());
+            this.saveUnlockedThemes();
+            
+            // Apply the newly purchased theme
+            this.selectedTheme = theme.path;
+            
+            // Update backend with new selected theme
+            this.userPreferencesService.updateSelectedTheme(theme.path, theme.isLive).subscribe({
+              next: () => {
+                localStorage.setItem('selectedTheme', theme.path);
+                localStorage.setItem('isVideoBackground', String(theme.isLive));
+                
+                if (theme.isLive) {
+                  this.clearAmbienceEffects();
+                }
 
-      // Show success message
-      alert(`Successfully purchased "${theme.name}"! Theme applied. Remaining gold: ${this.userGoldBalance}`);
-      
-      // Reload to apply the new theme
-      window.location.reload();
+                alert(`Successfully purchased "${theme.name}"! Theme applied. Remaining gold: ${this.userGoldBalance}`);
+                window.location.reload();
+              }
+            });
+          },
+          error: (goldError) => {
+            console.error('Error spending gold:', goldError);
+            alert('Purchase completed but there was an error updating gold balance.');
+          }
+        });
+      }
     },
     error: (error) => {
-      console.error('Error spending gold:', error);
-      
-      // Handle different error scenarios
-      if (error.status === 400) {
-        // Bad request - likely insufficient funds
-        alert(`Purchase failed: ${error.error?.message || 'Insufficient gold or invalid request'}`);
-      } else if (error.status === 401) {
-        // Unauthorized
-        alert('Session expired. Please log in again.');
-        // Optionally redirect to login
-      } else {
-        // Other server errors
-        alert('Purchase failed due to a server error. Please try again later.');
-      }
-      
-      // Refresh gold balance from backend in case of error
-      this.loadUserGoldBalance();
+      console.error('Error purchasing theme:', error);
+      alert('Purchase failed. Please try again.');
     }
   });
 }

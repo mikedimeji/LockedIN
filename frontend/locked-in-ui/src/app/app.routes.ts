@@ -12,7 +12,7 @@ import { AuthGuard } from './auth.guard';
 export const routes: Routes = [
   { path: 'timer', component: TimerComponent }, // Route for Timer
   { path: 'about', component: AboutComponent }, // Route for About
-  { path: 'themes', component: ThemesComponent }, 
+  { path: 'themes', component: ThemesComponent, canActivate: [AuthGuard]  }, 
   { path: 'login', component: UserLoginComponent }, // Route for Login
   { path: 'register', component: UserRegisterComponent }, // Route for Register
   { path: 'ambience', component: AmbienceComponent }, // Route for Ambience

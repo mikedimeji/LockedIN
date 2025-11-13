@@ -5,17 +5,21 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { TimerComponent } from './timer/timer.component';
+import { NotificationsComponent } from "./notifications/notifications.component";
 import { UserRegisterComponent } from './user-register/user-register.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { ThemesComponent } from './themes/themes.component';
 import { SpotifyPlayerComponent } from "./spotify-player/spotify-player.component";
 import { PlannerComponent } from "./planner/planner.component";
+import { PixelClockComponent } from './pixel-clock/pixel-clock.component';
 import { AmbienceComponent } from "./ambience/ambience.component";
 import { AuthService } from './auth.service';
 import { GoldStreakService } from './gold-streak.service';
 import { interval } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { of, filter, Subscription } from 'rxjs';
+import { UserPreferencesService } from './user-preferences.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   standalone: true,
@@ -28,8 +32,10 @@ import { of, filter, Subscription } from 'rxjs';
     TimerComponent,
     AmbienceComponent,
     UserRegisterComponent,
+    PixelClockComponent,
     UserLoginComponent,
     PlannerComponent,
+    NotificationsComponent,
     ConfirmDialogComponent,
     RouterOutlet,
     RouterLink,
@@ -183,37 +189,76 @@ availablePfps = [
   private routerSubscription: Subscription | null = null;
   private customEventListenerAdded: boolean = false;
 
+  // Notifications properties
+  showNotifications: boolean = false;
+  hasUnreadNotifications: boolean = true; // You can make this dynamic later
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object, 
     private router: Router, 
     public authService: AuthService,
-    private goldStreakService: GoldStreakService
+    private goldStreakService: GoldStreakService,
+    private userPreferencesService: UserPreferencesService,
+    private cdr: ChangeDetectorRef  
   ) {}
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      // Setup theme
+  if (isPlatformBrowser(this.platformId)) {
+    // Setup custom event listener for refresh
+    this.setupCustomEventListener();
+    
+    // Listen for router navigation end events to refresh data
+    this.setupRouterListener();
+
+    this.checkUnreadNotifications();
+
+    // Load user data if logged in
+    if (this.authService.isLoggedIn()) {
+      this.loadUserDataFromBackend();
+    } else {
+      // If not logged in, use localStorage fallbacks
       this.setupTheme();
-      
-      // Load nav visibility preference
       this.loadNavVisibility();
-
-
-      // set up the pfp correctly  
       this.setupPfp();
-      
-      // Load user data if logged in
-      if (this.authService.isLoggedIn()) {
-        this.refreshUserData();
-      }
-      
-      // Setup custom event listener for refresh
-      this.setupCustomEventListener();
-      
-      // Listen for router navigation end events to refresh data
-      this.setupRouterListener();
     }
   }
+}
+
+private loadUserDataFromBackend(): void {
+  this.userPreferencesService.loadUserData().subscribe({
+    next: (data) => {
+      console.log('User data loaded from backend:', data);
+      
+      // Apply preferences
+      const prefs = data.preferences;
+      this.selectedTheme = prefs.selectedTheme;
+      this.isVideoBackground = prefs.isVideoBackground;
+      this.isNavHidden = prefs.navHidden;
+      this.selectedPfp = prefs.selectedPfp;
+
+      console.log('Applied theme:', this.selectedTheme);
+      console.log('Is video background:', this.isVideoBackground);
+
+      // Update PFP unlock status
+      this.updatePfpUnlockStatus(data.pfps);
+      
+      this.cdr.detectChanges();
+      
+      // Force background refresh
+      this.forceBackgroundRefresh();
+      
+      // Load other user data (gold, streaks)
+      this.refreshUserData();
+    },
+    error: (error) => {
+      console.error('Error loading user data from backend:', error);
+      // Fallback to localStorage
+      this.setupTheme();
+      this.loadNavVisibility();
+      this.setupPfp();
+    }
+  });
+}
   
   // Set up theme preferences
   private setupTheme(): void {
@@ -234,7 +279,7 @@ availablePfps = [
       
       console.log('Selected theme:', this.selectedTheme, 'Is video?', this.isVideoBackground);
     } else {
-      this.selectedTheme = 'assets/videos/yumenikki.mp4';
+      this.selectedTheme = 'assets/videos/witch.gif';
       this.isVideoBackground = true;
     }
   }
@@ -270,14 +315,31 @@ availablePfps = [
     });
   }
 
-  toggleNavVisibility(): void {
-    this.isNavHidden = !this.isNavHidden;
-    
-    // Optionally save the preference in localStorage so it persists between sessions
+  // REPLACE the existing toggleNavVisibility() method
+toggleNavVisibility(): void {
+  this.isNavHidden = !this.isNavHidden;
+  
+  if (this.authService.isLoggedIn()) {
+    // Save to backend
+    this.userPreferencesService.updateNavVisibility(this.isNavHidden).subscribe({
+      next: (prefs) => {
+        console.log('Nav visibility updated on backend:', prefs);
+      },
+      error: (error) => {
+        console.error('Error updating nav visibility on backend:', error);
+        // Fallback to localStorage
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('navHidden', this.isNavHidden.toString());
+        }
+      }
+    });
+  } else {
+    // Save to localStorage for non-logged-in users
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('navHidden', this.isNavHidden.toString());
     }
   }
+}
 
   refreshUserData(): void {
     if (this.authService.isLoggedIn()) {
@@ -398,85 +460,184 @@ ngAfterViewInit() {
     return this.selectedPfp === pfpPath;
   }
 
-  // Handle PFP selection
-  changePfp(pfp: any): void {
-    if (pfp.premium && !pfp.unlocked) {
-      // Handle premium PFP purchase
-      this.purchasePfp(pfp);
-    } else if (pfp.unlocked) {
-      // Change to unlocked PFP
-      this.selectedPfp = pfp.path;
-      
-      // Save to localStorage
+  // REPLACE the existing changePfp() method
+changePfp(pfp: any): void {
+  if (pfp.premium && !pfp.unlocked) {
+    // Handle premium PFP purchase
+    this.purchasePfp(pfp);
+  } else if (pfp.unlocked) {
+    // Change to unlocked PFP
+    this.selectedPfp = pfp.path;
+    
+    if (this.authService.isLoggedIn()) {
+      // Save to backend
+      this.userPreferencesService.updateSelectedPfp(pfp.path).subscribe({
+        next: (prefs) => {
+          console.log('PFP updated on backend:', prefs);
+        },
+        error: (error) => {
+          console.error('Error updating PFP on backend:', error);
+          // Fallback to localStorage
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.setItem('selectedPfp', pfp.path);
+          }
+        }
+      });
+    } else {
+      // Save to localStorage for non-logged-in users
       if (isPlatformBrowser(this.platformId)) {
         localStorage.setItem('selectedPfp', pfp.path);
       }
-      
-      // Close selector after selection
-      this.closePfpSelector();
-      
-      console.log('Changed PFP to:', pfp.name);
-    }
-  }
-
-  // Handle PFP purchase
-  purchasePfp(pfp: any): void {
-    if (this.goldBalance >= pfp.goldCost) {
-      // Confirm purchase (you might want to add a confirmation dialog)
-      const confirmed = confirm(`Purchase "${pfp.name}" for ${pfp.goldCost} gold?`);
-      
-      if (confirmed) {
-        // Deduct gold and unlock PFP
-        this.goldBalance -= pfp.goldCost;
-        pfp.unlocked = true;
-        
-        // TODO: Send purchase request to backend
-        // this.goldStreakService.purchasePfp(pfp.path, pfp.goldCost).subscribe(...)
-        
-        // Automatically select the newly purchased PFP
-        this.selectedPfp = pfp.path;
-        
-        // Save to localStorage
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('selectedPfp', pfp.path);
-          // You might also want to save unlocked PFPs list
-          const unlockedPfps = this.availablePfps
-            .filter(p => p.unlocked)
-            .map(p => p.path);
-          localStorage.setItem('unlockedPfps', JSON.stringify(unlockedPfps));
-        }
-        
-        this.closePfpSelector();
-        
-        console.log(`Purchased and equipped ${pfp.name} for ${pfp.goldCost} gold`);
-      }
-    } else {
-      alert(`Not enough gold! You need ${pfp.goldCost} gold but only have ${this.goldBalance}.`);
-    }
-  }
-
-  // Load PFP preferences (add this to your ngOnInit or setupTheme method)
-  private setupPfp(): void {
-    const savedPfp = localStorage.getItem('selectedPfp');
-    if (savedPfp) {
-      this.selectedPfp = savedPfp;
     }
     
-    // Load unlocked PFPs
-    const unlockedPfps = localStorage.getItem('unlockedPfps');
-    if (unlockedPfps) {
-      try {
-        const unlockedPaths = JSON.parse(unlockedPfps);
-        this.availablePfps.forEach(pfp => {
-          if (unlockedPaths.includes(pfp.path)) {
+    // Close selector after selection
+    this.closePfpSelector();
+    
+    console.log('Changed PFP to:', pfp.name);
+  }
+}
+
+  // Handle PFP purchase
+  // REPLACE the existing purchasePfp() method
+purchasePfp(pfp: any): void {
+  if (!this.authService.isLoggedIn()) {
+    alert('Please log in to purchase PFPs!');
+    return;
+  }
+
+  if (this.goldBalance >= pfp.goldCost) {
+    // Confirm purchase
+    const confirmed = confirm(`Purchase "${pfp.name}" for ${pfp.goldCost} gold?`);
+    
+    if (confirmed) {
+      // Purchase via backend
+      this.userPreferencesService.purchasePfp(pfp.path, pfp.name, pfp.goldCost).subscribe({
+        next: (result) => {
+          if (result.success) {
+            // Update local state
+            this.goldBalance = result.remainingGold;
             pfp.unlocked = true;
+            
+            // Automatically select the newly purchased PFP
+            this.selectedPfp = pfp.path;
+            
+            this.closePfpSelector();
+            
+            console.log(`Purchased and equipped ${pfp.name} for ${pfp.goldCost} gold`);
+            alert(result.message);
+            
+            // Refresh user data to ensure everything is in sync
+            this.refreshUserData();
           }
-        });
-      } catch (error) {
-        console.error('Error loading unlocked PFPs:', error);
-      }
+        },
+        error: (error) => {
+          console.error('Error purchasing PFP:', error);
+          let errorMessage = 'Purchase failed. Please try again.';
+          
+          if (error.status === 400) {
+            errorMessage = error.error || 'Insufficient gold or invalid request';
+          }
+          
+          alert(errorMessage);
+          
+          // Refresh gold balance in case of error
+          this.refreshUserData();
+        }
+      });
+    }
+  } else {
+    alert(`Not enough gold! You need ${pfp.goldCost} gold but only have ${this.goldBalance}.`);
+  }
+}
+
+  // REPLACE the existing setupPfp() method
+private setupPfp(): void {
+  if (this.authService.isLoggedIn()) {
+    // If logged in, PFP data comes from backend (already loaded in loadUserDataFromBackend)
+    return;
+  }
+  
+  // Fallback to localStorage for non-logged-in users
+  const savedPfp = localStorage.getItem('selectedPfp');
+  if (savedPfp) {
+    this.selectedPfp = savedPfp;
+  }
+  
+  // Load unlocked PFPs from localStorage
+  const unlockedPfps = localStorage.getItem('unlockedPfps');
+  if (unlockedPfps) {
+    try {
+      const unlockedPaths = JSON.parse(unlockedPfps);
+      this.availablePfps.forEach(pfp => {
+        if (unlockedPaths.includes(pfp.path)) {
+          pfp.unlocked = true;
+        }
+      });
+    } catch (error) {
+      console.error('Error loading unlocked PFPs:', error);
     }
   }
+}
+
+private updatePfpUnlockStatus(unlockedPfpPaths: string[]): void {
+  this.availablePfps.forEach(pfp => {
+    pfp.unlocked = unlockedPfpPaths.includes(pfp.path) || !pfp.premium;
+  });
+}
+
+  openFeedback(): void {
+  const feedbackUrl = 'https://docs.google.com/document/d/YOUR_GOOGLE_DOC_ID/edit';
+  
+  if (isPlatformBrowser(this.platformId)) {
+    window.open(feedbackUrl, '_blank');
+  }
+
+}
+
+  // Toggle notifications panel
+toggleNotifications(): void {
+  this.showNotifications = !this.showNotifications;
+}
+
+// Close notifications panel
+closeNotifications(): void {
+  this.showNotifications = false;
+}
+
+// Check for unread notifications (you can enhance this later)
+checkUnreadNotifications(): void {
+  // This is a placeholder - you can connect to a service later
+  // For now, we'll just simulate having unread notifications
+  this.hasUnreadNotifications = true;
+}
+
+private forceBackgroundRefresh(): void {
+  // Force Angular to re-evaluate the background display logic
+  const currentTheme = this.selectedTheme;
+  const currentVideoFlag = this.isVideoBackground;
+  
+  // Clear and reset to trigger change detection
+  this.selectedTheme = '';
+  this.isVideoBackground = false;
+  
+  // Force change detection
+  this.cdr.detectChanges();
+  
+  // Use setTimeout to ensure the DOM updates
+  setTimeout(() => {
+    this.selectedTheme = currentTheme;
+    this.isVideoBackground = currentVideoFlag;
+    
+    // Force change detection again
+    this.cdr.detectChanges();
+    
+    console.log('🔄 Background refreshed:', {
+      theme: this.selectedTheme,
+      isVideo: this.isVideoBackground,
+      isGif: this.selectedTheme.toLowerCase().endsWith('.gif')
+    });
+  }, 100);
+}
 
 }
 

@@ -1,0 +1,34 @@
+<div class="pixel-clock-container">
+  <div class="pixel-clock-frame">
+    <div class="clock-display">
+      <!-- Date display - split layout -->
+      <div class="date-display">
+        <div class="date-left">
+          <span class="day-name">{{ currentDay }}</span>
+          <span class="date-separator">•</span>
+          <span class="month-name">{{ currentMonth }}</span>
+        </div>
+        <div class="date-right">
+          {{ currentDate }}
+        </div>
+      </div>
+
+      <!-- Main time display - clickable -->
+      <div class="time-display" (click)="toggle24Hour()">
+        <div class="time-digits">
+          <span class="digit-group">{{ formattedTime.hours }}</span>
+          <span class="separator">:</span>
+          <span class="digit-group">{{ formattedTime.minutes }}</span>
+          <span class="separator">:</span>
+          <span class="digit-group">{{ formattedTime.seconds }}</span>
+        </div>
+        
+        <!-- AM/PM display only (not clickable) -->
+        <div class="ampm-indicator" *ngIf="!is24Hour">
+          <span class="ampm" [class.active]="formattedTime.ampm === 'AM'">AM</span>
+          <span class="ampm" [class.active]="formattedTime.ampm === 'PM'">PM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

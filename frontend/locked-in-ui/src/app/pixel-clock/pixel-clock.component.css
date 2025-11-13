@@ -1,0 +1,146 @@
+/* Clean Transparent 8-bit Clock */
+.pixel-clock-container {
+  position: fixed;
+  top: 50px;
+  left: 10px;
+  z-index: 999;
+  font-family: 'Courier New', monospace;
+  user-select: none;
+}
+
+.pixel-clock-frame {
+  padding: 10px 14px;
+}
+
+.clock-display {
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Date display - split left and right */
+.date-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  margin-bottom: 6px;
+  font-weight: normal;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+  min-width: 120px;
+}
+
+.date-left {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.date-right {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.day-name {
+  color: #5271ff;
+  font-weight: bold;
+}
+
+.month-name {
+  color: #5271ff;
+  font-weight: bold;
+}
+
+.date-separator {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Time display - clickable without hover effects */
+.time-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 6px;
+  cursor: pointer;
+  position: relative;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.time-digits {
+  display: flex;
+  align-items: center;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.digit-group {
+  color: #ffffff;
+  min-width: 32px;
+  text-align: center;
+}
+
+.separator {
+  color: #5271ff;
+  font-size: 22px;
+  margin: 0 3px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.4; }
+}
+
+/* AM/PM indicator - simple display only */
+.ampm-indicator {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: bold;
+  pointer-events: none; /* Not clickable anymore */
+}
+
+.ampm {
+  color: rgba(255, 255, 255, 0.5);
+  padding: 2px 4px;
+  transition: color 0.2s ease;
+}
+
+.ampm.active {
+  color: #5271ff;
+}
+
+/* Remove control buttons completely */
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .pixel-clock-container {
+    top: 45px;
+    left: 8px;
+  }
+  
+  .pixel-clock-frame {
+    padding: 8px 12px;
+  }
+  
+  .time-digits {
+    font-size: 20px;
+  }
+  
+  .digit-group {
+    min-width: 28px;
+  }
+  
+  .date-display {
+    font-size: 9px;
+    min-width: 110px;
+  }
+  
+  .pixel-button {
+    font-size: 7px;
+  }
+}

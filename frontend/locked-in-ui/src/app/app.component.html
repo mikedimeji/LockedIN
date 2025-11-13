@@ -68,25 +68,43 @@
   </div>
 </div>
 
-<!-- Gold and Streak Display with ngIf to ensure it's shown only when logged in -->
+<!-- FIXED: Removed extra < character -->
 <div *ngIf="authService.isLoggedIn()" class="stats-display" ngSkipHydration>
-  <div class="stats-item">
-    <div class="icon-container">
-      <img src="assets/images/goldcoin.png" alt="Gold" title="Gold Balance">
+  <div class="stats-item gold-stat">
+    <div class="icon-container" data-tooltip="Gold">
+      <img src="assets/images/coin/coin2.gif" alt="Gold" title="Gold Balance">
     </div>
     <div class="value-container">
       {{goldBalance}}
     </div>
   </div>
-  <div class="stats-item">
-    <div class="icon-container">
-      <img src="assets/images/fire.gif" alt="Streak" title="Current Streak">
+  <div class="stats-item streak-stat">
+    <div class="icon-container" data-tooltip="Streak">
+      <img src="assets/images/flame/flame2.gif" alt="Streak" title="Current Streak">
     </div>
     <div class="value-container">
       {{currentStreak}}
     </div>
   </div>
+  <!-- Add notifications as a proper stats-item -->
+  <div class="stats-item">
+    <div class="icon-container">
+      <button class="notifications-btn" (click)="toggleNotifications()" title="Notifications">
+        🔔
+        <span *ngIf="hasUnreadNotifications" class="notification-dot"></span>
+      </button>
+    </div>
+  </div>
+  <!-- Add feedback button separately -->
+  <div class="stats-item">
+    <button class="feedback-button" (click)="openFeedback()" title="Send Feedback">
+      FEEDBACK
+    </button>
+  </div>
 </div>
+
+<!-- ADD THE PIXEL CLOCK HERE -->
+<app-pixel-clock *ngIf="authService.isLoggedIn()" ngSkipHydration></app-pixel-clock>
 
 <!-- Spotify Player Component -->
 <app-spotify-player *ngIf="showSpotifyPlayer" ngSkipHydration></app-spotify-player>
@@ -164,6 +182,10 @@
        [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}" 
        ngSkipHydration>
   </div>
+
+  <!-- Add this after your existing components -->
+<app-notifications *ngIf="showNotifications" (closePanel)="closeNotifications()" ngSkipHydration></app-notifications>
+
   
   <router-outlet></router-outlet>
 </div>

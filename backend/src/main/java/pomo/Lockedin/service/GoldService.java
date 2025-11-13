@@ -199,4 +199,67 @@ public class GoldService {
             log.error("Error recording gold transaction for user ID {}: {}", userId, e.getMessage());
         }
     }
+
+    // Add these methods to your existing GoldService class
+
+    /**
+     * Get user's gold balance by userId (instead of email)
+     */
+    public int getUserGoldByUserId(Long userId) {
+        try {
+            String sql = "SELECT gold FROM user WHERE user_id = ?";
+            Integer gold = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+            return gold != null ? gold : 0;
+        } catch (Exception e) {
+            log.error("Error retrieving gold for user ID {}: {}", userId, e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Spend gold by userId and return new balance
+     */
+    public int spendGoldByUserId(Long userId, Integer amount) {
+        try {
+            // Check current balance first
+            int currentGold = getUserGoldByUserId(userId);
+
+            if (currentGold < amount) {
+                throw new IllegalArgumentException("Insufficient gold balance");
+            }
+
+            // Update the gold balance
+            String sql = "UPDATE user SET gold = gold - ? WHERE user_id = ?";
+            int rowsAffected = jdbcTemplate.update(sql, amount, userId);
+
+            if (rowsAffected != 1) {
+                throw new RuntimeException("Failed to update gold balance");
+            }
+
+            // Return new balance
+            return getUserGoldByUserId(userId);
+        } catch (Exception e) {
+            log.error("Error spending gold for user ID {}: {}", userId, e.getMessage());
+            throw new RuntimeException("Failed to spend gold", e);
+        }
+    }
+
+    /**
+     * Add gold to user by userId
+     */
+    public int addGoldByUserId(Long userId, Integer amount) {
+        try {
+            String sql = "UPDATE user SET gold = gold + ? WHERE user_id = ?";
+            int rowsAffected = jdbcTemplate.update(sql, amount, userId);
+
+            if (rowsAffected != 1) {
+                throw new RuntimeException("Failed to update gold balance");
+            }
+
+            return getUserGoldByUserId(userId);
+        } catch (Exception e) {
+            log.error("Error adding gold for user ID {}: {}", userId, e.getMessage());
+            throw new RuntimeException("Failed to add gold", e);
+        }
+    }
 }

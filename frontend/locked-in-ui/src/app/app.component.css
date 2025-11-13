@@ -281,36 +281,91 @@
 .stats-display {
   position: fixed;
   top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 10px; /* Changed from left: 50% */
+  transform: none; /* Remove translateX(-50%) */
   display: flex;
-  gap: 15px;
-  background: rgba(0, 0, 0, 0.7);
+  gap: 15px; /* Increase gap slightly for better spacing */
   padding: 8px 16px;
   border-radius: 20px;
   z-index: 1000;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeInLeft 0.5s ease-in-out; /* New animation name */
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .stats-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-direction: row; /* Changed from column to row */
+  gap: 5px; /* Add gap between icon and number */
 }
 
-.icon-container {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative; /* For proper positioning of fire effect */
+/* Gold and Streak Tooltip Styles - Only apply to gold and streak stats */
+.stats-item.gold-stat,
+.stats-item.streak-stat {
+  position: relative;
+}
+
+.stats-item.gold-stat .icon-container,
+.stats-item.streak-stat .icon-container {
+  position: relative;
+  cursor: pointer;
+}
+
+/* Tooltip styling - only for gold and streak stats */
+.stats-item.gold-stat .icon-container::before,
+.stats-item.streak-stat .icon-container::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: bitF1, sans-serif;
+}
+
+/* Show tooltip on hover - only for gold and streak stats */
+.stats-item.gold-stat .icon-container:hover::before,
+.stats-item.streak-stat .icon-container:hover::before {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Gold-specific tooltip styling */
+.stats-item.gold-stat .icon-container::before {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+/* Streak-specific tooltip styling */
+.stats-item.streak-stat .icon-container::before {
+  color: #ff6b35;
+  border-color: rgba(255, 107, 53, 0.3);
+}
+
+/* Responsive adjustments - only for gold and streak stats */
+@media (max-width: 600px) {
+  .stats-item.gold-stat .icon-container::before,
+  .stats-item.streak-stat .icon-container::before {
+    font-size: 10px;
+    padding: 4px 8px;
+    bottom: -32px;
+  }
 }
 
 .icon-container img {
@@ -318,47 +373,104 @@
   max-height: 100%;
 }
 
-/* Fire GIF transparent background effect */
-.icon-container img[src*="fire.gif"] {
-  mix-blend-mode: screen; /* Makes dark colors transparent */
-  filter: brightness(1.3) contrast(1.3); /* Enhance the fire effect */
+/* Keep icon container the same size */
+.icon-container {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
+/* Update value container for horizontal layout */
 .value-container {
   color: white;
   font-weight: bold;
-  font-family: Arial, sans-serif; /* Using a standard font for now */
-  font-size: 16px;
+  font-family: bitF1, sans-serif;
+  font-size: 16px; /* Slightly smaller to fit better horizontally */
   min-width: 20px;
-  text-align: center;
-  padding: 2px 4px; /* Add some padding */
-  background-color: rgba(255, 255, 255, 0.1); /* Subtle background */
-  border-radius: 4px; /* Rounded corners */
+  text-align: left; /* Changed from center to left */
 }
 
-/* Coin rotation animation */
-@keyframes coinRotate {
-  0% { transform: rotateY(0deg); }
-  100% { transform: rotateY(360deg); }
+/* NOTIFICATIONS BUTTON STYLES - CORRECTED */
+.notifications-btn {
+  background: none !important;
+  border: none !important;
+  color: white !important;
+  font-size: 16px !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  position: relative !important;
+  transition: all 0.3s ease !important;
+  width: 18px !important;
+  height: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  outline: none !important;
 }
 
-/* Gold coin rotation */
-.icon-container img[src*="gold-coin"] {
-  animation: coinRotate 4s linear infinite;
-  transform-style: preserve-3d;
-  backface-visibility: visible;
+.notifications-btn:hover {
+  transform: scale(1.3) !important;
+  filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) !important;
 }
 
-/* Additional selectors to catch potential variations */
-.icon-container img[src*="fire-streak"] {
-  mix-blend-mode: screen;
-  filter: brightness(1.3) contrast(1.3);
+.notifications-btn:focus {
+  outline: none !important;
 }
 
-.icon-container img[src*="goldcoin"] {
-  animation: coinRotate 4s linear infinite;
-  transform-style: preserve-3d;
-  backface-visibility: visible;
+.notification-dot {
+  position: absolute !important;
+  top: -3px !important;
+  right: -3px !important;
+  width: 8px !important;
+  height: 8px !important;
+  background: #ff0080 !important;
+  border-radius: 50% !important;
+  animation: notificationPulse 1.5s infinite !important;
+  box-shadow: 0 0 6px rgba(255, 0, 128, 0.8) !important;
+  z-index: 10 !important;
+}
+
+@keyframes notificationPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(1.4); 
+    opacity: 0.7; 
+  }
+}
+
+/* FEEDBACK BUTTON STYLES */
+.feedback-button {
+  background: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 8px !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
+  font-family: 'Courier New', monospace !important;
+  text-transform: uppercase !important;
+  transition: all 0.3s ease !important;
+  letter-spacing: 0.5px !important;
+  margin-top: 2px !important;
+  outline: none !important;
+}
+
+.feedback-button:hover {
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: scale(1.1) !important;
+}
+
+.feedback-button:focus {
+  outline: none !important;
 }
 
 /* Updated Login/Register Button Styles */
@@ -517,37 +629,121 @@
   object-fit: cover;
 }
 
+/* Enhanced profile pic hover effect with thought bubble context */
 .profile-pic-container:hover .profile-pic {
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(82, 113, 255, 0.5);
+  box-shadow: 
+    0 0 20px rgba(82, 113, 255, 0.6),
+    0 0 40px rgba(82, 113, 255, 0.3);
 }
 
-/* Change PFP Button */
+/* Enhanced Change PFP Button with Thought Bubble */
 .change-pfp-btn {
   position: absolute;
-  top: 45px;
-  background: #5271ff;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #5271ff, #6b82ff);
   color: white;
   border: none;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 10px;
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   white-space: nowrap;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 4px 15px rgba(82, 113, 255, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 3px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
 }
 
+/* Thought bubble circles (small to large leading to main bubble) */
+.change-pfp-btn::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 30%;
+  width: 4px;
+  height: 4px;
+  background: #5271ff;
+  border-radius: 50%;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 
+    8px -6px 0 2px rgba(82, 113, 255, 0.6),
+    16px -12px 0 4px rgba(82, 113, 255, 0.4);
+}
+
+/* Animated appearance with thought bubble effect */
 .profile-pic-container:hover .change-pfp-btn {
   opacity: 1;
+  transform: translateX(-50%) translateY(-8px) scale(1);
+  animation: thoughtBubbleFloat 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+             gentleFloat 3s ease-in-out 1s infinite;
 }
 
+/* Thought bubble floating animation */
+@keyframes thoughtBubbleFloat {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(15px) scale(0.7);
+  }
+  30% {
+    opacity: 0.6;
+    transform: translateX(-50%) translateY(-2px) scale(0.9);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateX(-50%) translateY(-10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-8px) scale(1);
+  }
+}
+
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-12px);
+  }
+}
+
+/* Animate the thought circles appearing */
+.profile-pic-container:hover .change-pfp-btn::before {
+  opacity: 0.8;
+  animation: thoughtCirclesAppear 0.6s ease-out 0.2s both;
+}
+
+@keyframes thoughtCirclesAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+/* Hover effect on the button itself */
 .change-pfp-btn:hover {
-  background: #6b82ff;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #6b82ff, #7c93ff);
+  transform: translateX(-50%) translateY(-10px) scale(1.05);
+  box-shadow: 
+    0 6px 20px rgba(82, 113, 255, 0.4),
+    0 3px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* PFP Selector Overlay */
@@ -560,10 +756,9 @@
   background: rgba(0, 0, 0, 0.7);
   z-index: 2000;
   display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  padding: 10px;
-  animation: fadeIn 0.3s ease;
+  justify-content: center; 
+  align-items: center; 
+  padding: 20px; 
 }
 
 /* PFP Selector Panel - slides in from right */
@@ -576,20 +771,7 @@
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  animation: slideInFromRight 0.4s ease;
-  margin-top: 60px; /* Space from top */
-}
-
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  backdrop-filter: blur(10px); 
 }
 
 /* PFP Selector Header */
@@ -768,7 +950,7 @@
   font-weight: bold;
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for thought bubble */
 @media (max-width: 600px) {
   .pfp-selector-panel {
     max-width: 350px;
@@ -785,8 +967,99 @@
     width: 50px;
     height: 50px;
   }
+  
+  .change-pfp-btn {
+    font-size: 10px;
+    padding: 8px 12px;
+    border-radius: 16px;
+    top: 46px;
+  }
+  
+  .change-pfp-btn::before {
+    width: 3px;
+    height: 3px;
+    top: -10px;
+    box-shadow: 
+      6px -4px 0 1px rgba(82, 113, 255, 0.6),
+      12px -8px 0 2px rgba(82, 113, 255, 0.4);
+  }
 }
 
+
+/* Hide all UI elements when timer is in fullscreen mode */
+.timer-fullscreen-active .stats-display,
+.timer-fullscreen-active .profile-display,
+.timer-fullscreen-active .auth-buttons,
+.timer-fullscreen-active .retro-nav-container,
+.timer-fullscreen-active .notifications-component,
+.timer-fullscreen-active app-notifications,
+.timer-fullscreen-active app-pixel-clock,
+.timer-fullscreen-active app-spotify-player,
+.timer-fullscreen-active app-ambience {
+  display: none !important;
+}
+
+/* Ensure timer takes full screen when expanded */
+.timer-fullscreen-active .timer.expanded {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* Keep the timer content visible and centered */
+.timer-fullscreen-active .timer.expanded .time-display {
+  font-size: 200px;
+  z-index: 10000;
+}
+
+.timer-fullscreen-active .timer.expanded .expanded-controls {
+  z-index: 10000;
+}
+
+.timer-fullscreen-active .timer.expanded .reward-message {
+  z-index: 10001;
+}
+
+.timer-fullscreen-active .timer.expanded .pause-confirm-dialog {
+  z-index: 10002;
+}
+
+/* Hide all UI elements when timer is fullscreen - CORRECTED SELECTORS */
+body.timer-fullscreen-active .pixel-clock-container,
+body.timer-fullscreen-active .stats-display,
+body.timer-fullscreen-active .profile-display,
+body.timer-fullscreen-active .auth-buttons,
+body.timer-fullscreen-active .retro-nav-container,
+body.timer-fullscreen-active app-notifications,
+body.timer-fullscreen-active app-pixel-clock,
+body.timer-fullscreen-active app-spotify-player,
+body.timer-fullscreen-active app-ambience {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide background elements when timer is active */
+body.timer-fullscreen-active .hero .background-video,
+body.timer-fullscreen-active .hero .gif-background,
+body.timer-fullscreen-active .hero .background-image {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Make hero background black when timer is active */
+body.timer-fullscreen-active .hero {
+  background: #000000 !important;
+}
 
 
 

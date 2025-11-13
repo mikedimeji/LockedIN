@@ -11,8 +11,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const token = localStorage.getItem('authToken');
     
     if (token) {
-      // Fix: Make sure to include space after "Bearer"
-      // The original code might be missing the space which causes 403 errors
       const cloned = req.clone({
         headers: req.headers.set('Authorization', `Bearer ${token}`)
       });

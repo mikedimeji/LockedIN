@@ -5,6 +5,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { PlannerComponent } from '../planner/planner.component';
+import { AuthService } from '../auth.service';
+
 
 @Component({
   selector: 'app-user-login',
@@ -28,7 +30,7 @@ export class UserLoginComponent {
   successMessage: string = 'Login successful';
   email: string = "";
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router,private authService: AuthService) { }
 
   ngOnInit() {
     // Check if we're in a browser environment
@@ -41,6 +43,8 @@ export class UserLoginComponent {
           const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
           if (decodedToken.exp > currentTime) {
             // If token is valid, redirect to planner
+
+            this.authService.onLoginComplete();
             this.router.navigateByUrl('/planner');
           } else {
             // If token is expired, remove it
@@ -108,6 +112,8 @@ export class UserLoginComponent {
                 localStorage.setItem('username', resultData.username);
               }
             }
+
+            this.authService.onLoginComplete();
             
             // Notify app to refresh data
             this.notifyAppToRefreshData();

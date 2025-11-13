@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Renderer2 } from '@angular/core';
 import { isPlatformBrowser, NgIf, NgClass } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
@@ -58,7 +58,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private http: HttpClient,
     private goldStreakService: GoldStreakService,
-    private authService: AuthService
+    private authService: AuthService,
+    private renderer: Renderer2 
   ) {
     // Only create the audio object if we're running in the browser
     if (isPlatformBrowser(this.platformId)) {
@@ -91,6 +92,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
+
+    if (isPlatformBrowser(this.platformId)) {
+    this.renderer.removeClass(document.body, 'timer-fullscreen-active');
+  }
   }
 
   loadUserStats(): void {
@@ -152,31 +157,56 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   startTimer(): void {
-    if (!this.isRunning) {
-      // If resuming from pause
-      if (this.pauseStartTime) {
-        const pauseEndTime = new Date();
-        this.totalPauseTime += pauseEndTime.getTime() - this.pauseStartTime.getTime();
-        this.pauseStartTime = null;
-      } else {
-        // Fresh start
-        this.timerStartTime = new Date();
-        this.pauseCount = 0;
-        this.totalPauseTime = 0;
-        this.completedPomodoros = 0;
-        this.pausedMidPomodoro = false;
-      }
-      
-      this.isRunning = true;
-      this.isExpanded = true;
-      if (this.audio) {
-        this.audio.play().catch(err => console.error('Error playing audio:', err));
-      }
-      this.intervalId = setInterval(() => {
-        this.countDown();
-      }, 1000);
+  if (!this.isRunning) {
+    // If resuming from pause
+    if (this.pauseStartTime) {
+      const pauseEndTime = new Date();
+      this.totalPauseTime += pauseEndTime.getTime() - this.pauseStartTime.getTime();
+      this.pauseStartTime = null;
+    } else {
+      // Fresh start
+      this.timerStartTime = new Date();
+      this.pauseCount = 0;
+      this.totalPauseTime = 0;
+      this.completedPomodoros = 0;
+      this.pausedMidPomodoro = false;
     }
+    
+    this.isRunning = true;
+    this.isExpanded = true;
+
+    // HIDE UI ELEMENTS BUT KEEP BACKGROUND
+    if (isPlatformBrowser(this.platformId)) {
+      const elementsToHide = [
+        '.pixel-clock-container',
+        '.stats-display', 
+        '.profile-display',
+        '.auth-buttons',
+        '.retro-nav-container'
+      ];
+      
+      elementsToHide.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+          (el as HTMLElement).style.display = 'none';
+        });
+      });
+      
+      // Add darker overlay to timer (keeping background visible)
+      const timer = document.querySelector('.timer.expanded') as HTMLElement;
+      if (timer) {
+        timer.style.background = 'rgba(0, 0, 0, 0.8)';
+      }
+    }
+
+    if (this.audio) {
+      this.audio.play().catch(err => console.error('Error playing audio:', err));
+    }
+    this.intervalId = setInterval(() => {
+      this.countDown();
+    }, 1000);
   }
+}
 
   pauseTimer(): void {
     if (this.isRunning) {
@@ -231,26 +261,51 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   resetTimer(): void {
-    if (this.isRunning) {
-      this.pauseTimer();
-    }
-    this.hours = 0;
-    this.minutes = 25;
-    this.seconds = 0;
-    this.isExpanded = false;  // Collapse the timer back to the original state
-    
-    // Reset tracking
-    this.timerStartTime = null;
-    this.timerEndTime = null;
-    this.pauseStartTime = null;
-    this.pauseCount = 0;
-    this.totalPauseTime = 0;
-    this.goldEarned = 0;
-    this.showGoldMessage = false;
-    this.streakUpdated = false;
-    this.completedPomodoros = 0;
-    this.pausedMidPomodoro = false;
+  if (this.isRunning) {
+    this.pauseTimer();
   }
+  
+  // SHOW UI ELEMENTS AGAIN WHEN RESET
+  if (isPlatformBrowser(this.platformId)) {
+    const elementsToShow = [
+      '.pixel-clock-container',
+      '.stats-display', 
+      '.profile-display',
+      '.auth-buttons',
+      '.retro-nav-container'
+    ];
+    
+    elementsToShow.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
+    });
+    
+    // Reset timer background
+    const timer = document.querySelector('.timer') as HTMLElement;
+    if (timer) {
+      timer.style.background = '';
+    }
+  }
+
+  this.hours = 0;
+  this.minutes = 25;
+  this.seconds = 0;
+  this.isExpanded = false;  // Collapse the timer back to the original state
+  
+  // Reset tracking
+  this.timerStartTime = null;
+  this.timerEndTime = null;
+  this.pauseStartTime = null;
+  this.pauseCount = 0;
+  this.totalPauseTime = 0;
+  this.goldEarned = 0;
+  this.showGoldMessage = false;
+  this.streakUpdated = false;
+  this.completedPomodoros = 0;
+  this.pausedMidPomodoro = false;
+}
 
   private countDown(): void {
     this.seconds--;
@@ -291,98 +346,119 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   // Handle timer completion and reward calculation
   private handleTimerCompletion(): void {
-    if (!this.timerStartTime || !this.timerEndTime) {
-      return;
-    }
-
-    // Check if user is logged in before attempting to award gold
-    if (!this.authService.isLoggedIn()) {
-      console.log('User not logged in - no gold will be awarded');
-      this.showNotLoggedInMessage();
-      return;
-    }
-
-    // Calculate actual duration in minutes (excluding pauses)
-    const totalDurationMs = this.timerEndTime.getTime() - this.timerStartTime.getTime() - this.totalPauseTime;
-    const durationMinutes = Math.floor((totalDurationMs + 15000) / (1000 * 60)); // More generous calculation with 15s buffer
-    
-    // Add any pomodoros we completed and saved during pauses
-    const totalPomodorosCompleted = Math.floor(durationMinutes / 25) + this.completedPomodoros;
-    
-    // If we have any completed pomodoros (either now or from previous pauses)
-    if (totalPomodorosCompleted > 0) {
-      // Call the service to handle pomodoro reward
-      const rewardSub = this.goldStreakService.rewardPomodoro(totalPomodorosCompleted)
-        .pipe(
-          catchError((error: HttpErrorResponse) => {
-            console.error('Error rewarding pomodoro:', error);
-            
-            // If we get a 403, try to refresh the token and retry
-            if (error.status === 403) {
-              return this.authService.refreshAccessToken().pipe(
-                switchMap(refreshResponse => {
-                  if (refreshResponse && refreshResponse.token) {
-                    // Token refreshed, retry the request
-                    return this.goldStreakService.rewardPomodoro(totalPomodorosCompleted);
-                  }
-                  return of(null);
-                }),
-                catchError(refreshError => {
-                  console.error('Failed to refresh token:', refreshError);
-                  this.showErrorMessage();
-                  return of(null);
-                })
-              );
-            }
-            
-            this.showErrorMessage();
-            return of(null);
-          })
-        )
-        .subscribe({
-          next: (response) => {
-            if (response) {
-              console.log('Pomodoro reward response:', response);
-              
-              // Calculate gold earned (current - previous)
-              this.goldEarned = response.currentGold - this.previousGold;
-              this.previousGold = response.currentGold; // Update for next time
-              
-              // Update streak info
-              this.currentStreak = response.currentStreak;
-              this.longestStreak = response.longestStreak;
-              this.streakUpdated = true;
-              
-              // Show notification
-              this.showGoldMessage = true;
-
-
-              setTimeout(() => {
-                this.showGoldMessage = false;
-
-                this.resetTimer();
-              }, 5000);
-            }
-          }
-        });
-        
-      this.subscriptions.push(rewardSub);
-    } else {
-      // Not a valid pomodoro - show message but don't award gold
-      this.goldEarned = 0;
-      this.streakUpdated = false;
-      this.showGoldMessage = true;
-      setTimeout(() => {
-        this.showGoldMessage = false;
-
-        this.resetTimer();
-      }, 5000);
-    }
-    
-    // Reset tracking for next time
-    this.completedPomodoros = 0;
-    this.pausedMidPomodoro = false;
+  if (!this.timerStartTime || !this.timerEndTime) {
+    return;
   }
+
+  // SHOW UI ELEMENTS AGAIN WHEN TIMER COMPLETES
+  if (isPlatformBrowser(this.platformId)) {
+    const elementsToShow = [
+      '.pixel-clock-container',
+      '.stats-display', 
+      '.profile-display',
+      '.auth-buttons',
+      '.retro-nav-container'
+    ];
+    
+    elementsToShow.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        (el as HTMLElement).style.display = '';
+      });
+    });
+    
+    // Reset timer background to original
+    const timer = document.querySelector('.timer') as HTMLElement;
+    if (timer) {
+      timer.style.background = '';
+    }
+  }
+
+  // Check if user is logged in before attempting to award gold
+  if (!this.authService.isLoggedIn()) {
+    console.log('User not logged in - no gold will be awarded');
+    this.showNotLoggedInMessage();
+    return;
+  }
+
+  // Calculate actual duration in minutes (excluding pauses)
+  const totalDurationMs = this.timerEndTime.getTime() - this.timerStartTime.getTime() - this.totalPauseTime;
+  const durationMinutes = Math.floor((totalDurationMs + 15000) / (1000 * 60)); // More generous calculation with 15s buffer
+  
+  // Add any pomodoros we completed and saved during pauses
+  const totalPomodorosCompleted = Math.floor(durationMinutes / 25) + this.completedPomodoros;
+  
+  // If we have any completed pomodoros (either now or from previous pauses)
+  if (totalPomodorosCompleted > 0) {
+    // Call the service to handle pomodoro reward
+    const rewardSub = this.goldStreakService.rewardPomodoro(totalPomodorosCompleted)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error rewarding pomodoro:', error);
+          
+          // If we get a 403, try to refresh the token and retry
+          if (error.status === 403) {
+            return this.authService.refreshAccessToken().pipe(
+              switchMap(refreshResponse => {
+                if (refreshResponse && refreshResponse.token) {
+                  // Token refreshed, retry the request
+                  return this.goldStreakService.rewardPomodoro(totalPomodorosCompleted);
+                }
+                return of(null);
+              }),
+              catchError(refreshError => {
+                console.error('Failed to refresh token:', refreshError);
+                this.showErrorMessage();
+                return of(null);
+              })
+            );
+          }
+          
+          this.showErrorMessage();
+          return of(null);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response) {
+            console.log('Pomodoro reward response:', response);
+            
+            // Calculate gold earned (current - previous)
+            this.goldEarned = response.currentGold - this.previousGold;
+            this.previousGold = response.currentGold; // Update for next time
+            
+            // Update streak info
+            this.currentStreak = response.currentStreak;
+            this.longestStreak = response.longestStreak;
+            this.streakUpdated = true;
+            
+            // Show notification
+            this.showGoldMessage = true;
+
+            setTimeout(() => {
+              this.showGoldMessage = false;
+              this.resetTimer();
+            }, 5000);
+          }
+        }
+      });
+      
+    this.subscriptions.push(rewardSub);
+  } else {
+    // Not a valid pomodoro - show message but don't award gold
+    this.goldEarned = 0;
+    this.streakUpdated = false;
+    this.showGoldMessage = true;
+    setTimeout(() => {
+      this.showGoldMessage = false;
+      this.resetTimer();
+    }, 5000);
+  }
+  
+  // Reset tracking for next time
+  this.completedPomodoros = 0;
+  this.pausedMidPomodoro = false;
+}
 
   private showErrorMessage(): void {
     this.goldEarned = 0;
