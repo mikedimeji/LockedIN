@@ -6,7 +6,7 @@ import { Observable, catchError, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class GoldStreakService {
-  private apiBaseUrl = 'http://localhost:8080/api/home';
+  private apiBaseUrl = 'https://lockedin-backend.onrender.com/api/home';
 
   constructor(private http: HttpClient) { }
 

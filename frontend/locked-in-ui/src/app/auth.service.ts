@@ -138,7 +138,7 @@ onLoginComplete(): void {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
       return this.http.post<{ token: string }>(
-        'http://localhost:8080/api/home/auth/refresh-token',
+        'https://lockedin-backend.onrender.com/api/home/auth/refresh-token',
         { refreshToken }
       );
     }

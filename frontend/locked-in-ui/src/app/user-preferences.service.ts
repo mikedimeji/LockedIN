@@ -38,7 +38,7 @@ export interface UnlockedItem {
   providedIn: 'root'
 })
 export class UserPreferencesService {
-  private baseUrl = 'http://localhost:8080/api/home/preferences';
+  private baseUrl = 'https://lockedin-backend.onrender.com/api/home/preferences';
   
   // BehaviorSubjects to track current state
   private preferencesSubject = new BehaviorSubject<UserPreferences | null>(null);

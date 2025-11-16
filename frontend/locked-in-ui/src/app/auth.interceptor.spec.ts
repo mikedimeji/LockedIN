@@ -37,9 +37,9 @@ describe('AuthInterceptor', () => {
   });
 
   it('should specifically handle gold/add endpoint', () => {
-    httpClient.post('http://localhost:8080/api/home/gold/add', { amount: 10 }).subscribe();
+    httpClient.post('https://lockedin-backend.onrender.com/api/home/gold/add', { amount: 10 }).subscribe();
     
-    const req = httpMock.expectOne('http://localhost:8080/api/home/gold/add');
+    const req = httpMock.expectOne('https://lockedin-backend.onrender.com/api/home/gold/add');
     expect(req.request.headers.has('Authorization')).toBeTrue();
     expect(req.request.headers.get('Authorization')).toBe('Bearer test-token');
     req.flush({});

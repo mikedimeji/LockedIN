@@ -7,7 +7,7 @@ import { StreakDTO } from './gold-streak.service';
   providedIn: 'root'
 })
 export class StreakService {
-  private baseUrl = 'http://localhost:8080/api/home/streak';
+  private baseUrl = 'https://lockedin-backend.onrender.com/api/home';
 
   constructor(private http: HttpClient) { }
 

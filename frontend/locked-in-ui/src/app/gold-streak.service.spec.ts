@@ -8,7 +8,7 @@ describe('GoldStreakService', () => {
   let httpMock: HttpTestingController;
   let httpClient: HttpClient;
   
-  const apiBaseUrl = 'http://localhost:8080/api/home';
+  const apiBaseUrl = 'https://lockedin-backend.onrender.com/api/home';
 
   beforeEach(() => {
     TestBed.configureTestingModule({

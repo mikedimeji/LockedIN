@@ -60,7 +60,7 @@ export class PlannerComponent implements OnInit {
 
     this.http
       .get<Array<{ revisionTopicId: number; userId: number; title: string; description: string; pomodoroNumber: number }>>(
-        'http://localhost:8080/api/home/revisiontopics',
+        'https://lockedin-backend.onrender.com/api/home/revisiontopics',
         { headers }
       )
       .subscribe(
@@ -104,7 +104,7 @@ export class PlannerComponent implements OnInit {
 
     this.http
       .post<{ revisionTopicId: number; userId: number; title: string; description: string; pomodoroNumber: number }>(
-        'http://localhost:8080/api/home/revisiontopics',
+        'https://lockedin-backend.onrender.com/api/home/revisiontopics',
         bodyData,
         { headers }
       )
@@ -173,7 +173,7 @@ export class PlannerComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http
-      .delete(`http://localhost:8080/api/home/revisiontopics/${revisionTopicId}`, { headers })
+      .delete(`https://lockedin-backend.onrender.com/api/home/revisiontopics/${revisionTopicId}`, { headers })
       .subscribe(
         () => {
           this.topics = this.topics.filter(topic => topic.revisionTopicId !== revisionTopicId);

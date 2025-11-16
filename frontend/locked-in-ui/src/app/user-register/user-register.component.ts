@@ -51,7 +51,7 @@ export class UserRegisterComponent {
       "password": this.password,
     };
 
-    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("http://localhost:8080/api/home/auth/register", bodyData).subscribe(
+    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("https://lockedin-backend.onrender.com/api/home/auth/register", bodyData).subscribe(
       (resultData: any) => {
         console.log(resultData);
         if (resultData.token && resultData.refreshToken) {

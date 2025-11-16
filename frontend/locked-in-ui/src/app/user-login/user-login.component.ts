@@ -92,7 +92,7 @@ export class UserLoginComponent {
     };
 
     // Call the login API
-    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("http://localhost:8080/api/home/auth/Authenticate", bodyData)
+    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("https://lockedin-backend.onrender.com/api/home/auth/Authenticate", bodyData)
       .subscribe({
         next: (resultData) => {
           console.log(resultData);
