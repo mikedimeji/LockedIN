@@ -26,7 +26,9 @@
   script-src 'self' 'unsafe-inline' https://sdk.scdn.co;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
   font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://api.spotify.com https://accounts.spotify.com http://localhost:8080;
+  img-src 'self' https://i.scdn.co https://*.scdn.co data:;
+  media-src 'self' https://*.scdn.co;
+  connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080;
   object-src 'none';
   base-uri 'self';
   form-action 'self';

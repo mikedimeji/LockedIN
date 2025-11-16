@@ -129,6 +129,14 @@ export class SpotifyAuthService {
     return this.http.put(`${this.apiBase}/me/player/pause`, {}, { headers });
   }
 
+  getCurrentPlayback(accessToken: string): Observable<any> {
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${accessToken}`
+  });
+
+  return this.http.get(`${this.apiBase}/me/player`, { headers });
+}
+
   nextTrack(accessToken: string): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${accessToken}`,

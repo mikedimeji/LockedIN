@@ -50,7 +50,10 @@ allThemes: Theme[] = [
   { path: 'assets/videos/castle.gif', name: 'Castle', premium: false, category: 'chill', isLive: true, unlocked: true },
   { path: 'assets/videos/cyberpunk.gif', name: 'Cyberpunk', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
   { path: 'assets/videos/city2.gif', name: 'City-Overview', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
-  
+  { path: 'assets/videos/museum-fish.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
+  { path: 'assets/videos/japan.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
+  { path: 'assets/videos/pink-monitor.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
+  { path: 'assets/videos/gamer-monitors.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
   // Premium themes - live with different costs
   { path: 'assets/videos/cathargic_day.gif', name: 'Cathargic Day', premium: false, category: 'chill', isLive: true, unlocked: true },
   { path: 'assets/videos/scottpill.gif', name: 'Scott Pill', premium: true, category: 'aesthetic', isLive: true, goldCost: 1200, unlocked: false },

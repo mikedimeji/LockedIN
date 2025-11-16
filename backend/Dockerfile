@@ -6,7 +6,6 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
-# Build all dependencies first (cache this layer)
 RUN ./mvnw dependency:go-offline -B
 
 # Copy source code
@@ -23,7 +22,6 @@ WORKDIR /app
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-# Copy jar from build stage
 COPY --from=build /workspace/app/target/*.jar app.jar
 
 # Set production environment

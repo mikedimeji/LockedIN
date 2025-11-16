@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, PLATFORM_ID, NgZone } from '@angular/core';
 import { SpotifyAuthService } from "./spotifyAuth";
 import { HttpClientModule } from '@angular/common/http';
 import { isPlatformBrowser, NgForOf, NgIf } from "@angular/common";
@@ -76,30 +76,68 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
 
   constructor(
     private spotifyAuth: SpotifyAuthService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private ngZone: NgZone
   ) {}
 
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // Check for saved token first
+  // REPLACE your ngOnInit() method in spotify-player.component.ts with this:
+
+ngOnInit() {
+  if (isPlatformBrowser(this.platformId)) {
+    // First, check URL for the authorization code from Spotify
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    
+    if (code) {
+      // We just got redirected back from Spotify login
+      console.log('Authorization code received, exchanging for token...');
+      this.getAccessToken(code);
+      
+      // Clean up the URL (remove the code parameter)
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      // No code in URL, check if we have a saved token
       const savedToken = localStorage.getItem('spotify_access_token');
+      
       if (savedToken) {
+        console.log('Found saved token, validating...');
         this.accessToken = savedToken;
         this.spotifyAuth.accessToken = savedToken;
-        this.loadSpotifyPlayer();
-      }
-      
-      // Then check URL params
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      if (code) {
-        this.getAccessToken(code);
+        
+        this.validateAndLoadPlayer();
       } else {
-        // Load the Spotify SDK if we didn't have a code
-        this.loadSpotifyPlayer();
+        // No token at all - user needs to log in
+        console.log('No token found, user needs to log in');
       }
     }
   }
+}
+
+private validateAndLoadPlayer() {
+  // Try to make a simple API call to validate the token
+  this.spotifyAuth.getCurrentPlayback(this.accessToken!)
+    .subscribe({
+      next: () => {
+        // Token is valid, load the player
+        console.log('Token is valid, loading player...');
+        this.loadSpotifyPlayer();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          // Token is invalid/expired
+          console.log('Token expired, clearing and showing login...');
+          localStorage.removeItem('spotify_access_token');
+          localStorage.removeItem('spotify_refresh_token');
+          this.accessToken = null;
+          this.spotifyAuth.accessToken = null;
+        } else {
+          // Other error (like 404 - no active playback), but token is valid
+          console.log('Token valid but no active playback, loading player...');
+          this.loadSpotifyPlayer();
+        }
+      }
+    });
+}
 
   loadInitialTrack() {
     if (!this.accessToken || !this.deviceId) {
@@ -282,27 +320,33 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadSpotifyPlayer() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (!document.getElementById('spotify-player-script')) {
-        const script = document.createElement('script');
-        script.id = 'spotify-player-script';
-        script.src = "https://sdk.scdn.co/spotify-player.js";
-        script.async = true;
-        
-        script.onload = () => {
-          console.log('Spotify SDK script loaded');
-          window.onSpotifyWebPlaybackSDKReady = () => {
-            console.log('Spotify Web Playback SDK is ready');
-            this.initializeSpotifyPlayer();
-          };
-        };
-        
-        script.onerror = () => this.setError('Failed to load Spotify SDK');
-        document.body.appendChild(script);
-      }
+loadSpotifyPlayer() {
+  if (isPlatformBrowser(this.platformId)) {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      console.log('Spotify Web Playback SDK is ready');
+      this.ngZone.run(() => {
+        this.initializeSpotifyPlayer();
+      });
+    };
+
+    if (!document.getElementById('spotify-player-script')) {
+      const script = document.createElement('script');
+      script.id = 'spotify-player-script';
+      script.src = "https://sdk.scdn.co/spotify-player.js";
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('Spotify SDK script loaded');
+      };
+      
+      script.onerror = () => this.setError('Failed to load Spotify SDK');
+      document.body.appendChild(script);
+    } else if (window.Spotify) {
+      console.log('Spotify SDK already loaded, initializing...');
+      this.initializeSpotifyPlayer();
     }
   }
+}
 
   initializeSpotifyPlayer() {
     if (!window.Spotify) {
