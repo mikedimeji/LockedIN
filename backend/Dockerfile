@@ -29,8 +29,11 @@ COPY --from=build /workspace/app/target/*.jar app.jar
 # Set production environment
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Configure JVM for containerized environment
-ENV JAVA_OPTS="-Xms512m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
+ENV PORT=8080
 
-# Run as non-root user
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# Configure JVM for containerized environment
+# Reduced memory for free tier (512MB max on Render free tier)
+ENV JAVA_OPTS="-Xms256m -Xmx512m -Djava.security.egd=file:/dev/./urandom"
+
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=$PORT -jar app.jar"]
