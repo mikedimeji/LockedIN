@@ -1,9 +1,15 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /workspace/app
 
-# Copy parent pom and backend module
+# Copy parent pom
 COPY pom.xml .
+
+# Copy backend module
 COPY backend backend
+
+# Create a dummy frontend pom to satisfy parent POM
+RUN mkdir -p frontend && \
+    echo '<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion><parent><groupId>pomo</groupId><artifactId>Lockedin</artifactId><version>0.0.1-SNAPSHOT</version></parent><artifactId>frontend</artifactId><packaging>pom</packaging></project>' > frontend/pom.xml
 
 # Install Maven and build only the backend module
 RUN apk add --no-cache maven && \
@@ -17,7 +23,7 @@ WORKDIR /app
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-# Copy jar from build stage (note the backend/ path)
+# Copy jar from build stage
 COPY --from=build /workspace/app/backend/target/*.jar app.jar
 
 # Set production environment
