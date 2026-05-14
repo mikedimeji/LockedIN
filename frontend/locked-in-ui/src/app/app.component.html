@@ -88,9 +88,7 @@
   </div>
   <div class="stats-item heart-stat">
     <div class="icon-container" data-tooltip="Hearts">
-      <img *ngIf="heartPoints === 2" src="assets/images/hearts/singleheart-blue.png" alt="Hearts" title="Hearts">
-      <img *ngIf="heartPoints === 1" src="assets/images/hearts/singleheart-halfblue.png" alt="Hearts" title="Hearts">
-      <img *ngIf="heartPoints === 0" src="assets/images/hearts/singleheart-emptyblue.png" alt="Hearts" title="Hearts">
+      <img [src]="heartImgSrc" alt="Hearts" title="Hearts">
     </div>
   </div>
   <!-- Add notifications as a proper stats-item -->

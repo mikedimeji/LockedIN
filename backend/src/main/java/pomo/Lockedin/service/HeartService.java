@@ -22,9 +22,21 @@ public class HeartService {
         if (userId == null) throw new RuntimeException("User not found: " + userEmail);
 
         Optional<UserStats> opt = userStatsDao.getUserStatsByUserId(userId);
-        if (opt.isEmpty()) return null;
 
-        UserStats stats = opt.get();
+        UserStats stats;
+        if (opt.isEmpty()) {
+            stats = UserStats.builder()
+                    .userId(userId)
+                    .heartPoints(2)
+                    .lastHeartRefillDate(LocalDate.now())
+                    .currentStreak(0)
+                    .longestStreak(0)
+                    .build();
+            userStatsDao.createUserStats(stats);
+            return stats;
+        }
+
+        stats = opt.get();
         LocalDate today = LocalDate.now();
 
         if (stats.getLastHeartRefillDate() == null || stats.getLastHeartRefillDate().isBefore(today)) {

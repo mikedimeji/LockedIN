@@ -142,10 +142,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(streakSub);
 
-    const heartSub = this.heartService.getHearts().subscribe({
-      next: (response) => { this.heartPoints = response.heartPoints; },
-      error: () => { this.heartPoints = 2; }
-    });
+    // getHearts() updates the shared BehaviorSubject via tap — no local assignment needed
+    const heartSub = this.heartService.getHearts().subscribe({ error: () => {} });
     this.subscriptions.push(heartSub);
   }
 
@@ -242,24 +240,16 @@ export class TimerComponent implements OnInit, OnDestroy {
     const action = this.pendingHeartAction;
     this.pendingHeartAction = null;
 
+    // Optimistic update — switch image immediately via shared service
+    const optimisticPoints = Math.max(0, this.heartService.currentHeartPoints - 1);
+    this.heartService.setHeartPoints(optimisticPoints);
+
+    if (action === 'pause') this.executePause();
+    else this.resetTimer();
+
+    // Sync with backend in background (tap inside breakHeart() corrects value if needed)
     const heartSub = this.heartService.breakHeart().subscribe({
-      next: (response) => {
-        this.heartPoints = response.heartPoints;
-        this.heartBroken = true;
-        if (response.heartPoints === 0) {
-          this.heartGone = true;
-          this.currentStreak = 0;
-        }
-        setTimeout(() => { this.heartBroken = false; }, 1000);
-        document.dispatchEvent(new CustomEvent('heartPointsChanged', { detail: { heartPoints: response.heartPoints } }));
-        if (action === 'pause') this.executePause();
-        else this.resetTimer();
-      },
-      error: (err) => {
-        console.error('breakHeart API failed:', err);
-        if (action === 'pause') this.executePause();
-        else this.resetTimer();
-      }
+      error: (err) => console.error('breakHeart API failed:', err)
     });
     this.subscriptions.push(heartSub);
   }

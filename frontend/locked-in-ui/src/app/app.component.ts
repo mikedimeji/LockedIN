@@ -185,7 +185,13 @@ availablePfps = [
   goldBalance: number = 0;
   currentStreak: number = 0;
   longestStreak: number = 0;
-  heartPoints: number = 2;
+
+  get heartImgSrc(): string {
+    const hp = this.heartService.currentHeartPoints;
+    if (hp >= 2) return 'assets/images/hearts/singleheart-blue.png';
+    if (hp === 1) return 'assets/images/hearts/singleheart-halfblue.png';
+    return 'assets/images/hearts/singleheart-emptyblue.png';
+  }
 
   // For tracking subscriptions
   private routerSubscription: Subscription | null = null;
@@ -200,7 +206,7 @@ availablePfps = [
     private router: Router,
     public authService: AuthService,
     private goldStreakService: GoldStreakService,
-    private heartService: HeartService,
+    public heartService: HeartService,
     private userPreferencesService: UserPreferencesService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -209,7 +215,7 @@ availablePfps = [
   if (isPlatformBrowser(this.platformId)) {
     // Setup custom event listener for refresh
     this.setupCustomEventListener();
-    
+
     // Listen for router navigation end events to refresh data
     this.setupRouterListener();
 
@@ -304,12 +310,6 @@ private loadUserDataFromBackend(): void {
         console.log('User data refresh event received from:', event.detail?.source);
         this.refreshUserData();
       });
-      document.addEventListener('heartPointsChanged', (event: any) => {
-        if (event.detail?.heartPoints !== undefined) {
-          this.heartPoints = event.detail.heartPoints;
-          this.cdr.detectChanges();
-        }
-      });
       this.customEventListenerAdded = true;
     }
   }
@@ -369,18 +369,6 @@ toggleNavVisibility(): void {
         }
       });
       
-      // Get heart data
-      this.heartService.getHearts().pipe(
-        catchError(error => {
-          console.error('Error fetching heart data:', error);
-          return of({ heartPoints: this.heartPoints, currentStreak: this.currentStreak, streakReset: false, lastHeartRefillDate: '' });
-        })
-      ).subscribe(data => {
-        if (data && data.heartPoints !== undefined) {
-          this.heartPoints = data.heartPoints;
-        }
-      });
-
       // Get streak data
       this.goldStreakService.getCurrentStreak().pipe(
         catchError(error => {
@@ -406,7 +394,7 @@ toggleNavVisibility(): void {
       this.goldBalance = 0;
       this.currentStreak = 0;
       this.longestStreak = 0;
-      this.heartPoints = 2;
+      this.heartService.setHeartPoints(2);
     }
   }
   // Clean up on destroy
