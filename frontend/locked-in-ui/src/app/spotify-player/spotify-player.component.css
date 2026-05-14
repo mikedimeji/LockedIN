@@ -26,7 +26,7 @@
 
 /* Handle multiple Spotify players - hide inactive one */
 .spotify-mini-player:not(:hover):not(:active) {
-  opacity: 0.05;
+  opacity: 0.75;
   transition: opacity 0.5s ease;
 }
 

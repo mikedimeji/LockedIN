@@ -57,7 +57,7 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
   offsetX = 0;
   offsetY = 0;
   currentPlaybackPosition: number = 0;
-  playerPosition = { x: 16, y: 16 };
+  playerPosition = { x: 0, y: 0 };
   private isDragging = false;
   private dragOffset = { x: 0, y: 0 };
   isExpanded: boolean = false;
@@ -93,6 +93,11 @@ export class SpotifyPlayerComponent implements OnInit, OnDestroy {
     }
 
     if (isPlatformBrowser(this.platformId)) {
+      this.playerPosition = {
+        x: window.innerWidth - 316,
+        y: window.innerHeight - 220
+      };
+
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       

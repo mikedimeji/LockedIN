@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable()) // Disable CSRF protection
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/home/auth/**").permitAll() // Allow unauthenticated access to specified endpoint
+                        .requestMatchers("/api/home/auth/**", "/api/spotify/**").permitAll()
                         //.requestMatchers(HttpMethod.POST, "/api/home/gold/pomodoro-reward").permitAll() // Temporarily allow this endpoint
                         .anyRequest().authenticated() // Require authentication for all other requests
                 )
