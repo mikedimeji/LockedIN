@@ -1,43 +1,27 @@
 <div class="notifications-overlay" (click)="closeNotifications()">
   <div class="notifications-panel" (click)="$event.stopPropagation()">
-    <!-- Header -->
+
     <div class="notifications-header">
-      <div class="header-left">
-        <span class="terminal-text">>>> SYSTEM_UPDATES.log</span>
-        <div class="blinking-cursor"></div>
-      </div>
+      <span class="notifications-title">Updates</span>
       <button class="close-btn" (click)="closeNotifications()">×</button>
     </div>
 
-    <!-- Notifications List -->
-    <div class="notifications-list">
-      <div *ngFor="let notification of notifications" 
-           class="notification-item"
-           [class.unread]="notification.isNew"
-           (click)="markAsRead(notification)">
-        
-        <div class="notification-icon">
-          {{notification.icon}}
-        </div>
-        
+    <div class="notifications-body">
+      <div *ngIf="notifications.length === 0" class="empty-state">
+        <div class="empty-icon">🔔</div>
+        <div class="empty-text">No updates yet</div>
+        <div class="empty-sub">Check back later for news & announcements</div>
+      </div>
+
+      <div *ngFor="let n of notifications" class="notification-item" [class.unread]="n.isNew">
+        <div class="notification-icon">{{ n.icon }}</div>
         <div class="notification-content">
-          <div class="notification-title">
-            {{notification.title}}
-            <span *ngIf="notification.isNew" class="new-badge">NEW</span>
-          </div>
-          <div class="notification-message">{{notification.message}}</div>
-          <div class="notification-date">{{notification.date}}</div>
-        </div>
-        
-        <div class="notification-type" [attr.data-type]="notification.type">
-          {{getNotificationIcon(notification.type)}}
+          <div class="notification-title">{{ n.title }}<span *ngIf="n.isNew" class="new-badge">NEW</span></div>
+          <div class="notification-message">{{ n.message }}</div>
+          <div class="notification-date">{{ n.date }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="notifications-footer">
-      <button class="clear-all-btn" (click)="clearAll()">Mark All Read</button>
-    </div>
   </div>
 </div>

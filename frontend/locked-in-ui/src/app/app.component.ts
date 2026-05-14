@@ -181,6 +181,8 @@ availablePfps = [
   showAmbiencePanel: boolean = false;
   isNavHidden: boolean = false;
   
+  isLoading: boolean = false;
+
   // Gold and streak properties
   goldBalance: number = 0;
   currentStreak: number = 0;
@@ -188,9 +190,9 @@ availablePfps = [
 
   get heartImgSrc(): string {
     const hp = this.heartService.currentHeartPoints;
-    if (hp >= 2) return 'assets/images/hearts/singleheart-blue.png';
-    if (hp === 1) return 'assets/images/hearts/singleheart-halfblue.png';
-    return 'assets/images/hearts/singleheart-emptyblue.png';
+    if (hp >= 2) return 'assets/images/hearts/redheart.gif';
+    if (hp === 1) return 'assets/images/hearts/heart-halfred.png';
+    return 'assets/images/hearts/heart-emptyred.png';
   }
 
   // For tracking subscriptions
@@ -199,7 +201,7 @@ availablePfps = [
 
   // Notifications properties
   showNotifications: boolean = false;
-  hasUnreadNotifications: boolean = true; // You can make this dynamic later
+  hasUnreadNotifications: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -234,32 +236,31 @@ availablePfps = [
 }
 
 private loadUserDataFromBackend(): void {
+  this.isLoading = true;
   this.userPreferencesService.loadUserData().subscribe({
     next: (data) => {
       console.log('User data loaded from backend:', data);
 
       const DEFAULT_THEME = 'assets/videos/witch.gif';
-      
+
       // Apply preferences
       const prefs = data.preferences;
-      this.selectedTheme = DEFAULT_THEME;
-      this.isVideoBackground =  prefs?.isVideoBackground;
+      this.selectedTheme = prefs?.selectedTheme || DEFAULT_THEME;
+      this.isVideoBackground = prefs?.isVideoBackground;
       this.isNavHidden = prefs.navHidden;
       this.selectedPfp = prefs.selectedPfp;
 
-      console.log('Applied theme:', this.selectedTheme);
-      console.log('Is video background:', this.isVideoBackground);
-
       // Update PFP unlock status
       this.updatePfpUnlockStatus(data.pfps);
-      
-      this.cdr.detectChanges();
-      
-      // Force background refresh
-      this.forceBackgroundRefresh();
-      
+
       // Load other user data (gold, streaks)
       this.refreshUserData();
+
+      this.isLoading = false;
+      this.cdr.detectChanges();
+
+      // Force background refresh
+      this.forceBackgroundRefresh();
     },
     error: (error) => {
       console.error('Error loading user data from backend:', error);
@@ -267,6 +268,7 @@ private loadUserDataFromBackend(): void {
       this.setupTheme();
       this.loadNavVisibility();
       this.setupPfp();
+      this.isLoading = false;
     }
   });
 }
@@ -616,11 +618,8 @@ closeNotifications(): void {
   this.showNotifications = false;
 }
 
-// Check for unread notifications (you can enhance this later)
 checkUnreadNotifications(): void {
-  // This is a placeholder - you can connect to a service later
-  // For now, we'll just simulate having unread notifications
-  this.hasUnreadNotifications = true;
+  this.hasUnreadNotifications = false;
 }
 
 private forceBackgroundRefresh(): void {

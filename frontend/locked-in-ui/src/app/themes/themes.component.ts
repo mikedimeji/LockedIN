@@ -61,7 +61,11 @@ export class ThemesComponent implements OnInit {
     { path: 'assets/videos/museum-fish.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
     { path: 'assets/videos/japan.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
     { path: 'assets/videos/pink-monitor.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
-    { path: 'assets/videos/gamer-monitors.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
+    { path: 'assets/videos/gamer-monitors.gif', name: 'Gamer Monitors', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
+    { path: 'assets/videos/girlflowers.gif', name: 'Girl & Flowers', premium: false, category: 'chill', isLive: true, unlocked: true },
+    { path: 'assets/videos/p-road.gif', name: 'Night Drive', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
+    { path: 'assets/videos/rooftopgamer.gif', name: 'Rooftop Gamer', premium: false, category: 'study', isLive: true, unlocked: true },
+    { path: 'assets/videos/VA11HALLA.gif', name: 'VA-11 HALL-A', premium: false, category: 'custom', isLive: true, unlocked: true },
     // Premium themes - live with different costs
     { path: 'assets/videos/cathargic_day.gif', name: 'Cathargic Day', premium: false, category: 'chill', isLive: true, unlocked: true },
     { path: 'assets/videos/scottpill.gif', name: 'Scott Pill', premium: true, category: 'aesthetic', isLive: true, goldCost: 1200, unlocked: false },

@@ -37,9 +37,12 @@
   <!-- Heart Break Warning -->
   <div class="heart-warning-overlay" *ngIf="showHeartWarning">
     <div class="heart-warning-dialog">
-      <div class="heart-warning-icon"><img src="assets/images/hearts/singleheart-halfblue.png" alt="heart"></div>
+      <div class="heart-warning-icon">
+        <img *ngIf="heartService.currentHeartPoints >= 2" src="assets/images/hearts/redheart.gif" alt="heart">
+        <img *ngIf="heartService.currentHeartPoints === 1" src="assets/images/hearts/heart-halfred.png" alt="heart">
+      </div>
       <h3>Break your heart?</h3>
-      <p>Stopping mid-session will cost you a heart.<span *ngIf="heartPoints === 1"> You only have one left — losing it resets your streak!</span></p>
+      <p>Stopping mid-session will cost you a heart.<span *ngIf="heartService.currentHeartPoints === 1"> You only have one left — losing it resets your streak!</span></p>
       <div class="heart-warning-buttons">
         <button class="heart-btn-yes" (click)="onHeartWarningConfirm()">Yes, break it</button>
         <button class="heart-btn-no" (click)="onHeartWarningCancel()">Keep going</button>

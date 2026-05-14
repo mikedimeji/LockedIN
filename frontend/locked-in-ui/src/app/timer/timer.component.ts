@@ -71,7 +71,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private goldStreakService: GoldStreakService,
     public authService: AuthService,
-    private heartService: HeartService,
+    public heartService: HeartService,
     private renderer: Renderer2,
     private tutorialService: TutorialService
   ) {
@@ -218,9 +218,12 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   pauseTimer(): void {
     if (this.isRunning) {
-      // Intercept with heart warning if a session is in progress
-      this.pendingHeartAction = 'pause';
-      this.showHeartWarning = true;
+      if (this.heartService.currentHeartPoints === 0) {
+        this.executePause();
+      } else {
+        this.pendingHeartAction = 'pause';
+        this.showHeartWarning = true;
+      }
     } else {
       this.startTimer();
     }
@@ -228,8 +231,12 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   openConfirmDialog(): void {
     if (this.isRunning || this.pauseStartTime) {
-      this.pendingHeartAction = 'reset';
-      this.showHeartWarning = true;
+      if (this.heartService.currentHeartPoints === 0) {
+        this.resetTimer();
+      } else {
+        this.pendingHeartAction = 'reset';
+        this.showHeartWarning = true;
+      }
     } else {
       this.resetTimer();
     }

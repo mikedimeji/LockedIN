@@ -1,3 +1,13 @@
+<!-- Loading screen -->
+<div *ngIf="isLoading" class="loading-screen">
+  <div class="loading-content">
+    <div class="loading-logo">LOCKED IN</div>
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</div>
+
 <!-- When not logged in -->
 <div *ngIf="!authService.isLoggedIn()" class="auth-buttons" ngSkipHydration>
   <button class="register-button" (click)="showRegister()">Sign Up</button>
@@ -88,7 +98,7 @@
   </div>
   <div class="stats-item heart-stat">
     <div class="icon-container" data-tooltip="Hearts">
-      <img [src]="heartImgSrc" alt="Hearts" title="Hearts">
+      <img [src]="heartImgSrc" [class.heart-beat]="heartService.currentHeartPoints > 0" alt="Hearts" title="Hearts">
     </div>
   </div>
   <!-- Add notifications as a proper stats-item -->
