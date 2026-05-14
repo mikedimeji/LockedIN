@@ -12,4 +12,5 @@ public interface UserStatsDao {
     void updateLastPomodoroDate(Long userId, LocalDate date);
     void updateStreak(Long userId, int currentStreak, int longestStreak);
     void resetStreakForInactiveUsers(LocalDate cutoffDate);
+    void updateHearts(Long userId, int heartPoints, LocalDate lastHeartRefillDate);
 }

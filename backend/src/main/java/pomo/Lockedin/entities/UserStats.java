@@ -27,8 +27,12 @@ public class UserStats {
     private int daysRevisedInARow = 0; // Default to 0
     private float totalHoursRevised = 0; // Default to 0
 
-    // New fields for streak tracking
+    // Streak tracking
     private int currentStreak = 0;
     private int longestStreak = 0;
     private LocalDate lastPomodoroDate;
+
+    // Hearts system
+    private int heartPoints = 2;
+    private LocalDate lastHeartRefillDate;
 }

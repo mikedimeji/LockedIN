@@ -25,8 +25,8 @@ public class UserStatsDaoImpl implements UserStatsDao {
     @Override
     public void createUserStats(UserStats userStats) {
         String sql = "INSERT INTO userstats (user_id, hours_spent_revising_per_day, days_revised_in_a_row, " +
-                "total_hours_revised, current_streak, longest_streak, last_pomodoro_date) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                "total_hours_revised, current_streak, longest_streak, last_pomodoro_date, heart_points, last_heart_refill_date) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
                 userStats.getUserId(),
@@ -35,7 +35,9 @@ public class UserStatsDaoImpl implements UserStatsDao {
                 userStats.getTotalHoursRevised(),
                 userStats.getCurrentStreak(),
                 userStats.getLongestStreak(),
-                userStats.getLastPomodoroDate());
+                userStats.getLastPomodoroDate(),
+                userStats.getHeartPoints(),
+                userStats.getLastHeartRefillDate());
     }
 
     @Override
@@ -58,7 +60,9 @@ public class UserStatsDaoImpl implements UserStatsDao {
                 "total_hours_revised = ?, " +
                 "current_streak = ?, " +
                 "longest_streak = ?, " +
-                "last_pomodoro_date = ? " +
+                "last_pomodoro_date = ?, " +
+                "heart_points = ?, " +
+                "last_heart_refill_date = ? " +
                 "WHERE user_id = ?";
 
         jdbcTemplate.update(sql,
@@ -68,7 +72,15 @@ public class UserStatsDaoImpl implements UserStatsDao {
                 userStats.getCurrentStreak(),
                 userStats.getLongestStreak(),
                 userStats.getLastPomodoroDate(),
+                userStats.getHeartPoints(),
+                userStats.getLastHeartRefillDate(),
                 userStats.getUserId());
+    }
+
+    @Override
+    public void updateHearts(Long userId, int heartPoints, LocalDate lastHeartRefillDate) {
+        String sql = "UPDATE userstats SET heart_points = ?, last_heart_refill_date = ? WHERE user_id = ?";
+        jdbcTemplate.update(sql, heartPoints, lastHeartRefillDate, userId);
     }
 
     @Override
@@ -94,7 +106,7 @@ public class UserStatsDaoImpl implements UserStatsDao {
         @Override
         public UserStats mapRow(ResultSet rs, int rowNum) throws SQLException {
             return UserStats.builder()
-                    .statsId(rs.getLong("user_stats_id"))  // Updated column name
+                    .statsId(rs.getLong("user_stats_id"))
                     .userId(rs.getLong("user_id"))
                     .hoursSpentRevisingPerDay(rs.getFloat("hours_spent_revising_per_day"))
                     .daysRevisedInARow(rs.getInt("days_revised_in_a_row"))
@@ -103,6 +115,9 @@ public class UserStatsDaoImpl implements UserStatsDao {
                     .longestStreak(rs.getInt("longest_streak"))
                     .lastPomodoroDate(rs.getDate("last_pomodoro_date") != null ?
                             rs.getDate("last_pomodoro_date").toLocalDate() : null)
+                    .heartPoints(rs.getInt("heart_points"))
+                    .lastHeartRefillDate(rs.getDate("last_heart_refill_date") != null ?
+                            rs.getDate("last_heart_refill_date").toLocalDate() : null)
                     .build();
         }
     }

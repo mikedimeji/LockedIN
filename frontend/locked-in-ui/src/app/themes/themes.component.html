@@ -1,3 +1,11 @@
+<app-tutorial-modal
+  *ngIf="showTutorial"
+  [steps]="tutorialSteps"
+  [featureName]="'Themes'"
+  (onComplete)="onTutorialComplete($event)"
+  (onSkip)="onTutorialSkip()">
+</app-tutorial-modal>
+
 <div class="themes-container">
   <div class="shimmer-1"></div>
   <div class="shimmer-2"></div>

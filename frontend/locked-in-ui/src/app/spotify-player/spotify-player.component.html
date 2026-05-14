@@ -1,3 +1,13 @@
+
+<!-- Add at the top of each component's HTML -->
+<app-tutorial-modal
+  *ngIf="showTutorial"
+  [steps]="tutorialSteps"
+  [featureName]="'Spotify'"
+  (onComplete)="onTutorialComplete($event)"
+  (onSkip)="onTutorialSkip()">
+</app-tutorial-modal>
+
 <!-- Login View -->
 <div *ngIf="!accessToken" class="spotify-mini-player"
      #playerElement

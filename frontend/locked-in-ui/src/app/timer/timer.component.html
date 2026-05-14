@@ -1,3 +1,11 @@
+<app-tutorial-modal
+  *ngIf="showTutorial"
+  [steps]="tutorialSteps"
+  [featureName]="'Timer'"
+  (onComplete)="onTutorialComplete($event)"
+  (onSkip)="onTutorialSkip()">
+</app-tutorial-modal>
+
 <div class="timer" [ngClass]="{'expanded': isExpanded}">
   <div class="time-display" (mouseenter)="showTooltip()" (mouseleave)="hideTooltip()" (click)="handleTimeClick()">
     <input type="text" [value]="formatTime(hours)" (input)="handleInputChange($event, 'hours')" [disabled]="isRunning" class="time-input">
@@ -20,10 +28,32 @@
     <button (click)="startTimer()">Start</button>
   </div>
 
+  <!-- Heart display -->
+  <div class="heart-display" *ngIf="authService.isLoggedIn()">
+    <div class="heart-icon" [ngClass]="{'broken': heartBroken, 'gone': heartGone}">
+      <span *ngIf="heartPoints === 2">❤️</span>
+      <span *ngIf="heartPoints === 1">💔</span>
+      <span *ngIf="heartPoints === 0">🖤</span>
+    </div>
+  </div>
+
   <!-- Controls shown only in expanded state -->
   <div class="expanded-controls" *ngIf="isExpanded">
     <button (click)="pauseTimer()">{{ isRunning ? 'Pause' : 'Resume' }}</button>
     <button (click)="openConfirmDialog()">Reset</button>
+  </div>
+
+  <!-- Heart Break Warning -->
+  <div class="heart-warning-overlay" *ngIf="showHeartWarning">
+    <div class="heart-warning-dialog">
+      <div class="heart-warning-icon">💔</div>
+      <h3>Break your heart?</h3>
+      <p>Stopping mid-session will cost you a heart.<span *ngIf="heartPoints === 1"> You only have one left — losing it resets your streak!</span></p>
+      <div class="heart-warning-buttons">
+        <button class="heart-btn-yes" (click)="onHeartWarningConfirm()">Yes, break it</button>
+        <button class="heart-btn-no" (click)="onHeartWarningCancel()">Keep going</button>
+      </div>
+    </div>
   </div>
 
   <!-- Gold and streak earned message -->
@@ -39,17 +69,6 @@
     <div class="reward-text" [innerHTML]="getGoldMessage()"></div>
   </div>
   
-  <!-- Pause Confirmation Dialog -->
-  <div class="pause-confirm-dialog" *ngIf="showPauseConfirm" [ngClass]="{'show': showPauseConfirm}">
-    <div class="confirm-content">
-      <h3>Pause Timer?</h3>
-      <p>Pausing may reset current pomodoro progress.</p>
-      <div class="confirm-buttons">
-        <button class="confirm-yes" (click)="confirmPause(true)">Yes, Pause</button>
-        <button class="confirm-no" (click)="confirmPause(false)">No, Continue</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 

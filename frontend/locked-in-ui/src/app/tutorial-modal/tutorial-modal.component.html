@@ -1,0 +1,72 @@
+<div class="tutorial-overlay" (click)="onBackdropClick($event)">
+  <div class="tutorial-content" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="tutorial-header">
+      <h2>{{ featureName }} Guide</h2>
+      <button class="close-btn" (click)="skip()">✕</button>
+    </div>
+
+    <!-- Current Step Content -->
+    <div class="tutorial-body">
+      <h3>{{ currentStepData.title }}</h3>
+      <p>{{ currentStepData.description }}</p>
+      
+      <!-- Optional image/gif -->
+      <div *ngIf="currentStepData.image" class="tutorial-image">
+        <img [src]="currentStepData.image" [alt]="currentStepData.title">
+      </div>
+    </div>
+
+    <!-- Progress Dots -->
+    <div class="progress-dots">
+      <span *ngFor="let step of steps; let i = index"
+            class="dot"
+            [class.active]="i === currentStep"
+            (click)="goToStep(i)">
+      </span>
+    </div>
+
+    <!-- Navigation -->
+    <div class="tutorial-footer">
+      <div class="footer-left">
+        <button class="skip-btn" (click)="skip()">Skip Tutorial</button>
+      </div>
+
+      <div class="footer-center">
+        <button class="nav-btn prev-btn" 
+                [disabled]="isFirstStep" 
+                (click)="previousStep()">
+          ← Previous
+        </button>
+        
+        <span class="step-counter">{{ currentStep + 1 }} / {{ totalSteps }}</span>
+        
+        <button *ngIf="!isLastStep" 
+                class="nav-btn next-btn" 
+                (click)="nextStep()">
+          Next →
+        </button>
+        
+        <button *ngIf="isLastStep" 
+                class="nav-btn done-btn" 
+                (click)="complete()">
+          Got it!
+        </button>
+      </div>
+
+      <div class="footer-right">
+        <!-- Spacer for alignment -->
+      </div>
+    </div>
+
+    <!-- Don't Show Again Checkbox -->
+    <div class="dont-show-again">
+      <label>
+        <input type="checkbox" [(ngModel)]="dontShowAgain">
+        <span>Don't show this again</span>
+      </label>
+    </div>
+
+  </div>
+</div>

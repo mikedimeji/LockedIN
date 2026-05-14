@@ -317,3 +317,116 @@
 
 
 
+
+/* Heart display */
+.heart-display {
+  display: flex;
+  justify-content: center;
+  margin: 6px 0;
+}
+
+.heart-icon {
+  font-size: 28px;
+  transition: transform 0.3s ease;
+}
+
+.heart-icon.broken {
+  animation: heartBreak 0.5s ease forwards;
+}
+
+.heart-icon.gone {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+@keyframes heartBreak {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4) rotate(-10deg); }
+  60%  { transform: scale(0.8) rotate(5deg); }
+  100% { transform: scale(1); }
+}
+
+/* Heart warning overlay */
+.heart-warning-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  animation: fadeIn 0.2s ease;
+}
+
+.heart-warning-dialog {
+  background: rgba(20, 10, 10, 0.95);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  border-radius: 16px;
+  padding: 36px 40px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+.heart-warning-icon {
+  font-size: 52px;
+  margin-bottom: 12px;
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.15); }
+}
+
+.heart-warning-dialog h3 {
+  color: #ff6b6b;
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.heart-warning-dialog p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.heart-warning-buttons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+}
+
+.heart-btn-yes {
+  background: rgba(255, 80, 80, 0.2);
+  border: 1px solid rgba(255, 80, 80, 0.5);
+  color: #ff6b6b;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.heart-btn-yes:hover {
+  background: rgba(255, 80, 80, 0.35);
+}
+
+.heart-btn-no {
+  background: rgba(82, 113, 255, 0.15);
+  border: 1px solid rgba(82, 113, 255, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.heart-btn-no:hover {
+  background: rgba(82, 113, 255, 0.3);
+}

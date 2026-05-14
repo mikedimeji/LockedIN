@@ -35,6 +35,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.production.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -50,6 +56,12 @@
               "outputHashing": "all"
             },
             "development": {
+              "fileReplacements": [
+                  {
+                    "replace": "src/environments/environment.ts",
+                    "with": "src/environments/environment.development.ts"
+                  }
+                ],
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
@@ -61,7 +73,7 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "headers": {
-              "Content-Security-Policy": "default-src 'self' https://sdk.scdn.co https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://sdk.scdn.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.scdn.co https://*.scdn.co data:; media-src 'self' https://*.scdn.co; connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080 https://lockedin-backend.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+              "Content-Security-Policy": "default-src 'self' https://sdk.scdn.co https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://sdk.scdn.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://i.scdn.co https://*.scdn.co data:; media-src 'self' https://*.scdn.co; connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080 https://lockedin-backend.onrender.com https://lockedin-production-c669.up.railway.app; object-src 'none'; base-uri 'self'; form-action 'self';"
             }
           },
           "configurations": {
@@ -110,3 +122,4 @@
     }
   }
 }
+
