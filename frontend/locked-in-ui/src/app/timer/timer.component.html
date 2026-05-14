@@ -28,15 +28,6 @@
     <button (click)="startTimer()">Start</button>
   </div>
 
-  <!-- Heart display -->
-  <div class="heart-display" *ngIf="authService.isLoggedIn()">
-    <div class="heart-icon" [ngClass]="{'broken': heartBroken, 'gone': heartGone}">
-      <span *ngIf="heartPoints === 2">❤️</span>
-      <span *ngIf="heartPoints === 1">💔</span>
-      <span *ngIf="heartPoints === 0">🖤</span>
-    </div>
-  </div>
-
   <!-- Controls shown only in expanded state -->
   <div class="expanded-controls" *ngIf="isExpanded">
     <button (click)="pauseTimer()">{{ isRunning ? 'Pause' : 'Resume' }}</button>
@@ -46,7 +37,7 @@
   <!-- Heart Break Warning -->
   <div class="heart-warning-overlay" *ngIf="showHeartWarning">
     <div class="heart-warning-dialog">
-      <div class="heart-warning-icon">💔</div>
+      <div class="heart-warning-icon"><img src="assets/images/hearts/singleheart-halfblue.png" alt="heart"></div>
       <h3>Break your heart?</h3>
       <p>Stopping mid-session will cost you a heart.<span *ngIf="heartPoints === 1"> You only have one left — losing it resets your streak!</span></p>
       <div class="heart-warning-buttons">

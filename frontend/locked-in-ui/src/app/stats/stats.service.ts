@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StatsService {
-  private apiBaseUrl = 'https://lockedin-backend.onrender.com/api/home';
+  private apiBaseUrl = `${environment.apiUrl}/home`;
 
   constructor(private http: HttpClient) { }
 

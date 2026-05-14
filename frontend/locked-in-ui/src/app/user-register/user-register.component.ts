@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule, NgIf } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router,RouterOutlet, RouterLink } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-user-register',
@@ -13,18 +14,22 @@ import { Router } from '@angular/router';
     NgIf,
     ReactiveFormsModule,
     CommonModule,
+    RouterOutlet,
+    RouterLink,
   ],
   templateUrl: './user-register.component.html',
   styleUrl: './user-register.component.css'
 })
 export class UserRegisterComponent {
+  private apiUrl = `${environment.apiUrl}/home/auth`;
   invalidRegister: boolean = false;
   RegisterSuccess: boolean = false;
   username: string = "";
   password: string = "";
   email: string = "";
   errorMessage: string = '';
-  successMessage: string = 'Register account successful';
+  successMessage: string = 'Account created! Please log in.';
+  isLoading: boolean = false;
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -45,42 +50,65 @@ export class UserRegisterComponent {
       return;
     }
 
+    this.isLoading = true;
+
     let bodyData = {
       "username": this.username,
       "email": this.email,
       "password": this.password,
     };
 
-    this.http.post<{ token?: string, refreshToken?: string, username?: string, message?: string }>("https://lockedin-backend.onrender.com/api/home/auth/register", bodyData).subscribe(
+    this.http.post<{ message?: string }>(`${this.apiUrl}/register`, bodyData).subscribe(
       (resultData: any) => {
         console.log(resultData);
-        if (resultData.token && resultData.refreshToken) {
-          localStorage.setItem('authToken', resultData.token);
-          localStorage.setItem('refreshToken', resultData.refreshToken);
-          
-          // Store username if available
-          if (resultData.username) {
-            localStorage.setItem('username', resultData.username);
-          }
-          
+        
+        if (resultData.message === "User registered successfully" || !resultData.message || resultData.token) {
+          localStorage.setItem('selectedTheme', 'assets/videos/witch.gif');
+          localStorage.setItem('isVideoBackground', 'true');
+
           this.RegisterSuccess = true;
-          this.router.navigateByUrl('/');
+          this.isLoading = false;
+          
+          setTimeout(() => {
+            this.router.navigateByUrl('/login');
+          }, 2000);
+          
         } else if (resultData.message === "Email Taken") {
+          this.isLoading = false;
           this.invalidRegister = true;
           this.errorMessage = "This email is already registered. Use a different email or log in.";
+        } else {
+          this.isLoading = false;
+          this.invalidRegister = true;
+          this.errorMessage = resultData.message || "Registration failed. Please try again.";
         }
       },
       (error: any) => {
-        console.error("An error occurred connecting to the server or servers are temporarily down", error);
-        this.invalidRegister = true;
-        this.errorMessage = "An error occurred. Please try again later.";
-      }
+          console.error("Registration error:", error);
+          this.isLoading = false;
+          this.invalidRegister = true;
+          
+          // Use backend message if available
+          if (error.error?.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.status === 409) {
+            this.errorMessage = "Email or username already taken";
+          } else if (error.status === 0) {
+            this.errorMessage = "Unable to connect to server";
+          } else {
+            this.errorMessage = "An error occurred. Please try again later";
+          }
+        }
     );
   }
 
   closeRegisterScreen() {
-    // Navigate back to home or login screen
     this.router.navigateByUrl('/');
   }
+
+  onBackdropClick(event: MouseEvent): void {
+  // Navigate to timer when clicking the dark background
+  this.router.navigate(['/timer']);
+}
 }
 

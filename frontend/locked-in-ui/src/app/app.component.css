@@ -303,21 +303,24 @@
   gap: 5px; /* Add gap between icon and number */
 }
 
-/* Gold and Streak Tooltip Styles - Only apply to gold and streak stats */
+/* Gold, Streak, and Heart Tooltip Styles */
 .stats-item.gold-stat,
-.stats-item.streak-stat {
+.stats-item.streak-stat,
+.stats-item.heart-stat {
   position: relative;
 }
 
 .stats-item.gold-stat .icon-container,
-.stats-item.streak-stat .icon-container {
+.stats-item.streak-stat .icon-container,
+.stats-item.heart-stat .icon-container {
   position: relative;
   cursor: pointer;
 }
 
-/* Tooltip styling - only for gold and streak stats */
+/* Tooltip styling */
 .stats-item.gold-stat .icon-container::before,
-.stats-item.streak-stat .icon-container::before {
+.stats-item.streak-stat .icon-container::before,
+.stats-item.heart-stat .icon-container::before {
   content: attr(data-tooltip);
   position: absolute;
   bottom: -35px;
@@ -339,9 +342,10 @@
   font-family: bitF1, sans-serif;
 }
 
-/* Show tooltip on hover - only for gold and streak stats */
+/* Show tooltip on hover */
 .stats-item.gold-stat .icon-container:hover::before,
-.stats-item.streak-stat .icon-container:hover::before {
+.stats-item.streak-stat .icon-container:hover::before,
+.stats-item.heart-stat .icon-container:hover::before {
   opacity: 1;
   transform: translateX(-50%) translateY(-2px);
 }
@@ -358,10 +362,17 @@
   border-color: rgba(255, 107, 53, 0.3);
 }
 
-/* Responsive adjustments - only for gold and streak stats */
+/* Heart-specific tooltip styling */
+.stats-item.heart-stat .icon-container::before {
+  color: #5271ff;
+  border-color: rgba(82, 113, 255, 0.3);
+}
+
+/* Responsive adjustments */
 @media (max-width: 600px) {
   .stats-item.gold-stat .icon-container::before,
-  .stats-item.streak-stat .icon-container::before {
+  .stats-item.streak-stat .icon-container::before,
+  .stats-item.heart-stat .icon-container::before {
     font-size: 10px;
     padding: 4px 8px;
     bottom: -32px;

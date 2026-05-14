@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
+import { environment } from '../environments/environment'; // ✅ ADD THIS
 
 @Injectable({
   providedIn: 'root'
 })
 export class GoldStreakService {
-  private apiBaseUrl = 'https://lockedin-backend.onrender.com/api/home';
+  private apiBaseUrl = `${environment.apiUrl}/home`; // ✅ CHANGED THIS
 
   constructor(private http: HttpClient) { }
 

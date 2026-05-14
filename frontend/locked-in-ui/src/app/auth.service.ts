@@ -3,11 +3,13 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../environments/environment'; // ✅ ADD THIS
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private apiUrl = `${environment.apiUrl}/home/auth`; // ✅ ADD THIS
   private tokenRefreshInProgress = false;
   private loginStatusSubject = new BehaviorSubject<boolean>(false);
   public loginStatus$ = this.loginStatusSubject.asObservable();
@@ -53,42 +55,42 @@ export class AuthService {
   }
 
   // Attempt to refresh the token
-private attemptTokenRefresh(): void {
-  const refreshToken = this.getRefreshToken();
-  
-  if (!refreshToken) {
-    this.signOut();
-    return;
-  }
-
-  if (this.tokenRefreshInProgress) {
-    return;
-  }
-
-  this.tokenRefreshInProgress = true;
-  
-  this.refreshAccessToken().subscribe({
-    next: (data) => {
-      if (data && data.token) {
-        localStorage.setItem('authToken', data.token);
-        if (data.refreshToken) {
-          localStorage.setItem('refreshToken', data.refreshToken);
-        }
-        this.updateLastActivity();
-        this.tokenRefreshInProgress = false;
-        
-        // ADD this line to emit login status after successful refresh
-        this.emitLoginStatus();
-      } else {
-        this.signOut();
-      }
-    },
-    error: () => {
+  private attemptTokenRefresh(): void {
+    const refreshToken = this.getRefreshToken();
+    
+    if (!refreshToken) {
       this.signOut();
-      this.tokenRefreshInProgress = false;
+      return;
     }
-  });
-}
+
+    if (this.tokenRefreshInProgress) {
+      return;
+    }
+
+    this.tokenRefreshInProgress = true;
+    
+    this.refreshAccessToken().subscribe({
+      next: (data) => {
+        if (data && data.token) {
+          localStorage.setItem('authToken', data.token);
+          if (data.refreshToken) {
+            localStorage.setItem('refreshToken', data.refreshToken);
+          }
+          this.updateLastActivity();
+          this.tokenRefreshInProgress = false;
+          
+          // ADD this line to emit login status after successful refresh
+          this.emitLoginStatus();
+        } else {
+          this.signOut();
+        }
+      },
+      error: () => {
+        this.signOut();
+        this.tokenRefreshInProgress = false;
+      }
+    });
+  }
 
   getUsername(): string {
     if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
@@ -101,19 +103,19 @@ private attemptTokenRefresh(): void {
 
   // Log out the user by removing the token from localStorage
   signOut(): void {
-  if (this.isBrowser()) {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
+    if (this.isBrowser()) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+    }
+    this.emitLoginStatus();
+    
+    this.router.navigate(['/login']);
   }
-  this.emitLoginStatus();
-  
-  this.router.navigate(['/login']);
-}
 
-onLoginComplete(): void {
-  this.updateLastActivity();
-  this.emitLoginStatus();
-}
+  onLoginComplete(): void {
+    this.updateLastActivity();
+    this.emitLoginStatus();
+  }
 
   // Get the refresh token from localStorage
   getRefreshToken(): string | null {
@@ -131,14 +133,14 @@ onLoginComplete(): void {
     const isLoggedIn = this.isLoggedIn();
     console.log('Emitting login status:', isLoggedIn);
     this.loginStatusSubject.next(isLoggedIn);
-}
+  }
 
   // Attempt to refresh the access token using the refresh token
   refreshAccessToken(): Observable<any> {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {
       return this.http.post<{ token: string }>(
-        'https://lockedin-backend.onrender.com/api/home/auth/refresh-token',
+        `${this.apiUrl}/refresh-token`, // ✅ CHANGED THIS
         { refreshToken }
       );
     }

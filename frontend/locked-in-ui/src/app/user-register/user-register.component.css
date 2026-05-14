@@ -1,79 +1,239 @@
-/* Shared container styles */
+/* Full page overlay with darkened background */
 .register-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  animation: fadeIn 0.4s ease;
 }
 
-/* Reuse styles from login */
+/* Minimal glass card */
 #formContent {
+  position: relative;
+  max-width: 420px;
+  width: 90%;
+  padding: 50px 40px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 15px;
+  border: 1px solid rgba(82, 113, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
   text-align: center;
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9; /* Match login background */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for better appearance */
+  animation: slideUp 0.5s ease;
 }
 
-/* Input fields styling */
-input[type="text"], 
-input[type="email"], 
-input[type="password"] {
-  margin: 10px 0;
-  padding: 10px;
-  width: calc(100% - 20px);
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-/* Button styling */
-input[type="submit"] {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-input[type="submit"]:hover {
-  background-color: #45a049;
-}
-
-/* Alerts */
-.alert {
-  margin: 10px 0;
-  padding: 10px;
-  color: white;
-  border-radius: 5px;
-}
-
-.alert-warning {
-  background-color: #ff9800;
-}
-
-.alert-success {
-  background-color: #4CAF50;
-}
-
-/* Close button for the modal */
+/* Close button */
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: transparent;
+  top: 15px;
+  right: 15px;
+  background: transparent;
   border: none;
-  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close-button:hover {
-  color: red;
+  color: rgba(255, 255, 255, 0.8);
+  transform: rotate(90deg);
+}
+
+/* Subtle title */
+#formContent h2 {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 28px;
+  margin-bottom: 35px;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+/* Clean input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 14px 18px;
+  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  outline: none;
+  border-color: rgba(82, 113, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 300;
+}
+
+/* Simple button */
+input[type="submit"] {
+  width: 100%;
+  padding: 14px;
+  margin-top: 25px;
+  background: rgba(82, 113, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(82, 113, 255, 0.3);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+input[type="submit"]:hover {
+  background: rgba(82, 113, 255, 0.25);
+  border-color: rgba(82, 113, 255, 0.5);
+}
+
+input[type="submit"]:active {
+  transform: scale(0.98);
+}
+
+/* Subtle alerts */
+.alert {
+  padding: 12px 18px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  animation: slideDown 0.3s ease;
+}
+
+.alert-warning {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid rgba(255, 152, 0, 0.3);
+  color: rgba(255, 171, 64, 0.9);
+}
+
+.alert-success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: rgba(102, 255, 102, 0.9);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: white;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 20px;
+  border: 3px solid rgba(82, 113, 255, 0.1);
+  border-top: 3px solid rgba(82, 113, 255, 0.6);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner p {
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Link to login */
+.auth-link {
+  margin-top: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.auth-link a {
+  color: rgba(82, 113, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-link a:hover {
+  color: rgba(82, 113, 255, 1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #formContent {
+    padding: 40px 30px;
+  }
+  
+  #formContent h2 {
+    font-size: 24px;
+  }
 }
 
 

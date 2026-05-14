@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { StreakDTO } from './gold-streak.service';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StreakService {
-  private baseUrl = 'https://lockedin-backend.onrender.com/api/home';
+  private baseUrl = `${environment.apiUrl}/home`;
 
   constructor(private http: HttpClient) { }
 

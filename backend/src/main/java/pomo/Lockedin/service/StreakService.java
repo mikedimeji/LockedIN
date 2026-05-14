@@ -118,6 +118,7 @@ public class StreakService {
                     .hoursSpentRevisingPerDay(0)
                     .daysRevisedInARow(0)
                     .totalHoursRevised(0)
+                    .heartPoints(2)
                     .build();
 
             userStatsDao.createUserStats(newUserStats);

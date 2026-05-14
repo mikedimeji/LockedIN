@@ -251,10 +251,12 @@ export class TimerComponent implements OnInit, OnDestroy {
           this.currentStreak = 0;
         }
         setTimeout(() => { this.heartBroken = false; }, 1000);
+        document.dispatchEvent(new CustomEvent('heartPointsChanged', { detail: { heartPoints: response.heartPoints } }));
         if (action === 'pause') this.executePause();
         else this.resetTimer();
       },
-      error: () => {
+      error: (err) => {
+        console.error('breakHeart API failed:', err);
         if (action === 'pause') this.executePause();
         else this.resetTimer();
       }

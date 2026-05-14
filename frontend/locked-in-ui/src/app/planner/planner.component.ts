@@ -3,6 +3,9 @@ import { CommonModule, isPlatformBrowser } from "@angular/common";
 import { HttpClient, HttpClientModule, HttpHeaders } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
+import { environment } from '../../environments/environment';
+import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
+import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
 
 @Component({
   selector: 'app-planner',
@@ -11,22 +14,34 @@ import { Router } from "@angular/router";
     CommonModule,
     HttpClientModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TutorialModalComponent
   ],
   templateUrl: './planner.component.html',
   styleUrls: ['./planner.component.css']
 })
 export class PlannerComponent implements OnInit {
+  private apiUrl = `${environment.apiUrl}/home/revisiontopics`;
+  
+  // Tutorial
+  showTutorial: boolean = false;
+  tutorialSteps: TutorialStep[] = [];
+  
   topics: Array<{ revisionTopicId: number; userId: number; title: string; description: string; pomodoroNumber: number }> = [];
   newTopic = { title: '', description: '', pomodoroNumber: 1 };
-  currentTopicIndex = 0; // Tracks the current topic being displayed
-  showForm = false; // Toggles the display of the form modal
-  isCarousel = false; // Track whether to show carousel view or not
-  confirmingDelete = false; // For delete confirmation dialog
-  topicToDelete: number | null = null; // ID of topic to delete
+  currentTopicIndex = 0;
+  showForm = false;
+  isCarousel = false;
+  confirmingDelete = false;
+  topicToDelete: number | null = null;
   private audio: HTMLAudioElement | null = null;
 
-  constructor(private http: HttpClient, private router: Router, @Inject(PLATFORM_ID) private platformId: Object,) {
+  constructor(
+    private http: HttpClient, 
+    private router: Router, 
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private tutorialService: TutorialService
+  ) {
     if (isPlatformBrowser(this.platformId)) {
       this.audio = new Audio('/assets/sounds/click.mp3');
       console.log('Audio object initialized:', this.audio);
@@ -34,7 +49,24 @@ export class PlannerComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Check if tutorial should show
+    if (!this.tutorialService.hasSeenTutorial('planner')) {
+      this.tutorialSteps = this.tutorialService.getTutorialSteps('planner');
+      this.showTutorial = true;
+    }
+
     this.getRevisionTopics();
+  }
+
+  onTutorialComplete(dontShowAgain: boolean): void {
+    if (dontShowAgain) {
+      this.tutorialService.markTutorialAsSeen('planner');
+    }
+    this.showTutorial = false;
+  }
+
+  onTutorialSkip(): void {
+    this.showTutorial = false;
   }
 
   private getAuthToken(): string | null {
@@ -60,7 +92,7 @@ export class PlannerComponent implements OnInit {
 
     this.http
       .get<Array<{ revisionTopicId: number; userId: number; title: string; description: string; pomodoroNumber: number }>>(
-        'https://lockedin-backend.onrender.com/api/home/revisiontopics',
+        this.apiUrl,
         { headers }
       )
       .subscribe(
@@ -104,7 +136,7 @@ export class PlannerComponent implements OnInit {
 
     this.http
       .post<{ revisionTopicId: number; userId: number; title: string; description: string; pomodoroNumber: number }>(
-        'https://lockedin-backend.onrender.com/api/home/revisiontopics',
+        this.apiUrl,
         bodyData,
         { headers }
       )
@@ -115,7 +147,6 @@ export class PlannerComponent implements OnInit {
           this.toggleForm(); 
           alert('Revision topic created successfully!');
           
-          // If this is the first topic, suggest viewing it
           if (this.topics.length === 1) {
             setTimeout(() => {
               this.toggleScreen('down');
@@ -129,7 +160,6 @@ export class PlannerComponent implements OnInit {
       );
   }
 
-  // Show delete confirmation dialog
   confirmDelete(revisionTopicId: number): void {
     this.topicToDelete = revisionTopicId;
     this.confirmingDelete = true;
@@ -138,7 +168,6 @@ export class PlannerComponent implements OnInit {
     }
   }
   
-  // Cancel deletion
   cancelDelete(): void {
     this.confirmingDelete = false;
     this.topicToDelete = null;
@@ -148,7 +177,6 @@ export class PlannerComponent implements OnInit {
   }
 
   deleteTopic(revisionTopicId: number): void {
-    // Close the confirmation dialog
     this.confirmingDelete = false;
     
     console.log('Topics:', this.topics);
@@ -173,7 +201,7 @@ export class PlannerComponent implements OnInit {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.http
-      .delete(`https://lockedin-backend.onrender.com/api/home/revisiontopics/${revisionTopicId}`, { headers })
+      .delete(`${this.apiUrl}/${revisionTopicId}`, { headers })
       .subscribe(
         () => {
           this.topics = this.topics.filter(topic => topic.revisionTopicId !== revisionTopicId);
@@ -181,15 +209,15 @@ export class PlannerComponent implements OnInit {
             this.currentTopicIndex = Math.max(0, this.topics.length - 1);
           }
           if(this.topics.length === 0){
-            this.toggleScreen('up'); // Go back to create view
+            this.toggleScreen('up');
           }
           alert('Revision topic deleted successfully!');
-          this.topicToDelete = null; // Reset the topic to delete
+          this.topicToDelete = null;
         },
         (error) => {
           console.error('Error deleting revision topic:', error);
           alert('Failed to delete revision topic.');
-          this.topicToDelete = null; // Reset even on error
+          this.topicToDelete = null;
         }
       );
   }
@@ -230,12 +258,12 @@ export class PlannerComponent implements OnInit {
       if (this.audio) {
         this.audio.play().catch(err => console.error('Error playing audio:', err));
       }
-      this.isCarousel = true; // Switch to carousel view
+      this.isCarousel = true;
     } else if (direction === 'up') {
       if (this.audio) {
         this.audio.play().catch(err => console.error('Error playing audio:', err));
       }
-      this.isCarousel = false; // Switch back to Create Topic view
+      this.isCarousel = false;
     }
   }
 

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { environment } from '../environments/environment';
 
 // Types matching your backend DTOs
 export interface UserPreferences {
@@ -38,7 +39,7 @@ export interface UnlockedItem {
   providedIn: 'root'
 })
 export class UserPreferencesService {
-  private baseUrl = 'https://lockedin-backend.onrender.com/api/home/preferences';
+  private baseUrl = `${environment.apiUrl}/home/preferences`;
   
   // BehaviorSubjects to track current state
   private preferencesSubject = new BehaviorSubject<UserPreferences | null>(null);

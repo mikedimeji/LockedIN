@@ -15,6 +15,7 @@ import { PixelClockComponent } from './pixel-clock/pixel-clock.component';
 import { AmbienceComponent } from "./ambience/ambience.component";
 import { AuthService } from './auth.service';
 import { GoldStreakService } from './gold-streak.service';
+import { HeartService } from './heart.service';
 import { interval } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { of, filter, Subscription } from 'rxjs';
@@ -184,6 +185,7 @@ availablePfps = [
   goldBalance: number = 0;
   currentStreak: number = 0;
   longestStreak: number = 0;
+  heartPoints: number = 2;
 
   // For tracking subscriptions
   private routerSubscription: Subscription | null = null;
@@ -194,12 +196,13 @@ availablePfps = [
   hasUnreadNotifications: boolean = true; // You can make this dynamic later
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: Object, 
-    private router: Router, 
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private router: Router,
     public authService: AuthService,
     private goldStreakService: GoldStreakService,
+    private heartService: HeartService,
     private userPreferencesService: UserPreferencesService,
-    private cdr: ChangeDetectorRef  
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -228,11 +231,13 @@ private loadUserDataFromBackend(): void {
   this.userPreferencesService.loadUserData().subscribe({
     next: (data) => {
       console.log('User data loaded from backend:', data);
+
+      const DEFAULT_THEME = 'assets/videos/witch.gif';
       
       // Apply preferences
       const prefs = data.preferences;
-      this.selectedTheme = prefs.selectedTheme;
-      this.isVideoBackground = prefs.isVideoBackground;
+      this.selectedTheme = DEFAULT_THEME;
+      this.isVideoBackground =  prefs?.isVideoBackground;
       this.isNavHidden = prefs.navHidden;
       this.selectedPfp = prefs.selectedPfp;
 
@@ -299,6 +304,12 @@ private loadUserDataFromBackend(): void {
         console.log('User data refresh event received from:', event.detail?.source);
         this.refreshUserData();
       });
+      document.addEventListener('heartPointsChanged', (event: any) => {
+        if (event.detail?.heartPoints !== undefined) {
+          this.heartPoints = event.detail.heartPoints;
+          this.cdr.detectChanges();
+        }
+      });
       this.customEventListenerAdded = true;
     }
   }
@@ -358,6 +369,18 @@ toggleNavVisibility(): void {
         }
       });
       
+      // Get heart data
+      this.heartService.getHearts().pipe(
+        catchError(error => {
+          console.error('Error fetching heart data:', error);
+          return of({ heartPoints: this.heartPoints, currentStreak: this.currentStreak, streakReset: false, lastHeartRefillDate: '' });
+        })
+      ).subscribe(data => {
+        if (data && data.heartPoints !== undefined) {
+          this.heartPoints = data.heartPoints;
+        }
+      });
+
       // Get streak data
       this.goldStreakService.getCurrentStreak().pipe(
         catchError(error => {
@@ -383,6 +406,7 @@ toggleNavVisibility(): void {
       this.goldBalance = 0;
       this.currentStreak = 0;
       this.longestStreak = 0;
+      this.heartPoints = 2;
     }
   }
   // Clean up on destroy

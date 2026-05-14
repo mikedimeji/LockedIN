@@ -1,17 +1,49 @@
-<div class="register-container">
-  <div id="formContent">
-    <!-- Close Button -->
-    <button class="close-button" (click)="closeRegisterScreen()">X</button>
+<div *ngIf="isLoading" class="loading-overlay">
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Creating your account...</p>
+  </div>
+</div>
 
+<div class="register-container" (click)="onBackdropClick($event)">
+  <div id="formContent" (click)="$event.stopPropagation()">
+    <button class="close-button" (click)="closeRegisterScreen()">✕</button>
+    
     <div class="alert alert-warning" *ngIf="invalidRegister">{{errorMessage}}</div>
     <div class="alert alert-success" *ngIf="RegisterSuccess">{{successMessage}}</div>
+    
     <h2>Register</h2>
+    
     <form>
-      <input type="text" id="username" [(ngModel)]="username" name="username" placeholder="Username" required>
-      <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="Email" required>
-      <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="Password" required>
-      <input type="submit" (click)="handleRegister()" value="Register">
+      <input type="text" 
+             id="username" 
+             [(ngModel)]="username" 
+             name="username" 
+             placeholder="Username" 
+             required>
+      
+      <input type="email" 
+             id="email" 
+             [(ngModel)]="email" 
+             name="email" 
+             placeholder="Email" 
+             required>
+      
+      <input type="password" 
+             id="password" 
+             [(ngModel)]="password" 
+             name="password" 
+             placeholder="Password" 
+             required>
+      
+      <input type="submit" 
+             (click)="handleRegister()" 
+             value="Register">
     </form>
+    
+    <div class="auth-link">
+      Already have an account? <a routerLink="/login">Login</a>
+    </div>
   </div>
 </div>
 

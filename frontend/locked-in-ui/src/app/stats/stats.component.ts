@@ -5,6 +5,8 @@ import { HttpClient } from '@angular/common/http';
 import Chart from 'chart.js/auto';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { StatsService } from './stats.service';
+import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
+import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
 
 // Define interfaces for type safety
 interface SummaryStats {
@@ -37,7 +39,7 @@ interface Achievement {
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TutorialModalComponent],
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.css'],
   animations: [
@@ -58,6 +60,10 @@ export class StatsComponent implements OnInit, AfterViewInit {
   @ViewChild('goldChart') goldChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('streakChart') streakChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('chartCarousel') chartCarouselRef!: ElementRef;
+  
+  // Tutorial
+  showTutorial: boolean = false;
+  tutorialSteps: TutorialStep[] = [];
   
   loading = true;
   
@@ -106,14 +112,35 @@ export class StatsComponent implements OnInit, AfterViewInit {
   dragStartX: number = 0;
   dragAmount: number = 0;
 
-  constructor(private http: HttpClient, private statsService: StatsService) { }
+  constructor(
+    private http: HttpClient, 
+    private statsService: StatsService,
+    private tutorialService: TutorialService
+  ) { }
 
   ngOnInit(): void {
+    // Check if tutorial should show
+    if (!this.tutorialService.hasSeenTutorial('stats')) {
+      this.tutorialSteps = this.tutorialService.getTutorialSteps('stats');
+      this.showTutorial = true;
+    }
+
     this.loadStats();
   }
   
   ngAfterViewInit(): void {
     // Charts will be initialized after data is loaded
+  }
+
+  onTutorialComplete(dontShowAgain: boolean): void {
+    if (dontShowAgain) {
+      this.tutorialService.markTutorialAsSeen('stats');
+    }
+    this.showTutorial = false;
+  }
+
+  onTutorialSkip(): void {
+    this.showTutorial = false;
   }
 
   @HostListener('touchstart', ['$event'])
