@@ -7,23 +7,22 @@
 </app-tutorial-modal>
 
 <div class="themes-container">
-  <div class="shimmer-1"></div>
-  <div class="shimmer-2"></div>
- 
-  <div class="header-section">
-    <h1>Select a Theme</h1>
-   
-    <!-- Toggle Switch -->
-    <div class="toggle-container">
-      <span [class.active]="!showLiveThemes">Static</span>
-      <label class="switch">
-        <input type="checkbox" [checked]="showLiveThemes" (change)="toggleLiveThemes()">
-        <span class="slider round"></span>
-      </label>
-      <span [class.active]="showLiveThemes">Live</span>
+
+  <!-- HUD Header -->
+  <div class="themes-header">
+    <div class="themes-hud-left">
+      <span class="themes-hud-logo">LOCKED IN</span>
+      <span class="themes-hud-tag">WALLPAPERS</span>
+    </div>
+    <div class="themes-hud-right">
+      <div class="live-toggle">
+        <span class="toggle-option" [class.active]="!showLiveThemes" (click)="showLiveThemes && toggleLiveThemes()">STATIC</span>
+        <span class="toggle-divider">|</span>
+        <span class="toggle-option" [class.active]="showLiveThemes" (click)="!showLiveThemes && toggleLiveThemes()">LIVE</span>
+      </div>
     </div>
   </div>
- 
+
   <!-- Category Tabs -->
   <div class="category-tabs">
     <div *ngFor="let category of categories"
@@ -35,72 +34,64 @@
     </div>
   </div>
 
-  <!-- Themes Gallery with Pagination Controls -->
+  <!-- Gallery Section -->
   <div class="themes-section">
-    <!-- Pagination Controls Top -->
+
+    <!-- Pagination Controls -->
     <div class="pagination-controls" *ngIf="totalPages > 1">
-      <button class="pagination-btn prev-btn" 
-              [disabled]="!canGoPrevious()" 
-              (click)="previousPage()">
-        &#8249; <!-- Left chevron -->
-      </button>
-      
-      <div class="page-info">
-        <span>{{ currentPage + 1 }} of {{ totalPages }}</span>
-      </div>
-      
-      <button class="pagination-btn next-btn" 
-              [disabled]="!canGoNext()" 
-              (click)="nextPage()">
-        &#8250; <!-- Right chevron -->
-      </button>
+      <button class="pagination-btn" [disabled]="!canGoPrevious()" (click)="previousPage()">&#8249;</button>
+      <span class="page-info">{{ currentPage + 1 }} / {{ totalPages }}</span>
+      <button class="pagination-btn" [disabled]="!canGoNext()" (click)="nextPage()">&#8250;</button>
     </div>
-    
-    <!-- Themes Gallery -->
+
+    <!-- Themes Grid -->
     <div class="themes-gallery">
-      <div *ngFor="let theme of paginatedThemes" 
+      <div *ngFor="let theme of paginatedThemes"
            class="theme-item"
-           [ngClass]="{
-             'selected': isSelected(theme.path),
-             'unlocked': theme.unlocked
-           }"
+           [class.selected]="isSelected(theme.path)"
+           [class.locked]="theme.premium && !theme.unlocked"
            (click)="changeTheme(theme)">
+
         <img [src]="theme.path" [alt]="theme.name" class="theme-image">
-        
-        <!-- Premium Theme Overlay (only show if locked) -->
+
+        <!-- Name overlay -->
+        <div class="theme-name-overlay">{{ theme.name }}</div>
+
+        <!-- Selected ring -->
+        <div *ngIf="isSelected(theme.path)" class="selected-ring"></div>
+
+        <!-- Premium lock overlay -->
         <div *ngIf="theme.premium && !theme.unlocked" class="premium-overlay">
-          <div class="lock-icon">🔒</div>
-          <div class="premium-label">
+          <span class="lock-icon">🔒</span>
+          <div class="premium-cost">
             <img src="assets/images/goldcoin.png" alt="Gold" class="gold-icon">
             <span>{{ theme.goldCost || 500 }}</span>
           </div>
         </div>
-        
-        <!-- Unlocked indicator for premium themes -->
-        <div *ngIf="theme.premium && theme.unlocked" class="unlocked-badge">
-          ✓ UNLOCKED
+
+        <!-- Badges -->
+        <div class="badge-row">
+          <span *ngIf="theme.isLive" class="badge badge-live">LIVE</span>
+          <span *ngIf="theme.premium && theme.unlocked" class="badge badge-unlocked">✓</span>
         </div>
-        
-        <!-- Live indicator badge -->
-        <div *ngIf="theme.isLive" class="live-badge">
-          LIVE
-        </div>
+
       </div>
     </div>
 
-    <!-- Page Dots Indicator -->
+    <!-- Page Dots -->
     <div class="page-dots" *ngIf="totalPages > 1 && totalPages <= 10">
       <span *ngFor="let page of getPageNumbers(); let i = index"
             class="page-dot"
-            [ngClass]="{'active': currentPage === i}"
+            [class.active]="currentPage === i"
             (click)="goToPage(i)">
       </span>
     </div>
+
   </div>
 
-  <!-- Empty state message -->
+  <!-- Empty State -->
   <div *ngIf="paginatedThemes.length === 0" class="empty-state">
-    <p>No themes available for the selected filters. Try a different category or toggle between live/static themes.</p>
+    <p>No wallpapers found. Try a different category or filter.</p>
   </div>
-</div>
 
+</div>

@@ -50,35 +50,38 @@ export class ThemesComponent implements OnInit {
 
   // Updated allThemes array with dynamic pricing and unlock status
   allThemes: Theme[] = [
-    // Free themes - live
-    { path: 'assets/videos/nakedwhy.gif', name: 'Retro Girl', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
-    { path: 'assets/videos/witch.gif', name: 'Witch', premium: false, category: 'anime', isLive: true, unlocked: true },
-    { path: 'assets/videos/sky-view-pink.gif', name: 'Sky Pink', premium: false, category: 'chill', isLive: true, unlocked: true },
-    { path: 'assets/videos/cafe.gif', name: 'Cafe', premium: false, category: 'study', isLive: true, unlocked: true },
-    { path: 'assets/videos/castle.gif', name: 'Castle', premium: false, category: 'chill', isLive: true, unlocked: true },
-    { path: 'assets/videos/cyberpunk.gif', name: 'Cyberpunk', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
-    { path: 'assets/videos/city2.gif', name: 'City-Overview', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
-    { path: 'assets/videos/museum-fish.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
-    { path: 'assets/videos/japan.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
-    { path: 'assets/videos/pink-monitor.gif', name: 'A Lazy day', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
-    { path: 'assets/videos/gamer-monitors.gif', name: 'Gamer Monitors', premium: false, category: 'aesthetic', isLive: true, unlocked: true},
-    { path: 'assets/videos/girlflowers.gif', name: 'Girl & Flowers', premium: false, category: 'chill', isLive: true, unlocked: true },
-    { path: 'assets/videos/p-road.gif', name: 'Night Drive', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
-    { path: 'assets/videos/rooftopgamer.gif', name: 'Rooftop Gamer', premium: false, category: 'study', isLive: true, unlocked: true },
-    { path: 'assets/videos/VA11HALLA.gif', name: 'VA-11 HALL-A', premium: false, category: 'custom', isLive: true, unlocked: true },
-    { path: 'assets/videos/lain.gif', name: 'Lain', premium: false, category: 'anime', isLive: true, unlocked: true },
-    { path: 'assets/videos/vending.gif', name: 'Vending Machine', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
-    // Premium themes - live with different costs
-    { path: 'assets/videos/cathargic_day.gif', name: 'Cathargic Day', premium: false, category: 'chill', isLive: true, unlocked: true },
-    { path: 'assets/videos/scottpill.gif', name: 'Scott Pill', premium: true, category: 'aesthetic', isLive: true, goldCost: 1200, unlocked: false },
-    { path: 'assets/videos/tokyo.gif', name: 'Tokyo', premium: true, category: 'anime', isLive: true, goldCost: 5, unlocked: false },
-    { path: 'assets/videos/yumenikki.mp4', name: 'Yume Nikki', premium: true, category: 'custom', isLive: true, goldCost: 500, unlocked: false },
-    
-    // Static themes
-    { path: 'assets/images/themes/city.jpg', name: 'Retro Room', premium: false, category: 'aesthetic', isLive: false, unlocked: true },
-    { path: 'assets/images/themes/house-roshi.jpg', name: 'Mountain View', premium: false, category: 'chill', isLive: false, unlocked: true },
-    { path: 'assets/images/themes/-9.jpg', name: 'Lofi Room', premium: false, category: 'study', isLive: false, unlocked: true },
-    { path: 'assets/images/themes/rei.webp', name: 'Rei', premium: false, category: 'anime', isLive: false, unlocked: true },
+    // ── Free live themes (starter page) ──
+    { path: 'assets/videos/witch.gif',         name: 'Witch',          premium: false, category: 'anime',      isLive: true,  unlocked: true },
+    { path: 'assets/videos/lain.gif',           name: 'Lain',           premium: false, category: 'anime',      isLive: true,  unlocked: true },
+    { path: 'assets/videos/cafe.gif',           name: 'Cafe',           premium: false, category: 'study',      isLive: true,  unlocked: true },
+    { path: 'assets/videos/sky-view-pink.gif',  name: 'Sky Pink',       premium: false, category: 'chill',      isLive: true,  unlocked: true },
+    { path: 'assets/videos/cyberpunk.gif',      name: 'Cyberpunk',      premium: false, category: 'aesthetic',  isLive: true,  unlocked: true },
+    { path: 'assets/videos/castle.gif',         name: 'Castle',         premium: false, category: 'chill',      isLive: true,  unlocked: true },
+    { path: 'assets/videos/nakedwhy.gif',       name: 'Retro Girl',     premium: false, category: 'aesthetic',  isLive: true,  unlocked: true },
+    { path: 'assets/videos/vending.gif',        name: 'Vending Machine',premium: false, category: 'aesthetic',  isLive: true,  unlocked: true },
+
+    // ── Free static themes ──
+    { path: 'assets/images/themes/city.jpg',       name: 'Retro Room',     premium: false, category: 'aesthetic', isLive: false, unlocked: true },
+    { path: 'assets/images/themes/house-roshi.jpg',name: 'Mountain View',  premium: false, category: 'chill',     isLive: false, unlocked: true },
+
+    // ── Premium live themes ──
+    { path: 'assets/videos/city2.gif',          name: 'City Overview',  premium: true, category: 'aesthetic',  isLive: true,  goldCost: 100,  unlocked: false },
+    { path: 'assets/videos/museum-fish.gif',    name: 'Aquarium',       premium: true, category: 'chill',      isLive: true,  goldCost: 100,  unlocked: false },
+    { path: 'assets/videos/pink-monitor.gif',   name: 'Pink Setup',     premium: true, category: 'aesthetic',  isLive: true,  goldCost: 120,  unlocked: false },
+    { path: 'assets/videos/gamer-monitors.gif', name: 'Gamer Setup',    premium: true, category: 'aesthetic',  isLive: true,  goldCost: 120,  unlocked: false },
+    { path: 'assets/videos/rooftopgamer.gif',   name: 'Rooftop Gamer',  premium: true, category: 'study',      isLive: true,  goldCost: 150,  unlocked: false },
+    { path: 'assets/videos/girlflowers.gif',    name: 'Girl & Flowers', premium: true, category: 'chill',      isLive: true,  goldCost: 180,  unlocked: false },
+    { path: 'assets/videos/p-road.gif',         name: 'Night Drive',    premium: true, category: 'aesthetic',  isLive: true,  goldCost: 200,  unlocked: false },
+    { path: 'assets/videos/japan.gif',          name: 'Japan Street',   premium: true, category: 'aesthetic',  isLive: true,  goldCost: 200,  unlocked: false },
+    { path: 'assets/videos/yumenikki.mp4',      name: 'Yume Nikki',     premium: true, category: 'custom',     isLive: true,  goldCost: 300,  unlocked: false },
+    { path: 'assets/videos/cathargic_day.gif',  name: 'Cathartic Day',  premium: true, category: 'chill',      isLive: true,  goldCost: 350,  unlocked: false },
+    { path: 'assets/videos/VA11HALLA.gif',      name: 'VA-11 HALL-A',   premium: true, category: 'custom',     isLive: true,  goldCost: 400,  unlocked: false },
+    { path: 'assets/videos/tokyo.gif',          name: 'Tokyo',          premium: true, category: 'anime',      isLive: true,  goldCost: 500,  unlocked: false },
+    { path: 'assets/videos/scottpill.gif',      name: 'Scott Pill',     premium: true, category: 'aesthetic',  isLive: true,  goldCost: 800,  unlocked: false },
+
+    // ── Premium static themes ──
+    { path: 'assets/images/themes/-9.jpg',   name: 'Lofi Room', premium: true, category: 'study', isLive: false, goldCost: 60,  unlocked: false },
+    { path: 'assets/images/themes/rei.webp', name: 'Rei',       premium: true, category: 'anime', isLive: false, goldCost: 100, unlocked: false },
   ];
 
   // Themes that match the current filter

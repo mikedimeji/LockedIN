@@ -24,7 +24,7 @@ public class GoldService {
     /**
      * Base gold reward per pomodoro
      */
-    private static final int BASE_GOLD_PER_POMODORO = 5;
+    private static final int BASE_GOLD_PER_POMODORO = 10;
 
     /**
      * Additional gold per streak day (multiplier)
