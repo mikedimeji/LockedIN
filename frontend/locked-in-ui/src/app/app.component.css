@@ -392,10 +392,6 @@
   transform-origin: center;
 }
 
-/* Recolour the static blue PNG to red */
-.heart-full {
-  filter: hue-rotate(120deg) saturate(2) brightness(1.1);
-}
 
 
 .icon-container img {

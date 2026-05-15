@@ -193,7 +193,7 @@ availablePfps = [
 
   get heartImgSrc(): string {
     const hp = this.heartService.currentHeartPoints;
-    if (hp >= 2) return 'assets/images/hearts/singleheart-blue.png';
+    if (hp >= 2) return 'assets/images/hearts/redheart.png';
     if (hp === 1) return 'assets/images/hearts/heart-halfred.png';
     return 'assets/images/hearts/heart-emptyred.png';
   }
