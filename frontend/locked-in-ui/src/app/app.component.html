@@ -1,3 +1,6 @@
+<!-- Questionnaire modal -->
+<app-questionnaire-modal *ngIf="showQuestionnaire" (closed)="showQuestionnaire = false" ngSkipHydration></app-questionnaire-modal>
+
 <!-- Loading screen -->
 <div *ngIf="isLoading" class="loading-screen">
   <div class="loading-content">

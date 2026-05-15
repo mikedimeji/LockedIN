@@ -13,9 +13,11 @@ import { SpotifyPlayerComponent } from "./spotify-player/spotify-player.componen
 import { PlannerComponent } from "./planner/planner.component";
 import { PixelClockComponent } from './pixel-clock/pixel-clock.component';
 import { AmbienceComponent } from "./ambience/ambience.component";
+import { QuestionnaireModalComponent } from './questionnaire-modal/questionnaire-modal.component';
 import { AuthService } from './auth.service';
 import { GoldStreakService } from './gold-streak.service';
 import { HeartService } from './heart.service';
+import { QuestionnaireService } from './questionnaire-modal/questionnaire.service';
 import { interval } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { of, filter, Subscription } from 'rxjs';
@@ -42,6 +44,7 @@ import { ChangeDetectorRef } from '@angular/core';
     RouterLink,
     ThemesComponent,
     SpotifyPlayerComponent,
+    QuestionnaireModalComponent,
   ]
 })
 export class AppComponent implements OnInit {
@@ -203,6 +206,8 @@ availablePfps = [
   showNotifications: boolean = false;
   hasUnreadNotifications: boolean = false;
 
+  showQuestionnaire: boolean = false;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router,
@@ -210,6 +215,7 @@ availablePfps = [
     private goldStreakService: GoldStreakService,
     public heartService: HeartService,
     private userPreferencesService: UserPreferencesService,
+    private questionnaireService: QuestionnaireService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -261,6 +267,16 @@ private loadUserDataFromBackend(): void {
 
       // Force background refresh
       this.forceBackgroundRefresh();
+
+      // Show questionnaire for new accounts
+      this.questionnaireService.getStatus().subscribe({
+        next: (status) => {
+          if (status.status === 'not_started') {
+            this.showQuestionnaire = true;
+          }
+        },
+        error: () => {}
+      });
     },
     error: (error) => {
       console.error('Error loading user data from backend:', error);

@@ -1,0 +1,71 @@
+<div class="q-overlay">
+  <div class="q-panel">
+
+    <!-- Completion screen -->
+    <div *ngIf="showCompletion" class="q-completion">
+      <div class="q-logo">LOCKED IN</div>
+      <div class="q-completion-icon">✓</div>
+      <h2 class="q-completion-title">Profile Complete</h2>
+      <p class="q-completion-body">
+        Your focus profile has been saved. We'll use this to tailor your LockedIN experience over time.
+      </p>
+      <div class="q-premium-card">
+        <div class="q-premium-label">PREMIUM</div>
+        <p class="q-premium-text">
+          Adaptive session lengths, personalised break suggestions, and your full Focus Score live on the Stats page — all unlocked with LockedIN Premium.
+        </p>
+      </div>
+      <button class="q-btn-primary" (click)="dismiss()">Get Started</button>
+    </div>
+
+    <!-- Question flow -->
+    <ng-container *ngIf="!showCompletion">
+
+      <!-- Header -->
+      <div class="q-header">
+        <div class="q-logo">LOCKED IN</div>
+        <button class="q-close" (click)="skipAll()">✕</button>
+      </div>
+
+      <!-- Progress -->
+      <div class="q-progress-wrap">
+        <div class="q-progress-bar" [style.width.%]="progress"></div>
+      </div>
+      <div class="q-step-label">{{ currentStep + 1 }} of {{ total }}</div>
+
+      <!-- Section -->
+      <div class="q-section">{{ currentQuestion.section }}</div>
+
+      <!-- Question -->
+      <h2 class="q-question">{{ currentQuestion.text }}</h2>
+
+      <!-- Options -->
+      <div class="q-options">
+        <button
+          *ngFor="let opt of currentQuestion.options"
+          class="q-option"
+          [class.selected]="selectedValue === opt.value"
+          (click)="select(opt.value)">
+          <span class="q-option-check">{{ selectedValue === opt.value ? '●' : '○' }}</span>
+          {{ opt.label }}
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div class="q-actions">
+        <button class="q-btn-primary" [disabled]="!selectedValue || submitting" (click)="next()">
+          {{ isLastQuestion ? (submitting ? 'Saving...' : 'Finish') : 'Next →' }}
+        </button>
+        <button class="q-btn-skip-question" (click)="skipQuestion()">Skip this question</button>
+      </div>
+
+      <!-- Footer disclaimer -->
+      <p class="q-disclaimer">
+        LockedIN is not a clinical tool. Responses help personalise your experience only.
+        You can skip any question. <span class="q-skip-all" (click)="skipAll()">Skip questionnaire</span>
+      </p>
+
+    </ng-container>
+
+  </div>
+</div>
