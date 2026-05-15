@@ -1,5 +1,6 @@
 package pomo.Lockedin.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PremiumStatusDTO {
+    @JsonProperty("isPremium")
     private boolean isPremium;
     private String subscriptionStatus; // 'active' | 'past_due' | 'cancelled' | 'inactive'
     // kept for backwards compat — not used for gating anymore
