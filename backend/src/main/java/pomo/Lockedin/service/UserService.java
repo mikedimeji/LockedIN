@@ -31,4 +31,8 @@ public class UserService {
                 .orElse(null);
     }
 
+    public Optional<User> getUserByEmail(String userEmail) {
+        return userRepo.findUserByEmailOrUsername(userEmail);
+    }
+
 }

@@ -449,16 +449,13 @@ toggleNavVisibility(): void {
 
   openPremiumModal(): void {
     this.showPremiumModal = true;
+    this.showPremiumBanner = false;
+    localStorage.setItem('premiumBannerDismissed', 'true');
   }
 
   closePremiumModal(): void {
     this.showPremiumModal = false;
     this.premiumCheckingOut = false;
-  }
-
-  dismissPremiumBanner(): void {
-    this.showPremiumBanner = false;
-    localStorage.setItem('premiumBannerDismissed', 'true');
   }
 
   subscribePremium(plan: 'monthly' | 'annual'): void {

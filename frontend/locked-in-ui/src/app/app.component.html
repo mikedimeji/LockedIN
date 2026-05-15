@@ -17,13 +17,6 @@
   <button class="login-button" (click)="showLogin()">Login</button>
 </div>
 
-<!-- Premium onboarding banner -->
-<div *ngIf="showPremiumBanner && authService.isLoggedIn()" class="premium-banner" ngSkipHydration>
-  <span class="premium-banner-text">✦ PREMIUM — Unlimited todos, advanced analytics &amp; more</span>
-  <button class="premium-banner-btn" (click)="openPremiumModal()">EXPLORE</button>
-  <button class="premium-banner-dismiss" (click)="dismissPremiumBanner()">✕</button>
-</div>
-
 <!-- Profile display -->
 <div *ngIf="authService.isLoggedIn()" class="profile-display" ngSkipHydration>
   <div class="profile-pic-container">
@@ -35,6 +28,7 @@
   <span class="username">{{ authService.getUsername() }}</span>
   <button class="premium-orb-btn" [class.is-premium]="isPremium" (click)="openPremiumModal()" title="{{ isPremium ? 'Premium Active' : 'Upgrade to Premium' }}">
     <span class="premium-orb-icon">◆</span>
+    <span *ngIf="showPremiumBanner && !isPremium" class="premium-orb-badge"></span>
   </button>
   <button class="logout-button" (click)="onSignOut()">Sign Out</button>
 </div>

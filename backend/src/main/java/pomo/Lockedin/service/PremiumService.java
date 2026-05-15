@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import pomo.Lockedin.dto.PremiumStatusDTO;
+import pomo.Lockedin.entities.Role;
 
 import java.util.Arrays;
 
@@ -45,10 +46,11 @@ public class PremiumService {
     }
 
     private boolean isAdminUser(String email) {
-        String username = userService.getUsernameByEmail(email);
-        if (username == null) return false;
-        return Arrays.stream(adminUsernames.split(","))
-                .map(String::trim)
-                .anyMatch(a -> a.equalsIgnoreCase(username));
+        return userService.getUserByEmail(email).map(user -> {
+            if (user.getRole() == Role.ADMIN) return true;
+            return Arrays.stream(adminUsernames.split(","))
+                    .map(String::trim)
+                    .anyMatch(a -> a.equalsIgnoreCase(user.getUsername()));
+        }).orElse(false);
     }
 }
