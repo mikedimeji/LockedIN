@@ -89,7 +89,7 @@ public class UserPreferencesDaoImpl implements UserPreferencesDao {
         UserPreferences defaultPrefs = UserPreferences.builder()
                 .userId(userId)
                 .selectedPfp("assets/images/durarara1.jpg")
-                .selectedTheme("assets/videos/yumenikki.mp4")
+                .selectedTheme("assets/videos/witch.gif")
                 .isVideoBackground(true)
                 .showLiveThemes(true)
                 .navHidden(false)

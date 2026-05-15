@@ -392,9 +392,6 @@
   transform-origin: center;
 }
 
-.heart-full {
-  filter: hue-rotate(-220deg) saturate(2.5) brightness(1.05);
-}
 
 .icon-container img {
   max-width: 100%;
