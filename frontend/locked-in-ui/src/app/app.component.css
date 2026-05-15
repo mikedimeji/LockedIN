@@ -392,6 +392,10 @@
   transform-origin: center;
 }
 
+.heart-full {
+  filter: hue-rotate(-220deg) saturate(2.5) brightness(1.05);
+}
+
 .icon-container img {
   max-width: 100%;
   max-height: 100%;
@@ -497,76 +501,118 @@
   outline: none !important;
 }
 
-/* Updated Login/Register Button Styles */
-.login-button, .register-button {
-  padding: 10px 24px;
-  font-family: bitF1, sans-serif;
-  font-size: 18px;
-  background-color: #000000;  /* Black background */
-  color: #5271ff;  /* Blue text matching your start button */
-  border: 2px solid #5271ff;  /* Blue border */
-  border-radius: 20px;  /* Rounded corners */
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  text-transform: uppercase;
-  font-weight: bold;
-  margin: 0 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.login-button:hover, .register-button:hover {
-  background-color: #5271ff;  /* Blue background on hover */
-  color: #000000;  /* Black text on hover */
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
-}
-
-/* Container for the login/register buttons */
+/* Auth buttons */
 .auth-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 14px;
+  right: 14px;
   z-index: 1000;
+  animation: slideInRight 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Profile Display Styles - For after login */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.register-button {
+  padding: 9px 20px;
+  font-family: bitF1, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  backdrop-filter: blur(12px);
+  background: #5271ff;
+  color: white;
+  border: 1px solid rgba(82, 113, 255, 0.5);
+  box-shadow: 0 0 18px rgba(82, 113, 255, 0.35), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.register-button:hover {
+  background: #6b82ff;
+  box-shadow: 0 0 28px rgba(82, 113, 255, 0.6), 0 2px 12px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+}
+
+.login-button {
+  padding: 9px 20px;
+  font-family: bitF1, sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  backdrop-filter: blur(12px);
+  background: rgba(11, 25, 43, 0.8);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(82, 113, 255, 0.35);
+}
+
+.login-button:hover {
+  background: rgba(82, 113, 255, 0.12);
+  border-color: rgba(82, 113, 255, 0.65);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Profile display */
 .profile-display {
   display: flex;
   align-items: center;
   gap: 10px;
   position: fixed;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 8px 12px;
-  border-radius: 30px;
-  border: 2px solid #5271ff;
+  background: rgba(8, 18, 34, 0.88);
+  backdrop-filter: blur(18px);
+  padding: 5px 14px 5px 5px;
+  border-radius: 32px;
+  border: 1px solid rgba(82, 113, 255, 0.28);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05);
+  animation: slideInRight 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-display:hover {
+  border-color: rgba(82, 113, 255, 0.55);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(82, 113, 255, 0.12), 0 0 0 1px rgba(255,255,255,0.05);
 }
 
 .username {
-  color: #5271ff;
-  font-weight: bold;
+  color: rgba(255, 255, 255, 0.88);
   font-family: bitF1, sans-serif;
-  text-shadow: 0 0 5px rgba(82, 113, 255, 0.7);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 10px rgba(82, 113, 255, 0.5);
 }
 
 .logout-button {
-  background-color: transparent;
-  border: none;
-  color: #ff5252;
+  background: rgba(255, 70, 70, 0.08);
+  border: 1px solid rgba(255, 70, 70, 0.22);
+  color: rgba(255, 100, 100, 0.65);
   cursor: pointer;
-  font-size: 14px;
-  padding: 5px;
+  font-size: 10px;
+  font-family: bitF1, sans-serif;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 14px;
   transition: all 0.2s ease;
+  text-transform: uppercase;
 }
 
 .logout-button:hover {
-  color: #ff0000;
-  transform: scale(1.1);
+  background: rgba(255, 70, 70, 0.18);
+  border-color: rgba(255, 70, 70, 0.55);
+  color: #ff5252;
+  transform: none;
+  box-shadow: 0 0 10px rgba(255, 70, 70, 0.2);
 }
 
 /* GIF background styling */
@@ -639,12 +685,14 @@
 }
 
 .profile-pic {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid #5271ff;
+  border: 2px solid rgba(82, 113, 255, 0.55);
   transition: all 0.3s ease;
+  box-shadow: 0 0 8px rgba(82, 113, 255, 0.25);
+  flex-shrink: 0;
 }
 
 .profile-pic img {
@@ -653,12 +701,12 @@
   object-fit: cover;
 }
 
-/* Enhanced profile pic hover effect with thought bubble context */
 .profile-pic-container:hover .profile-pic {
-  transform: scale(1.05);
-  box-shadow: 
-    0 0 20px rgba(82, 113, 255, 0.6),
-    0 0 40px rgba(82, 113, 255, 0.3);
+  transform: scale(1.08);
+  border-color: #5271ff;
+  box-shadow:
+    0 0 14px rgba(82, 113, 255, 0.65),
+    0 0 32px rgba(82, 113, 255, 0.2);
 }
 
 /* Enhanced Change PFP Button with Thought Bubble */

@@ -3,19 +3,25 @@
 
     <!-- Completion screen -->
     <div *ngIf="showCompletion" class="q-completion">
-      <div class="q-logo">LOCKED IN</div>
-      <div class="q-completion-icon">✓</div>
-      <h2 class="q-completion-title">Profile Complete</h2>
+      <div class="q-hud-bar">
+        <span class="q-hud-logo">LOCKED IN</span>
+        <span class="q-hud-tag">PROFILE SYNC</span>
+      </div>
+      <div class="q-completion-ring">
+        <div class="q-completion-icon">✓</div>
+      </div>
+      <div class="q-synced-badge">◆ SYNC COMPLETE</div>
+      <h2 class="q-completion-title">Focus Profile Loaded</h2>
       <p class="q-completion-body">
-        Your focus profile has been saved. We'll use this to tailor your LockedIN experience over time.
+        Your data has been saved. LockedIN will use this to tailor your experience as the platform evolves.
       </p>
       <div class="q-premium-card">
-        <div class="q-premium-label">PREMIUM</div>
+        <div class="q-premium-label">◆ PREMIUM FEATURES</div>
         <p class="q-premium-text">
-          Adaptive session lengths, personalised break suggestions, and your full Focus Score live on the Stats page — all unlocked with LockedIN Premium.
+          Adaptive session lengths, personalised break suggestions, and your full Focus Score on the Stats page — unlocked with LockedIN Premium.
         </p>
       </div>
-      <button class="q-btn-primary" (click)="dismiss()">Get Started</button>
+      <button class="q-btn-primary" (click)="dismiss()">Begin Session →</button>
     </div>
 
     <!-- Question flow -->
@@ -23,18 +29,30 @@
 
       <!-- Header -->
       <div class="q-header">
-        <div class="q-logo">LOCKED IN</div>
-        <button class="q-close" (click)="skipAll()">✕</button>
+        <div class="q-hud-left">
+          <span class="q-hud-logo">LOCKED IN</span>
+          <span class="q-hud-tag">PROFILE SYNC</span>
+        </div>
+        <div class="q-hud-right">
+          <span class="q-step-counter">{{ currentStep + 1 }}<span class="q-step-total"> / {{ total }}</span></span>
+          <button class="q-close" (click)="skipAll()">✕</button>
+        </div>
       </div>
 
       <!-- Progress -->
       <div class="q-progress-wrap">
         <div class="q-progress-bar" [style.width.%]="progress"></div>
       </div>
-      <div class="q-step-label">{{ currentStep + 1 }} of {{ total }}</div>
+      <div class="q-progress-meta">
+        <span class="q-progress-label">SYNCING PROFILE</span>
+        <span class="q-progress-pct">{{ progress }}%</span>
+      </div>
 
       <!-- Section -->
-      <div class="q-section">{{ currentQuestion.section }}</div>
+      <div class="q-section">
+        <span class="q-section-pip"></span>
+        {{ currentQuestion.section }}
+      </div>
 
       <!-- Question -->
       <h2 class="q-question">{{ currentQuestion.text }}</h2>
@@ -42,30 +60,30 @@
       <!-- Options -->
       <div class="q-options">
         <button
-          *ngFor="let opt of currentQuestion.options"
+          *ngFor="let opt of currentQuestion.options; let i = index"
           class="q-option"
           [class.selected]="selectedValue === opt.value"
           (click)="select(opt.value)">
-          <span class="q-option-check">{{ selectedValue === opt.value ? '●' : '○' }}</span>
-          {{ opt.label }}
+          <span class="q-option-letter">{{ 'ABCDE'[i] }}</span>
+          <span class="q-option-text">{{ opt.label }}</span>
+          <span class="q-option-check" *ngIf="selectedValue === opt.value">◆</span>
         </button>
       </div>
 
       <!-- Actions -->
       <div class="q-actions">
         <button class="q-btn-primary" [disabled]="!selectedValue || submitting" (click)="next()">
-          {{ isLastQuestion ? (submitting ? 'Saving...' : 'Finish') : 'Next →' }}
+          {{ isLastQuestion ? (submitting ? 'Syncing...' : 'Complete Profile') : 'Continue →' }}
         </button>
         <button class="q-btn-skip-question" (click)="skipQuestion()">Skip this question</button>
       </div>
 
-      <!-- Footer disclaimer -->
+      <!-- Footer -->
       <p class="q-disclaimer">
-        LockedIN is not a clinical tool. Responses help personalise your experience only.
-        You can skip any question. <span class="q-skip-all" (click)="skipAll()">Skip questionnaire</span>
+        Not a clinical tool — responses personalise your experience only.
+        <span class="q-skip-all" (click)="skipAll()">Skip questionnaire</span>
       </p>
 
     </ng-container>
-
   </div>
 </div>
