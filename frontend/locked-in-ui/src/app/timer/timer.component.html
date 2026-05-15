@@ -38,6 +38,9 @@
 
   <!-- ── Expanded fullscreen ── -->
   <ng-container *ngIf="isExpanded">
+    <button class="timer-opacity-btn" (click)="cycleOpacity()" [title]="timerOpacity === 0 ? 'Make transparent' : timerOpacity === 1 ? 'Go ghost' : 'Make opaque'">
+      {{ timerOpacity === 0 ? '◐' : timerOpacity === 1 ? '○' : '●' }}
+    </button>
     <div class="time-display expanded-time"
          (mouseenter)="showTooltip()"
          (mouseleave)="hideTooltip()"
