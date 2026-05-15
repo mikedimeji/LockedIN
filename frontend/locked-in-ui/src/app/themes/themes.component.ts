@@ -66,6 +66,8 @@ export class ThemesComponent implements OnInit {
     { path: 'assets/videos/p-road.gif', name: 'Night Drive', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
     { path: 'assets/videos/rooftopgamer.gif', name: 'Rooftop Gamer', premium: false, category: 'study', isLive: true, unlocked: true },
     { path: 'assets/videos/VA11HALLA.gif', name: 'VA-11 HALL-A', premium: false, category: 'custom', isLive: true, unlocked: true },
+    { path: 'assets/videos/lain.gif', name: 'Lain', premium: false, category: 'anime', isLive: true, unlocked: true },
+    { path: 'assets/videos/vending.gif', name: 'Vending Machine', premium: false, category: 'aesthetic', isLive: true, unlocked: true },
     // Premium themes - live with different costs
     { path: 'assets/videos/cathargic_day.gif', name: 'Cathargic Day', premium: false, category: 'chill', isLive: true, unlocked: true },
     { path: 'assets/videos/scottpill.gif', name: 'Scott Pill', premium: true, category: 'aesthetic', isLive: true, goldCost: 1200, unlocked: false },
@@ -75,6 +77,8 @@ export class ThemesComponent implements OnInit {
     // Static themes
     { path: 'assets/images/themes/city.jpg', name: 'Retro Room', premium: false, category: 'aesthetic', isLive: false, unlocked: true },
     { path: 'assets/images/themes/house-roshi.jpg', name: 'Mountain View', premium: false, category: 'chill', isLive: false, unlocked: true },
+    { path: 'assets/images/themes/-9.jpg', name: 'Lofi Room', premium: false, category: 'study', isLive: false, unlocked: true },
+    { path: 'assets/images/themes/rei.webp', name: 'Rei', premium: false, category: 'anime', isLive: false, unlocked: true },
   ];
 
   // Themes that match the current filter
