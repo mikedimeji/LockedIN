@@ -101,7 +101,7 @@
   </div>
   <div class="stats-item heart-stat">
     <div class="icon-container" data-tooltip="Hearts">
-      <img [src]="heartImgSrc" [class.heart-beat]="heartService.currentHeartPoints === 1" alt="Hearts" title="Hearts">
+      <img [src]="heartImgSrc" [class.heart-beat]="heartService.currentHeartPoints > 0" [class.heart-full]="heartService.currentHeartPoints >= 2" alt="Hearts" title="Hearts">
     </div>
   </div>
   <!-- Add notifications as a proper stats-item -->
