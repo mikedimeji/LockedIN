@@ -105,13 +105,6 @@
   border-color: rgba(82, 113, 255, 0.35);
 }
 
-.metric-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  opacity: 0.75;
-  margin-bottom: 2px;
-}
 
 .metric-value {
   font-family: bitF1, sans-serif;
@@ -174,63 +167,115 @@
   letter-spacing: 0.5px;
 }
 
-.gate-cost-row {
+.plan-row {
   display: flex;
-  align-items: center;
+  gap: 14px;
   justify-content: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
-  margin-bottom: 20px;
+  padding: 22px 28px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(82, 113, 255, 0.2);
+  border-radius: 16px;
+  min-width: 160px;
+  position: relative;
 }
 
-.gate-coin { width: 18px; height: 18px; }
-
-.gate-cost {
-  font-family: bitF1, sans-serif;
-  font-size: 16px;
-  color: #FFD700;
+.plan-card-featured {
+  border-color: rgba(255, 215, 0, 0.35);
+  background: rgba(255, 215, 0, 0.04);
 }
 
-.gate-balance {
+.plan-best {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 215, 0, 0.85);
+  color: rgba(0, 0, 0, 0.85);
   font-family: 'Courier New', monospace;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.3);
-  letter-spacing: 0.5px;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.plan-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.plan-price {
+  font-family: bitF1, sans-serif;
+  font-size: 26px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1;
+}
+
+.plan-period {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.plan-saving {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255, 215, 0, 0.65);
 }
 
 .gate-btn {
   font-family: bitF1, sans-serif;
-  font-size: 12px;
-  letter-spacing: 2px;
-  padding: 13px 36px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 10px 20px;
   background: linear-gradient(135deg, #4060ff, #5271ff);
   color: white;
   border: none;
-  border-radius: 28px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.22s ease;
-  box-shadow: 0 4px 20px rgba(82, 113, 255, 0.35);
+  box-shadow: 0 4px 16px rgba(82, 113, 255, 0.3);
+  white-space: nowrap;
 }
 
 .gate-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #526cff, #6b82ff);
-  box-shadow: 0 4px 28px rgba(82, 113, 255, 0.55);
+  box-shadow: 0 4px 24px rgba(82, 113, 255, 0.5);
   transform: translateY(-1px);
 }
 
-.gate-btn.gate-btn-locked,
 .gate-btn:disabled {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.3);
-  box-shadow: none;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+}
+
+.gate-btn-gold {
+  background: linear-gradient(135deg, #b8860b, #d4a017);
+  box-shadow: 0 4px 16px rgba(212, 160, 23, 0.3);
+}
+
+.gate-btn-gold:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d4a017, #f0b429);
+  box-shadow: 0 4px 24px rgba(212, 160, 23, 0.5);
 }
 
 .gate-hint {
   font-family: 'Courier New', monospace;
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.25);
-  margin-top: 14px;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
   letter-spacing: 0.5px;
 }
 

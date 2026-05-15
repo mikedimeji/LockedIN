@@ -30,27 +30,22 @@
     <!-- Summary Row -->
     <div class="summary-row">
       <div class="metric-card">
-        <img src="assets/images/coin/coin2.gif" alt="Gold" class="metric-icon">
         <span class="metric-value">{{ summary.currentGold }}</span>
         <span class="metric-label">GOLD</span>
       </div>
       <div class="metric-card">
-        <img src="assets/images/nav/alarm-clock.png" alt="Sessions" class="metric-icon">
         <span class="metric-value">{{ summary.totalPomodoros }}</span>
         <span class="metric-label">SESSIONS</span>
       </div>
       <div class="metric-card">
-        <img src="assets/images/flame/flame2.gif" alt="Streak" class="metric-icon">
         <span class="metric-value">{{ summary.currentStreak }}</span>
         <span class="metric-label">STREAK</span>
       </div>
       <div class="metric-card">
-        <img src="assets/images/nav/alarm-clock.png" alt="Hours" class="metric-icon">
         <span class="metric-value">{{ totalHoursDisplay() }}</span>
         <span class="metric-label">HOURS</span>
       </div>
       <div class="metric-card">
-        <img src="assets/images/fire.gif" alt="Best Streak" class="metric-icon">
         <span class="metric-value">{{ summary.longestStreak }}</span>
         <span class="metric-label">BEST STREAK</span>
       </div>
@@ -60,25 +55,32 @@
     <div *ngIf="!premium.isPremium" class="premium-gate">
       <div class="gate-glow"></div>
       <div class="gate-icon">◆</div>
-      <h2 class="gate-title">PREMIUM STATS</h2>
+      <h2 class="gate-title">LOCKED IN PREMIUM</h2>
       <p class="gate-desc">
         Unlock your full Focus Profile, personalised workflow plan, and detailed session charts.
-        One-time unlock — no subscription.
+        Cancel anytime.
       </p>
-      <div class="gate-cost-row">
-        <img src="assets/images/goldcoin.png" alt="gold" class="gate-coin">
-        <span class="gate-cost">500 gold</span>
-        <span class="gate-balance">/ you have {{ premium.currentGold }}g</span>
+
+      <div class="plan-row">
+        <div class="plan-card">
+          <span class="plan-label">MONTHLY</span>
+          <span class="plan-price">£3.99<span class="plan-period">/mo</span></span>
+          <button class="gate-btn" [disabled]="checkingOut" (click)="subscribe('monthly')">
+            {{ checkingOut ? 'REDIRECTING...' : 'START MONTHLY' }}
+          </button>
+        </div>
+        <div class="plan-card plan-card-featured">
+          <span class="plan-best">BEST VALUE</span>
+          <span class="plan-label">ANNUAL</span>
+          <span class="plan-price">£29.99<span class="plan-period">/yr</span></span>
+          <span class="plan-saving">Save 37%</span>
+          <button class="gate-btn gate-btn-gold" [disabled]="checkingOut" (click)="subscribe('annual')">
+            {{ checkingOut ? 'REDIRECTING...' : 'START ANNUAL' }}
+          </button>
+        </div>
       </div>
-      <button class="gate-btn"
-              [class.gate-btn-locked]="!premium.canAfford"
-              [disabled]="!premium.canAfford || unlocking"
-              (click)="unlockPremium()">
-        {{ unlocking ? 'UNLOCKING...' : premium.canAfford ? 'UNLOCK PREMIUM' : 'NOT ENOUGH GOLD' }}
-      </button>
-      <p *ngIf="!premium.canAfford" class="gate-hint">
-        Complete focus sessions to earn gold — {{ premium.goldRequired - premium.currentGold }}g to go.
-      </p>
+
+      <p class="gate-hint">Secure payment via Stripe · Cancel anytime from your account</p>
     </div>
 
     <!-- ── PREMIUM CONTENT ── -->

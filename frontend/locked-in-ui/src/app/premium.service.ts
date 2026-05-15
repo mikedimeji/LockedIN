@@ -5,9 +5,7 @@ import { environment } from '../environments/environment';
 
 export interface PremiumStatus {
   isPremium: boolean;
-  goldRequired: number;
-  currentGold: number;
-  canAfford: boolean;
+  subscriptionStatus: string; // 'active' | 'past_due' | 'cancelled' | 'inactive'
 }
 
 export interface FocusInsights {
@@ -24,15 +22,15 @@ export interface FocusInsights {
 
 @Injectable({ providedIn: 'root' })
 export class PremiumService {
-  private base = `${environment.apiUrl}/profile/premium`;
+  private base = `${environment.apiUrl}/subscription`;
 
   constructor(private http: HttpClient) {}
 
   getStatus(): Observable<PremiumStatus> {
-    return this.http.get<PremiumStatus>(this.base);
+    return this.http.get<PremiumStatus>(`${this.base}/status`);
   }
 
-  unlock(): Observable<PremiumStatus> {
-    return this.http.post<PremiumStatus>(`${this.base}/unlock`, {});
+  createCheckout(plan: 'monthly' | 'annual'): Observable<{ checkoutUrl: string }> {
+    return this.http.post<{ checkoutUrl: string }>(`${this.base}/checkout`, { plan });
   }
 }

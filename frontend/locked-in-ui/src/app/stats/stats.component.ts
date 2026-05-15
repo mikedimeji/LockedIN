@@ -38,10 +38,11 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   tutorialSteps: TutorialStep[] = [];
 
   loading = true;
-  unlocking = false;
 
   summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0 };
-  premium: PremiumStatus = { isPremium: false, goldRequired: 500, currentGold: 0, canAfford: false };
+  premium: PremiumStatus = { isPremium: false, subscriptionStatus: 'inactive' };
+  checkingOut = false;
+  subSuccessMsg = false;
   insights: FocusInsights | null = null;
   achievements: Achievement[] = [];
 
@@ -117,19 +118,14 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  unlockPremium(): void {
-    if (this.unlocking) return;
-    this.unlocking = true;
-    this.premiumService.unlock().subscribe({
-      next: (status) => {
-        this.premium = status;
-        this.unlocking = false;
-        // reload insights now that premium is active
-        this.statsService.getFocusInsights().pipe(catchError(() => of(null))).subscribe(ins => {
-          this.insights = ins;
-        });
+  subscribe(plan: 'monthly' | 'annual'): void {
+    if (this.checkingOut) return;
+    this.checkingOut = true;
+    this.premiumService.createCheckout(plan).subscribe({
+      next: ({ checkoutUrl }) => {
+        window.location.href = checkoutUrl;
       },
-      error: () => { this.unlocking = false; }
+      error: () => { this.checkingOut = false; }
     });
   }
 
