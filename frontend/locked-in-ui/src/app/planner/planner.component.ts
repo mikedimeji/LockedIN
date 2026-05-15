@@ -6,6 +6,7 @@ import { Router } from "@angular/router";
 import { environment } from '../../environments/environment';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
 import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
+import { PremiumModalService } from '../premium.service';
 
 @Component({
   selector: 'app-planner',
@@ -37,10 +38,11 @@ export class PlannerComponent implements OnInit {
   private audio: HTMLAudioElement | null = null;
 
   constructor(
-    private http: HttpClient, 
-    private router: Router, 
+    private http: HttpClient,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private tutorialService: TutorialService
+    private tutorialService: TutorialService,
+    private premiumModal: PremiumModalService
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.audio = new Audio('/assets/sounds/click.mp3');
@@ -154,8 +156,12 @@ export class PlannerComponent implements OnInit {
           }
         },
         (error) => {
-          console.error('Error creating revision topic:', error);
-          alert('Failed to create revision topic.');
+          if (error.status === 402) {
+            this.premiumModal.open();
+          } else {
+            console.error('Error creating revision topic:', error);
+            alert('Failed to create revision topic.');
+          }
         }
       );
   }

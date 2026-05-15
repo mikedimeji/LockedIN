@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Inject, PLATFORM_ID, HostBinding, HostListener, } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, HostBinding, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
@@ -18,7 +18,7 @@ import { AuthService } from './auth.service';
 import { GoldStreakService } from './gold-streak.service';
 import { HeartService } from './heart.service';
 import { QuestionnaireService } from './questionnaire-modal/questionnaire.service';
-import { PremiumService } from './premium.service';
+import { PremiumService, PremiumModalService } from './premium.service';
 import { interval } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { of, filter, Subscription } from 'rxjs';
@@ -48,7 +48,7 @@ import { ChangeDetectorRef } from '@angular/core';
     QuestionnaireModalComponent,
   ]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   @HostBinding('attr.ngSkipHydration') ngSkipHydration = true;
 
@@ -188,6 +188,9 @@ availablePfps = [
   isLoading: boolean = false;
 
   isPremium: boolean = false;
+  showPremiumModal: boolean = false;
+  premiumCheckingOut: boolean = false;
+  showPremiumBanner: boolean = false;
 
   // Gold and streak properties
   goldBalance: number = 0;
@@ -203,6 +206,7 @@ availablePfps = [
 
   // For tracking subscriptions
   private routerSubscription: Subscription | null = null;
+  private premiumModalSub: Subscription | null = null;
   private customEventListenerAdded: boolean = false;
 
   // Notifications properties
@@ -220,11 +224,18 @@ availablePfps = [
     private userPreferencesService: UserPreferencesService,
     private questionnaireService: QuestionnaireService,
     private premiumService: PremiumService,
+    private premiumModalService: PremiumModalService,
     private cdr: ChangeDetectorRef
   ) {}
 
+
   ngOnInit(): void {
   if (isPlatformBrowser(this.platformId)) {
+    // Subscribe to global premium modal open requests
+    this.premiumModalSub = this.premiumModalService.openModal$.subscribe(() => {
+      this.showPremiumModal = true;
+    });
+
     // Setup custom event listener for refresh
     this.setupCustomEventListener();
 
@@ -266,9 +277,14 @@ private loadUserDataFromBackend(): void {
       // Load other user data (gold, streaks)
       this.refreshUserData();
 
-      // Load premium status for gold border
+      // Load premium status for gold border + banner
       this.premiumService.getStatus().subscribe({
-        next: (status) => { this.isPremium = status.isPremium; },
+        next: (status) => {
+          this.isPremium = status.isPremium;
+          if (!status.isPremium && !localStorage.getItem('premiumBannerDismissed')) {
+            this.showPremiumBanner = true;
+          }
+        },
         error: () => {}
       });
 
@@ -427,9 +443,31 @@ toggleNavVisibility(): void {
   }
   // Clean up on destroy
   ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.routerSubscription?.unsubscribe();
+    this.premiumModalSub?.unsubscribe();
+  }
+
+  openPremiumModal(): void {
+    this.showPremiumModal = true;
+  }
+
+  closePremiumModal(): void {
+    this.showPremiumModal = false;
+    this.premiumCheckingOut = false;
+  }
+
+  dismissPremiumBanner(): void {
+    this.showPremiumBanner = false;
+    localStorage.setItem('premiumBannerDismissed', 'true');
+  }
+
+  subscribePremium(plan: 'monthly' | 'annual'): void {
+    if (this.premiumCheckingOut) return;
+    this.premiumCheckingOut = true;
+    this.premiumService.createCheckout(plan).subscribe({
+      next: ({ checkoutUrl }) => { window.location.href = checkoutUrl; },
+      error: () => { this.premiumCheckingOut = false; }
+    });
   }
 
   

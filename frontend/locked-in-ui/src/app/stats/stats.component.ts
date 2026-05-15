@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } fr
 import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
 import { StatsService } from './stats.service';
-import { PremiumService, PremiumStatus, FocusInsights } from '../premium.service';
+import { PremiumService, PremiumModalService, PremiumStatus, FocusInsights } from '../premium.service';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
 import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
 import { forkJoin, of } from 'rxjs';
@@ -60,8 +60,13 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private statsService: StatsService,
     private premiumService: PremiumService,
+    private premiumModal: PremiumModalService,
     private tutorialService: TutorialService
   ) { }
+
+  openUpgrade(): void {
+    this.premiumModal.open();
+  }
 
   ngOnInit(): void {
     if (!this.tutorialService.hasSeenTutorial('stats')) {
@@ -118,16 +123,6 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  subscribe(plan: 'monthly' | 'annual'): void {
-    if (this.checkingOut) return;
-    this.checkingOut = true;
-    this.premiumService.createCheckout(plan).subscribe({
-      next: ({ checkoutUrl }) => {
-        window.location.href = checkoutUrl;
-      },
-      error: () => { this.checkingOut = false; }
-    });
-  }
 
   setTab(tab: 'activity' | 'streak'): void {
     this.activeTab = tab;

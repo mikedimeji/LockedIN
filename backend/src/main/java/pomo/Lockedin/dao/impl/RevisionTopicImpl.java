@@ -39,7 +39,14 @@ public class RevisionTopicImpl implements RevisionTopicDao {
     @Override
     public void deleteRevisionTopic(Long id) {
         String sql = "DELETE FROM revisiontopic WHERE revision_topic_id = ?";
-        jdbcTemplate.update(sql, id);  // Example using jdbcTemplate
+        jdbcTemplate.update(sql, id);
+    }
+
+    @Override
+    public int countByUserId(Long userId) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM revisiontopic WHERE user_id = ?", Integer.class, userId);
+        return count != null ? count : 0;
     }
 
     public static class RevisionTopicRowMapper implements RowMapper<RevisionTopic> {

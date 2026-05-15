@@ -17,17 +17,64 @@
   <button class="login-button" (click)="showLogin()">Login</button>
 </div>
 
-<!-- Update your existing profile-display div to include hover effect and click handler -->
+<!-- Premium onboarding banner -->
+<div *ngIf="showPremiumBanner && authService.isLoggedIn()" class="premium-banner" ngSkipHydration>
+  <span class="premium-banner-text">✦ PREMIUM — Unlimited todos, advanced analytics &amp; more</span>
+  <button class="premium-banner-btn" (click)="openPremiumModal()">EXPLORE</button>
+  <button class="premium-banner-dismiss" (click)="dismissPremiumBanner()">✕</button>
+</div>
+
+<!-- Profile display -->
 <div *ngIf="authService.isLoggedIn()" class="profile-display" ngSkipHydration>
   <div class="profile-pic-container">
     <div class="profile-pic" [class.premium]="isPremium">
       <img [src]="selectedPfp" alt="Profile">
     </div>
-    <!-- Change PFP Button that appears on hover -->
     <button class="change-pfp-btn" (click)="togglePfpSelector()">✎</button>
   </div>
   <span class="username">{{ authService.getUsername() }}</span>
+  <button class="premium-orb-btn" [class.is-premium]="isPremium" (click)="openPremiumModal()" title="{{ isPremium ? 'Premium Active' : 'Upgrade to Premium' }}">
+    <span class="premium-orb-icon">◆</span>
+  </button>
   <button class="logout-button" (click)="onSignOut()">Sign Out</button>
+</div>
+
+<!-- Premium modal -->
+<div *ngIf="showPremiumModal" class="premium-modal-overlay" (click)="closePremiumModal()" ngSkipHydration>
+  <div class="premium-modal-panel" (click)="$event.stopPropagation()">
+    <button class="pm-close" (click)="closePremiumModal()">✕</button>
+    <div class="pm-glow"></div>
+    <div class="pm-icon">◆</div>
+    <h2 class="pm-title">LOCKED IN PREMIUM</h2>
+    <p class="pm-tagline">Your focus, supercharged.</p>
+
+    <ul class="pm-benefits">
+      <li><span class="pm-diamond">◆</span> Unlimited todo entries</li>
+      <li><span class="pm-diamond">◆</span> Advanced analytics &amp; focus profile</li>
+      <li><span class="pm-diamond">◆</span> Advanced time tracking features</li>
+      <li><span class="pm-diamond">◆</span> No ads — ever</li>
+    </ul>
+
+    <div class="pm-plan-row">
+      <div class="pm-plan-card">
+        <span class="pm-plan-label">MONTHLY</span>
+        <span class="pm-plan-price">£3.99<span class="pm-plan-period">/mo</span></span>
+        <button class="pm-btn" [disabled]="premiumCheckingOut" (click)="subscribePremium('monthly')">
+          {{ premiumCheckingOut ? 'REDIRECTING...' : 'START MONTHLY' }}
+        </button>
+      </div>
+      <div class="pm-plan-card pm-plan-featured">
+        <span class="pm-plan-best">BEST VALUE</span>
+        <span class="pm-plan-label">ANNUAL</span>
+        <span class="pm-plan-price">£29.99<span class="pm-plan-period">/yr</span></span>
+        <span class="pm-plan-saving">Save 37%</span>
+        <button class="pm-btn pm-btn-gold" [disabled]="premiumCheckingOut" (click)="subscribePremium('annual')">
+          {{ premiumCheckingOut ? 'REDIRECTING...' : 'START ANNUAL' }}
+        </button>
+      </div>
+    </div>
+    <p class="pm-hint">Secure payment via Stripe · Cancel anytime from your account</p>
+  </div>
 </div>
 
 <!-- PFP Selector Overlay -->

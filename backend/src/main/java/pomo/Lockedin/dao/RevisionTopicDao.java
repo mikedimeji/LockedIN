@@ -11,4 +11,6 @@ public interface RevisionTopicDao{
     Optional<List<RevisionTopic>> getAllRevisionTopicsForUser(Long userId);
 
     void deleteRevisionTopic(Long id);
+
+    int countByUserId(Long userId);
 }

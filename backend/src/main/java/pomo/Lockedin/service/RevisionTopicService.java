@@ -50,4 +50,8 @@ public class RevisionTopicService {
     public void deleteRevisionTopicById(Long id) {
         revisionTopicRepo.deleteRevisionTopic(id);
     }
+
+    public int countTopicsByUserId(Long userId) {
+        return revisionTopicRepo.countByUserId(userId);
+    }
 }

@@ -58,29 +58,15 @@
       <h2 class="gate-title">LOCKED IN PREMIUM</h2>
       <p class="gate-desc">
         Unlock your full Focus Profile, personalised workflow plan, and detailed session charts.
-        Cancel anytime.
       </p>
-
-      <div class="plan-row">
-        <div class="plan-card">
-          <span class="plan-label">MONTHLY</span>
-          <span class="plan-price">£3.99<span class="plan-period">/mo</span></span>
-          <button class="gate-btn" [disabled]="checkingOut" (click)="subscribe('monthly')">
-            {{ checkingOut ? 'REDIRECTING...' : 'START MONTHLY' }}
-          </button>
-        </div>
-        <div class="plan-card plan-card-featured">
-          <span class="plan-best">BEST VALUE</span>
-          <span class="plan-label">ANNUAL</span>
-          <span class="plan-price">£29.99<span class="plan-period">/yr</span></span>
-          <span class="plan-saving">Save 37%</span>
-          <button class="gate-btn gate-btn-gold" [disabled]="checkingOut" (click)="subscribe('annual')">
-            {{ checkingOut ? 'REDIRECTING...' : 'START ANNUAL' }}
-          </button>
-        </div>
-      </div>
-
-      <p class="gate-hint">Secure payment via Stripe · Cancel anytime from your account</p>
+      <ul class="gate-benefits">
+        <li><span class="gate-diamond">◆</span> Unlimited todo entries</li>
+        <li><span class="gate-diamond">◆</span> Advanced analytics &amp; focus profile</li>
+        <li><span class="gate-diamond">◆</span> Advanced time tracking features</li>
+        <li><span class="gate-diamond">◆</span> No ads — ever</li>
+      </ul>
+      <button class="gate-btn gate-btn-gold" (click)="openUpgrade()">UPGRADE TO PREMIUM</button>
+      <p class="gate-hint">Secure payment via Stripe · Cancel anytime</p>
     </div>
 
     <!-- ── PREMIUM CONTENT ── -->

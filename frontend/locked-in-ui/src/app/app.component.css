@@ -1121,6 +1121,301 @@ body.timer-fullscreen-active .hero {
   40%           { transform: scale(1.2); opacity: 1; }
 }
 
+/* ── Premium ORB button ── */
+.premium-orb-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.premium-orb-icon {
+  font-size: 13px;
+  color: rgba(255, 215, 0, 0.55);
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+}
+
+.premium-orb-btn:hover .premium-orb-icon {
+  color: #ffd700;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.85));
+  transform: scale(1.2);
+}
+
+.premium-orb-btn.is-premium .premium-orb-icon {
+  color: #ffd700;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.65));
+  animation: goldPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes goldPulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.65)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.95)); }
+}
+
+/* ── Premium onboarding banner ── */
+.premium-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 500;
+  background: linear-gradient(90deg, rgba(8,18,34,0.97) 0%, rgba(20,30,55,0.97) 50%, rgba(8,18,34,0.97) 100%);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 7px 16px;
+  backdrop-filter: blur(12px);
+}
+
+.premium-banner-text {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 215, 0, 0.75);
+  text-transform: uppercase;
+}
+
+.premium-banner-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  color: #ffd700;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.premium-banner-btn:hover {
+  background: rgba(255, 215, 0, 0.22);
+  border-color: rgba(255, 215, 0, 0.7);
+}
+
+.premium-banner-dismiss {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 5px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.premium-banner-dismiss:hover { color: rgba(255,255,255,0.6); }
+
+/* ── Premium modal overlay ── */
+.premium-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(10px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.premium-modal-panel {
+  background: rgba(8, 18, 34, 0.98);
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  border-radius: 20px;
+  padding: 40px 32px 32px;
+  max-width: 460px;
+  width: 90%;
+  position: relative;
+  box-shadow:
+    0 0 60px rgba(255, 215, 0, 0.07),
+    0 20px 60px rgba(0, 0, 0, 0.75);
+  text-align: center;
+}
+
+.pm-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.pm-close:hover { color: rgba(255,255,255,0.7); }
+
+.pm-glow {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 60px;
+  background: radial-gradient(ellipse, rgba(255, 215, 0, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pm-icon {
+  font-size: 28px;
+  color: #ffd700;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.7));
+  margin-bottom: 10px;
+}
+
+.pm-title {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fff;
+  margin: 0 0 6px;
+}
+
+.pm-tagline {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1px;
+  margin: 0 0 22px;
+}
+
+.pm-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+  text-align: left;
+}
+
+.pm-benefits li {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  padding: 6px 0;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pm-diamond {
+  color: #ffd700;
+  font-size: 9px;
+  flex-shrink: 0;
+}
+
+.pm-plan-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.pm-plan-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.pm-plan-featured {
+  border-color: rgba(255,215,0,0.35);
+  background: rgba(255,215,0,0.04);
+}
+
+.pm-plan-best {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: #ffd700;
+  background: rgba(255,215,0,0.12);
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.pm-plan-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.45);
+}
+
+.pm-plan-price {
+  font-family: 'Courier New', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.pm-plan-period {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 400;
+}
+
+.pm-plan-saving {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: #4ade80;
+  letter-spacing: 0.5px;
+}
+
+.pm-btn {
+  width: 100%;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  background: rgba(82, 113, 255, 0.15);
+  border: 1px solid rgba(82, 113, 255, 0.5);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.pm-btn:hover:not(:disabled) {
+  background: rgba(82, 113, 255, 0.3);
+  border-color: rgba(82, 113, 255, 0.8);
+}
+
+.pm-btn-gold {
+  background: rgba(255, 215, 0, 0.12);
+  border-color: rgba(255, 215, 0, 0.5);
+  color: #ffd700;
+}
+
+.pm-btn-gold:hover:not(:disabled) {
+  background: rgba(255, 215, 0, 0.22);
+  border-color: rgba(255, 215, 0, 0.85);
+}
+
+.pm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pm-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
 
 
 

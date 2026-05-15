@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pomo.Lockedin.dto.RevisionTopicDTO;
 import pomo.Lockedin.entities.User;
+import pomo.Lockedin.service.PremiumService;
 import pomo.Lockedin.service.RevisionTopicService;
 import pomo.Lockedin.service.UserService;
 
@@ -17,8 +18,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RevisionTopicController {
 
+    private static final int FREE_TOPIC_LIMIT = 3;
+
     private final RevisionTopicService revisionTopicService;
     private final UserService userService;
+    private final PremiumService premiumService;
 
 
     @GetMapping
@@ -51,6 +55,14 @@ public class RevisionTopicController {
         }
 
         revisionTopicDTO.setUserId(userId);
+
+        if (!premiumService.isPremium(userEmail)) {
+            int count = revisionTopicService.countTopicsByUserId(userId);
+            if (count >= FREE_TOPIC_LIMIT) {
+                throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED,
+                        "Free plan is limited to " + FREE_TOPIC_LIMIT + " todos. Upgrade to Premium for unlimited.");
+            }
+        }
 
         return revisionTopicService.createRevisionTopic(revisionTopicDTO);
     }

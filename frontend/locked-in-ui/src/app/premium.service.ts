@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../environments/environment';
 
 export interface PremiumStatus {
@@ -33,4 +33,11 @@ export class PremiumService {
   createCheckout(plan: 'monthly' | 'annual'): Observable<{ checkoutUrl: string }> {
     return this.http.post<{ checkoutUrl: string }>(`${this.base}/checkout`, { plan });
   }
+}
+
+@Injectable({ providedIn: 'root' })
+export class PremiumModalService {
+  private openSubject = new Subject<void>();
+  readonly openModal$ = this.openSubject.asObservable();
+  open(): void { this.openSubject.next(); }
 }

@@ -22,16 +22,6 @@ public class PremiumController {
         return premiumService.getStatus(email);
     }
 
-    @PostMapping("/unlock")
-    public PremiumStatusDTO unlock() {
-        String email = getEmail();
-        try {
-            return premiumService.unlock(email);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.PAYMENT_REQUIRED, e.getMessage());
-        }
-    }
-
     private String getEmail() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return user.getEmail();
