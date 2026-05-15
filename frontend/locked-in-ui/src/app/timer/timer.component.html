@@ -15,20 +15,12 @@
     </button>
     <div class="timer-session-label">FOCUS SESSION</div>
 
-    <div class="time-display"
-         (mouseenter)="showTooltip()"
-         (mouseleave)="hideTooltip()"
-         (click)="handleTimeClick()">
+    <div class="time-display" (click)="handleTimeClick()">
       <input type="text" [value]="formatTime(hours)"   (input)="handleInputChange($event, 'hours')"   [disabled]="isRunning" class="time-input">
       <span class="t-sep">:</span>
       <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
       <span class="t-sep">:</span>
       <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
-
-      <div class="speech-bubble" *ngIf="showPauseTooltip">
-        <div class="bubble-content"><span>{{ getTooltipMessage() }}</span></div>
-        <div class="bubble-tail"></div>
-      </div>
     </div>
 
     <div class="controls">
@@ -41,20 +33,12 @@
     <button class="timer-opacity-btn" (click)="cycleOpacity()" [title]="timerOpacity === 0 ? 'Make transparent' : timerOpacity === 1 ? 'Go ghost' : 'Make opaque'">
       {{ timerOpacity === 0 ? '◐' : timerOpacity === 1 ? '○' : '●' }}
     </button>
-    <div class="time-display expanded-time"
-         (mouseenter)="showTooltip()"
-         (mouseleave)="hideTooltip()"
-         (click)="handleTimeClick()">
+    <div class="time-display expanded-time" (click)="handleTimeClick()">
       <input type="text" [value]="formatTime(hours)"   (input)="handleInputChange($event, 'hours')"   [disabled]="isRunning" class="time-input">
       <span class="t-sep">:</span>
       <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
       <span class="t-sep">:</span>
       <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
-
-      <div class="speech-bubble" *ngIf="showPauseTooltip">
-        <div class="bubble-content"><span>{{ getTooltipMessage() }}</span></div>
-        <div class="bubble-tail"></div>
-      </div>
     </div>
 
     <div class="expanded-controls">
