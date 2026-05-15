@@ -1,20 +1,26 @@
 <div class="pixel-clock-container">
-  <div class="pixel-clock-frame">
+
+  <!-- Minimised pill — click to expand -->
+  <div *ngIf="isMinimized" class="clock-pill" (click)="toggleMinimized()">
+    {{ formattedTime.hours }}:{{ formattedTime.minutes }}
+    <span *ngIf="!is24Hour" class="pill-ampm">{{ formattedTime.ampm }}</span>
+  </div>
+
+  <!-- Full clock — click frame to hide -->
+  <div *ngIf="!isMinimized" class="pixel-clock-frame" (click)="toggleMinimized()">
     <div class="clock-display">
-      <!-- Date display - split layout -->
+
       <div class="date-display">
         <div class="date-left">
           <span class="day-name">{{ currentDay }}</span>
           <span class="date-separator">•</span>
           <span class="month-name">{{ currentMonth }}</span>
         </div>
-        <div class="date-right">
-          {{ currentDate }}
-        </div>
+        <div class="date-right">{{ currentDate }}</div>
       </div>
 
-      <!-- Main time display - clickable -->
-      <div class="time-display" (click)="toggle24Hour()">
+      <!-- Click time to toggle 24hr; stopPropagation so it doesn't also hide -->
+      <div class="time-display" (click)="$event.stopPropagation(); toggle24Hour()">
         <div class="time-digits">
           <span class="digit-group">{{ formattedTime.hours }}</span>
           <span class="separator">:</span>
@@ -22,13 +28,14 @@
           <span class="separator">:</span>
           <span class="digit-group">{{ formattedTime.seconds }}</span>
         </div>
-        
-        <!-- AM/PM display only (not clickable) -->
         <div class="ampm-indicator" *ngIf="!is24Hour">
           <span class="ampm" [class.active]="formattedTime.ampm === 'AM'">AM</span>
           <span class="ampm" [class.active]="formattedTime.ampm === 'PM'">PM</span>
         </div>
       </div>
+
     </div>
+    <div class="clock-hint">click to hide</div>
   </div>
+
 </div>

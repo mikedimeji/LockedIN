@@ -1,33 +1,71 @@
-/* Clean Transparent 8-bit Clock */
 .pixel-clock-container {
   position: fixed;
-  top: 50px;
-  left: 10px;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 999;
   font-family: 'Courier New', monospace;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.pixel-clock-frame {
-  padding: 10px 14px;
+/* ── Minimised pill ── */
+.clock-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(8, 18, 34, 0.82);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(82, 113, 255, 0.22);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-family: bitF1, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
+
+.clock-pill:hover {
+  border-color: rgba(82, 113, 255, 0.5);
+  color: white;
+}
+
+.pill-ampm {
+  font-size: 9px;
+  color: rgba(82, 113, 255, 0.7);
+  letter-spacing: 1px;
+}
+
+/* ── Full clock frame ── */
+.pixel-clock-frame {
+  padding: 8px 18px 4px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  text-align: center;
+}
+
+.pixel-clock-frame:hover { opacity: 0.8; }
 
 .clock-display {
   color: #ffffff;
   text-align: center;
 }
 
-/* Date display - split left and right */
+/* ── Date row ── */
 .date-display {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 10px;
-  margin-bottom: 6px;
-  font-weight: normal;
-  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 4px;
+  color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.5px;
-  min-width: 120px;
+  min-width: 130px;
 }
 
 .date-left {
@@ -38,32 +76,23 @@
 
 .date-right {
   font-weight: bold;
-  color: #ffffff;
+  color: rgba(255,255,255,0.8);
 }
 
-.day-name {
+.day-name, .month-name {
   color: #5271ff;
   font-weight: bold;
 }
 
-.month-name {
-  color: #5271ff;
-  font-weight: bold;
-}
+.date-separator { color: rgba(255,255,255,0.35); }
 
-.date-separator {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-/* Time display - clickable without hover effects */
+/* ── Time digits ── */
 .time-display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 6px;
   cursor: pointer;
-  position: relative;
-  padding: 4px;
+  padding: 2px 4px;
   border-radius: 4px;
 }
 
@@ -78,69 +107,48 @@
 
 .digit-group {
   color: #ffffff;
-  min-width: 32px;
+  min-width: 30px;
   text-align: center;
 }
 
 .separator {
   color: #5271ff;
   font-size: 22px;
-  margin: 0 3px;
+  margin: 0 2px;
   animation: blink 1s infinite;
 }
 
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.4; }
+  0%, 50%  { opacity: 1; }
+  51%, 100% { opacity: 0.35; }
 }
 
-/* AM/PM indicator - simple display only */
+/* ── AM/PM ── */
 .ampm-indicator {
   display: flex;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 9px;
   font-weight: bold;
-  pointer-events: none; /* Not clickable anymore */
+  pointer-events: none;
 }
 
-.ampm {
-  color: rgba(255, 255, 255, 0.5);
-  padding: 2px 4px;
-  transition: color 0.2s ease;
+.ampm { color: rgba(255,255,255,0.35); }
+.ampm.active { color: #5271ff; }
+
+/* ── Hint text ── */
+.clock-hint {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.18);
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 2px;
 }
 
-.ampm.active {
-  color: #5271ff;
-}
-
-/* Remove control buttons completely */
-
-/* Responsive design */
+/* ── Responsive ── */
 @media (max-width: 600px) {
-  .pixel-clock-container {
-    top: 45px;
-    left: 8px;
-  }
-  
-  .pixel-clock-frame {
-    padding: 8px 12px;
-  }
-  
-  .time-digits {
-    font-size: 20px;
-  }
-  
-  .digit-group {
-    min-width: 28px;
-  }
-  
-  .date-display {
-    font-size: 9px;
-    min-width: 110px;
-  }
-  
-  .pixel-button {
-    font-size: 7px;
-  }
+  .time-digits { font-size: 19px; }
+  .digit-group { min-width: 26px; }
+  .date-display { font-size: 9px; min-width: 110px; }
 }

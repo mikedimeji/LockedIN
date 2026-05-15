@@ -7,38 +7,61 @@
 </app-tutorial-modal>
 
 <div class="timer" [ngClass]="{'expanded': isExpanded}">
-  <div class="time-display" (mouseenter)="showTooltip()" (mouseleave)="hideTooltip()" (click)="handleTimeClick()">
-    <input type="text" [value]="formatTime(hours)" (input)="handleInputChange($event, 'hours')" [disabled]="isRunning" class="time-input">
-    :
-    <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
-    :
-    <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
-    
-    <!-- Pause/Resume Speech Bubble -->
-    <div class="speech-bubble" *ngIf="showPauseTooltip">
-      <div class="bubble-content">
-        <span>{{ getTooltipMessage() }}</span>
+
+  <!-- ── Collapsed card ── -->
+  <ng-container *ngIf="!isExpanded">
+    <div class="timer-session-label">FOCUS SESSION</div>
+
+    <div class="time-display"
+         (mouseenter)="showTooltip()"
+         (mouseleave)="hideTooltip()"
+         (click)="handleTimeClick()">
+      <input type="text" [value]="formatTime(hours)"   (input)="handleInputChange($event, 'hours')"   [disabled]="isRunning" class="time-input">
+      <span class="t-sep">:</span>
+      <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
+      <span class="t-sep">:</span>
+      <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
+
+      <div class="speech-bubble" *ngIf="showPauseTooltip">
+        <div class="bubble-content"><span>{{ getTooltipMessage() }}</span></div>
+        <div class="bubble-tail"></div>
       </div>
-      <div class="bubble-tail"></div>
     </div>
-  </div>
 
-  <!-- Controls shown only in non-expanded state -->
-  <div class="controls" *ngIf="!isExpanded">
-    <button (click)="startTimer()">Start</button>
-  </div>
+    <div class="controls">
+      <button (click)="startTimer()">START →</button>
+    </div>
+  </ng-container>
 
-  <!-- Controls shown only in expanded state -->
-  <div class="expanded-controls" *ngIf="isExpanded">
-    <button (click)="pauseTimer()">{{ isRunning ? 'Pause' : 'Resume' }}</button>
-    <button (click)="openConfirmDialog()">Reset</button>
-  </div>
+  <!-- ── Expanded fullscreen ── -->
+  <ng-container *ngIf="isExpanded">
+    <div class="time-display expanded-time"
+         (mouseenter)="showTooltip()"
+         (mouseleave)="hideTooltip()"
+         (click)="handleTimeClick()">
+      <input type="text" [value]="formatTime(hours)"   (input)="handleInputChange($event, 'hours')"   [disabled]="isRunning" class="time-input">
+      <span class="t-sep">:</span>
+      <input type="text" [value]="formatTime(minutes)" (input)="handleInputChange($event, 'minutes')" [disabled]="isRunning" class="time-input">
+      <span class="t-sep">:</span>
+      <input type="text" [value]="formatTime(seconds)" (input)="handleInputChange($event, 'seconds')" [disabled]="isRunning" class="time-input">
 
-  <!-- Heart Break Warning -->
+      <div class="speech-bubble" *ngIf="showPauseTooltip">
+        <div class="bubble-content"><span>{{ getTooltipMessage() }}</span></div>
+        <div class="bubble-tail"></div>
+      </div>
+    </div>
+
+    <div class="expanded-controls">
+      <button class="btn-pause" (click)="pauseTimer()">{{ isRunning ? 'PAUSE' : 'RESUME' }}</button>
+      <button class="btn-reset" (click)="openConfirmDialog()">END</button>
+    </div>
+  </ng-container>
+
+  <!-- ── Heart break warning ── -->
   <div class="heart-warning-overlay" *ngIf="showHeartWarning">
     <div class="heart-warning-dialog">
       <div class="heart-warning-icon">
-        <img *ngIf="heartService.currentHeartPoints >= 2" src="assets/images/hearts/redheart.gif" alt="heart">
+        <img *ngIf="heartService.currentHeartPoints >= 2" src="assets/images/hearts/redheart.png" alt="heart">
         <img *ngIf="heartService.currentHeartPoints === 1" src="assets/images/hearts/heart-halfred.png" alt="heart">
       </div>
       <h3>Break your heart?</h3>
@@ -50,7 +73,7 @@
     </div>
   </div>
 
-  <!-- Gold and streak earned message -->
+  <!-- ── Reward message ── -->
   <div class="reward-message" *ngIf="showGoldMessage" [ngClass]="{'show': showGoldMessage}">
     <div class="reward-icons">
       <div class="reward-icon" *ngIf="goldEarned > 0">
@@ -62,12 +85,5 @@
     </div>
     <div class="reward-text" [innerHTML]="getGoldMessage()"></div>
   </div>
-  
+
 </div>
-
-
-
-
-
-
-
