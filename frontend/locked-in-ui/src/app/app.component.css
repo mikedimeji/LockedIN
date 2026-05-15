@@ -676,6 +676,20 @@
   object-fit: cover;
 }
 
+.profile-pic.premium {
+  border-color: #ffd700;
+  box-shadow:
+    0 0 8px rgba(255, 215, 0, 0.55),
+    0 0 18px rgba(255, 215, 0, 0.2);
+}
+
+.profile-pic-container:hover .profile-pic.premium {
+  border-color: #ffe44d;
+  box-shadow:
+    0 0 14px rgba(255, 215, 0, 0.75),
+    0 0 32px rgba(255, 215, 0, 0.3);
+}
+
 .profile-pic-container:hover .profile-pic {
   transform: scale(1.08);
   border-color: #5271ff;

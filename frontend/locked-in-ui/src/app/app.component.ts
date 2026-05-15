@@ -18,6 +18,7 @@ import { AuthService } from './auth.service';
 import { GoldStreakService } from './gold-streak.service';
 import { HeartService } from './heart.service';
 import { QuestionnaireService } from './questionnaire-modal/questionnaire.service';
+import { PremiumService } from './premium.service';
 import { interval } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { of, filter, Subscription } from 'rxjs';
@@ -186,6 +187,8 @@ availablePfps = [
   
   isLoading: boolean = false;
 
+  isPremium: boolean = false;
+
   // Gold and streak properties
   goldBalance: number = 0;
   currentStreak: number = 0;
@@ -216,6 +219,7 @@ availablePfps = [
     public heartService: HeartService,
     private userPreferencesService: UserPreferencesService,
     private questionnaireService: QuestionnaireService,
+    private premiumService: PremiumService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -261,6 +265,12 @@ private loadUserDataFromBackend(): void {
 
       // Load other user data (gold, streaks)
       this.refreshUserData();
+
+      // Load premium status for gold border
+      this.premiumService.getStatus().subscribe({
+        next: (status) => { this.isPremium = status.isPremium; },
+        error: () => {}
+      });
 
       this.isLoading = false;
       this.cdr.detectChanges();

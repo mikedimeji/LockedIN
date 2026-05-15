@@ -20,7 +20,7 @@
 <!-- Update your existing profile-display div to include hover effect and click handler -->
 <div *ngIf="authService.isLoggedIn()" class="profile-display" ngSkipHydration>
   <div class="profile-pic-container">
-    <div class="profile-pic">
+    <div class="profile-pic" [class.premium]="isPremium">
       <img [src]="selectedPfp" alt="Profile">
     </div>
     <!-- Change PFP Button that appears on hover -->

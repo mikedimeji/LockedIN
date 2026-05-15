@@ -25,4 +25,10 @@ public class UserService {
         return userOptional.map(User::getUser_Id).orElse(null);
     }
 
+    public String getUsernameByEmail(String userEmail) {
+        return userRepo.findUserByEmailOrUsername(userEmail)
+                .map(User::getUsername)
+                .orElse(null);
+    }
+
 }
