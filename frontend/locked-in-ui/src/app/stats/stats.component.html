@@ -6,145 +6,199 @@
   (onSkip)="onTutorialSkip()">
 </app-tutorial-modal>
 
-
 <div class="stats-container">
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-container">
-      <div class="loading-spinner"></div>
-      <p>Loading your stats...</p>
-    </div>
-  
-    <!-- Stats Content -->
-    <div *ngIf="!loading" class="stats-content">
-      <h1 class="stats-title">Your Productivity Stats</h1>
-      
-      <!-- Summary Cards -->
-      <div class="summary-cards">
-        <div class="stat-card gold">
-          <div class="icon-container">
-            <img src="assets/images/goldcoin.png" alt="Gold">
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Current Gold</span>
-            <span class="stat-value">{{ summary.currentGold }}</span>
-          </div>
-        </div>
-        
-        <div class="stat-card pomodoros">
-          <div class="icon-container">
-            <img src="assets/images/nav/alarm-clock.png" alt="Pomodoros">
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Pomodoros</span>
-            <span class="stat-value">{{ summary.totalPomodoros }}</span>
-          </div>
-        </div>
-  
-        <div class="stat-card streak">
-          <div class="icon-container">
-            <img src="assets/images/fire.gif" alt="Streak">
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Current Streak</span>
-            <span class="stat-value">{{ summary.currentStreak }} days</span>
-          </div>
-        </div>
-  
-        <div class="stat-card longest-streak">
-          <div class="icon-container">
-            <img src="assets/images/fire.gif" alt="Longest Streak">
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Longest Streak</span>
-            <span class="stat-value">{{ summary.longestStreak }} days</span>
-          </div>
-        </div>
-  
-        <div class="stat-card total-hours">
-          <div class="icon-container">
-            <img src="assets/images/nav/alarm-clock.png" alt="Total Hours">
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Total Hours</span>
-            <span class="stat-value">{{ summary.totalHours }}</span>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Chart Navigation -->
-      <div class="chart-navigation">
-        <div class="chart-tabs">
-          <div *ngFor="let slide of slides; let i = index" 
-               [class.active]="isCurrentSlide(i)"
-               class="chart-tab"
-               (click)="goToSlide(i)">
-            {{ slide.title }}
-          </div>
-        </div>
-        <div class="chart-navigation-arrows">
-          <button class="nav-arrow prev" (click)="prevSlide()">
-            <span class="arrow-icon">◀</span>
-          </button>
-          <div class="pagination-dots">
-            <div *ngFor="let slide of slides; let i = index" 
-                 [class.active]="isCurrentSlide(i)"
-                 class="pagination-dot">
-            </div>
-          </div>
-          <button class="nav-arrow next" (click)="nextSlide()">
-            <span class="arrow-icon">▶</span>
-          </button>
-        </div>
-      </div>
-  
-      <!-- Carousel Section -->
-      <div class="carousel-wrapper">
-        <div class="chart-carousel" #chartCarousel [@slideAnimation]="currentSlideIndex">
-          <!-- Weekly Activity Chart -->
-          <div class="chart-card" [class.visible]="isCurrentSlide(0)">
-            <h2 class="chart-title">Weekly Activity</h2>
-            <div class="chart-container">
-              <canvas #weeklyChart></canvas>
-            </div>
-          </div>
-  
-          <!-- Gold Earned Chart -->
-          <div class="chart-card" [class.visible]="isCurrentSlide(1)">
-            <h2 class="chart-title">Gold Earned</h2>
-            <div class="chart-container">
-              <canvas #goldChart></canvas>
-            </div>
-          </div>
-  
-          <!-- Streak Timeline -->
-          <div class="chart-card" [class.visible]="isCurrentSlide(2)">
-            <h2 class="chart-title">Streak Timeline</h2>
-            <div class="chart-container">
-              <canvas #streakChart></canvas>
-            </div>
-          </div>
-  
-          <!-- Achievements -->
-          <div class="chart-card achievements-card" [class.visible]="isCurrentSlide(3)">
-            <h2 class="chart-title">Recent Achievements</h2>
-            <div class="achievements-container">
-              <div *ngFor="let achievement of achievements" class="achievement-item">
-                <div class="achievement-header">
-                  <div class="achievement-title">
-                    <img src="assets/images/goldcoin.png" alt="Achievement" class="achievement-icon">
-                    <h3>{{ achievement.name }}</h3>
-                  </div>
-                  <span class="achievement-date">{{ achievement.date }}</span>
-                </div>
-                <p class="achievement-description">{{ achievement.description }}</p>
-              </div>
-              
-              <div *ngIf="achievements.length === 0" class="no-achievements">
-                No achievements yet. Complete pomodoros to earn achievements!
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="stats-loading">
+    <div class="loading-ring"></div>
+    <span>LOADING</span>
   </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- HUD Header -->
+    <div class="stats-header">
+      <div class="stats-hud-left">
+        <span class="stats-hud-logo">LOCKED IN</span>
+        <span class="stats-hud-tag">STATS</span>
+      </div>
+      <div class="stats-hud-right">
+        <span *ngIf="premium.isPremium" class="premium-badge">◆ PREMIUM</span>
+      </div>
+    </div>
+
+    <!-- Summary Row -->
+    <div class="summary-row">
+      <div class="metric-card">
+        <img src="assets/images/coin/coin2.gif" alt="Gold" class="metric-icon">
+        <span class="metric-value">{{ summary.currentGold }}</span>
+        <span class="metric-label">GOLD</span>
+      </div>
+      <div class="metric-card">
+        <img src="assets/images/nav/alarm-clock.png" alt="Sessions" class="metric-icon">
+        <span class="metric-value">{{ summary.totalPomodoros }}</span>
+        <span class="metric-label">SESSIONS</span>
+      </div>
+      <div class="metric-card">
+        <img src="assets/images/flame/flame2.gif" alt="Streak" class="metric-icon">
+        <span class="metric-value">{{ summary.currentStreak }}</span>
+        <span class="metric-label">STREAK</span>
+      </div>
+      <div class="metric-card">
+        <img src="assets/images/nav/alarm-clock.png" alt="Hours" class="metric-icon">
+        <span class="metric-value">{{ totalHoursDisplay() }}</span>
+        <span class="metric-label">HOURS</span>
+      </div>
+      <div class="metric-card">
+        <img src="assets/images/fire.gif" alt="Best Streak" class="metric-icon">
+        <span class="metric-value">{{ summary.longestStreak }}</span>
+        <span class="metric-label">BEST STREAK</span>
+      </div>
+    </div>
+
+    <!-- ── PREMIUM GATE ── -->
+    <div *ngIf="!premium.isPremium" class="premium-gate">
+      <div class="gate-glow"></div>
+      <div class="gate-icon">◆</div>
+      <h2 class="gate-title">PREMIUM STATS</h2>
+      <p class="gate-desc">
+        Unlock your full Focus Profile, personalised workflow plan, and detailed session charts.
+        One-time unlock — no subscription.
+      </p>
+      <div class="gate-cost-row">
+        <img src="assets/images/goldcoin.png" alt="gold" class="gate-coin">
+        <span class="gate-cost">500 gold</span>
+        <span class="gate-balance">/ you have {{ premium.currentGold }}g</span>
+      </div>
+      <button class="gate-btn"
+              [class.gate-btn-locked]="!premium.canAfford"
+              [disabled]="!premium.canAfford || unlocking"
+              (click)="unlockPremium()">
+        {{ unlocking ? 'UNLOCKING...' : premium.canAfford ? 'UNLOCK PREMIUM' : 'NOT ENOUGH GOLD' }}
+      </button>
+      <p *ngIf="!premium.canAfford" class="gate-hint">
+        Complete focus sessions to earn gold — {{ premium.goldRequired - premium.currentGold }}g to go.
+      </p>
+    </div>
+
+    <!-- ── PREMIUM CONTENT ── -->
+    <ng-container *ngIf="premium.isPremium">
+
+      <!-- Focus Profile -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-label">FOCUS PROFILE</span>
+          <span *ngIf="!insights?.hasProfile" class="section-hint">Complete the questionnaire to unlock insights</span>
+        </div>
+
+        <!-- No profile yet -->
+        <div *ngIf="!insights?.hasProfile" class="no-profile-card">
+          <p>Head to your profile and complete the questionnaire to generate your personalised focus report.</p>
+        </div>
+
+        <!-- Full insights -->
+        <ng-container *ngIf="insights?.hasProfile">
+          <!-- Score -->
+          <div class="score-card">
+            <div class="score-left">
+              <span class="score-number" [style.color]="focusScoreColor">{{ insights!.focusScore }}</span>
+              <span class="score-label">/ 100</span>
+            </div>
+            <div class="score-right">
+              <span class="score-category" [style.color]="focusScoreColor">{{ insights!.focusCategory }}</span>
+              <div class="score-bar-track">
+                <div class="score-bar-fill" [style.width]="focusScoreWidth" [style.background]="focusScoreColor"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick stats grid -->
+          <div class="insight-grid">
+            <div class="insight-pill">
+              <span class="insight-pill-label">SESSION LENGTH</span>
+              <span class="insight-pill-value">{{ insights!.recommendedSessionMins }} min</span>
+            </div>
+            <div class="insight-pill">
+              <span class="insight-pill-label">BEST WINDOW</span>
+              <span class="insight-pill-value">{{ insights!.bestStudyWindow }}</span>
+            </div>
+            <div class="insight-pill">
+              <span class="insight-pill-label">WEEKLY GOAL</span>
+              <span class="insight-pill-value">{{ insights!.weeklySessionGoal }} sessions</span>
+            </div>
+          </div>
+
+          <!-- Challenge advice -->
+          <div class="advice-card">
+            <div class="advice-header">
+              <span class="advice-tag">YOUR CHALLENGE</span>
+            </div>
+            <p class="advice-text">{{ insights!.challengeAdvice }}</p>
+          </div>
+
+          <!-- Procrastination tip -->
+          <div class="advice-card advice-card-alt">
+            <div class="advice-header">
+              <span class="advice-tag">CONSISTENCY TIP</span>
+            </div>
+            <p class="advice-text">{{ insights!.procrastinationTip }}</p>
+          </div>
+
+          <!-- Workflow tips -->
+          <div class="section-header" style="margin-top: 20px;">
+            <span class="section-label">YOUR WORKFLOW</span>
+          </div>
+          <div class="tips-list">
+            <div *ngFor="let tip of insights!.workflowTips; let i = index" class="tip-item">
+              <span class="tip-index">0{{ i + 1 }}</span>
+              <span class="tip-text">{{ tip }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Charts section -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-label">ACTIVITY</span>
+          <div class="chart-tabs">
+            <button class="chart-tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">THIS WEEK</button>
+            <button class="chart-tab" [class.active]="activeTab === 'streak'"   (click)="setTab('streak')">STREAK</button>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <canvas *ngIf="activeTab === 'activity'" #activityChart></canvas>
+          <canvas *ngIf="activeTab === 'streak'"   #streakChart></canvas>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="section">
+        <div class="section-header">
+          <span class="section-label">ACHIEVEMENTS</span>
+        </div>
+
+        <div *ngIf="achievements.length === 0" class="no-achievements">
+          <p>No achievements yet — complete sessions to start earning them.</p>
+        </div>
+
+        <div class="achievements-list">
+          <div *ngFor="let a of achievements" class="achievement-item">
+            <div class="achievement-left">
+              <img src="assets/images/goldcoin.png" alt="" class="achievement-icon">
+              <div>
+                <div class="achievement-name">{{ a.name }}</div>
+                <div class="achievement-desc">{{ a.description }}</div>
+              </div>
+            </div>
+            <span class="achievement-date">{{ a.date }}</span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+    <!-- end premium content -->
+
+  </ng-container>
+</div>

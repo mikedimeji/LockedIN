@@ -1,32 +1,19 @@
-// stats.component.ts
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import Chart from 'chart.js/auto';
-import { trigger, transition, style, animate } from '@angular/animations';
 import { StatsService } from './stats.service';
+import { PremiumService, PremiumStatus, FocusInsights } from '../premium.service';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
 import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
-// Define interfaces for type safety
 interface SummaryStats {
   currentGold: number;
   totalPomodoros: number;
   currentStreak: number;
   longestStreak: number;
   totalHours: number;
-}
-
-interface WeeklyData {
-  labels: string[];
-  pomodoros: number[];
-  hours: number[];
-  gold: number[];
-}
-
-interface StreakData {
-  dates: string[];
-  values: number[];
 }
 
 interface Achievement {
@@ -41,522 +28,233 @@ interface Achievement {
   standalone: true,
   imports: [CommonModule, TutorialModalComponent],
   templateUrl: './stats.component.html',
-  styleUrls: ['./stats.component.css'],
-  animations: [
-    trigger('slideAnimation', [
-      transition(':increment', [
-        style({ transform: 'translateX(100%)', opacity: 0 }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
-      ]),
-      transition(':decrement', [
-        style({ transform: 'translateX(-100%)', opacity: 0 }),
-        animate('300ms ease-out', style({ transform: 'translateX(0)', opacity: 1 }))
-      ])
-    ])
-  ]
+  styleUrls: ['./stats.component.css']
 })
-export class StatsComponent implements OnInit, AfterViewInit {
-  @ViewChild('weeklyChart') weeklyChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('goldChart') goldChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('streakChart') streakChartRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('chartCarousel') chartCarouselRef!: ElementRef;
-  
-  // Tutorial
-  showTutorial: boolean = false;
+export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('streakChart')   streakChartRef!:   ElementRef<HTMLCanvasElement>;
+
+  showTutorial = false;
   tutorialSteps: TutorialStep[] = [];
-  
+
   loading = true;
-  
-  // Summary stats
-  summary: SummaryStats = {
-    currentGold: 0,
-    totalPomodoros: 0,
-    currentStreak: 0,
-    longestStreak: 0,
-    totalHours: 0
-  };
+  unlocking = false;
 
-  // Weekly activity data
-  weeklyData: WeeklyData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    pomodoros: [0, 0, 0, 0, 0, 0, 0],
-    hours: [0, 0, 0, 0, 0, 0, 0],
-    gold: [0, 0, 0, 0, 0, 0, 0]
-  };
-
-  // Streak data
-  streakData: StreakData = {
-    dates: [],
-    values: []
-  };
-
-  // Achievements
+  summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0 };
+  premium: PremiumStatus = { isPremium: false, goldRequired: 500, currentGold: 0, canAfford: false };
+  insights: FocusInsights | null = null;
   achievements: Achievement[] = [];
-  
-  // Chart instances
-  private weeklyChart: Chart | null = null;
-  private goldChart: Chart | null = null;
+
+  weeklyLabels: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  weeklyPomodoros: number[] = [0, 0, 0, 0, 0, 0, 0];
+  weeklyGold: number[]      = [0, 0, 0, 0, 0, 0, 0];
+  streakDates: string[]     = [];
+  streakValues: number[]    = [];
+
+  activeTab: 'activity' | 'streak' = 'activity';
+
+  private activityChart: Chart | null = null;
   private streakChart: Chart | null = null;
 
-  // Carousel related properties
-  currentSlideIndex = 0;
-  slides = [
-    { title: 'Weekly Activity', id: 'weekly' },
-    { title: 'Gold Earned', id: 'gold' },
-    { title: 'Streak Timeline', id: 'streak' },
-    { title: 'Achievements', id: 'achievements' }
-  ];
-  touchStartX: number = 0;
-  touchEndX: number = 0;
-  isDragging: boolean = false;
-  dragStartX: number = 0;
-  dragAmount: number = 0;
-
   constructor(
-    private http: HttpClient, 
     private statsService: StatsService,
+    private premiumService: PremiumService,
     private tutorialService: TutorialService
   ) { }
 
   ngOnInit(): void {
-    // Check if tutorial should show
     if (!this.tutorialService.hasSeenTutorial('stats')) {
       this.tutorialSteps = this.tutorialService.getTutorialSteps('stats');
       this.showTutorial = true;
     }
-
-    this.loadStats();
+    this.loadAll();
   }
-  
-  ngAfterViewInit(): void {
-    // Charts will be initialized after data is loaded
+
+  ngAfterViewInit(): void {}
+
+  ngOnDestroy(): void {
+    this.destroyCharts();
   }
 
   onTutorialComplete(dontShowAgain: boolean): void {
-    if (dontShowAgain) {
-      this.tutorialService.markTutorialAsSeen('stats');
-    }
+    if (dontShowAgain) this.tutorialService.markTutorialAsSeen('stats');
     this.showTutorial = false;
   }
 
-  onTutorialSkip(): void {
-    this.showTutorial = false;
-  }
+  onTutorialSkip(): void { this.showTutorial = false; }
 
-  @HostListener('touchstart', ['$event'])
-  onTouchStart(event: TouchEvent): void {
-    this.touchStartX = event.touches[0].clientX;
-  }
+  loadAll(): void {
+    forkJoin({
+      summary:  this.statsService.getUserStatsSummary().pipe(catchError(() => of(this.summary))),
+      premium:  this.premiumService.getStatus().pipe(catchError(() => of(this.premium))),
+      history:  this.statsService.getUserStatsHistory('week').pipe(catchError(() => of({}))),
+      streak:   this.statsService.getStreakTimeline().pipe(catchError(() => of({}))),
+      achievements: this.statsService.getUserAchievements().pipe(catchError(() => of([]))),
+    }).subscribe(results => {
+      this.summary      = results.summary;
+      this.premium      = results.premium;
+      this.achievements = results.achievements || [];
 
-  @HostListener('touchmove', ['$event'])
-  onTouchMove(event: TouchEvent): void {
-    this.touchEndX = event.touches[0].clientX;
-  }
+      const h = results.history as any;
+      if (h.labels)    this.weeklyLabels    = h.labels;
+      if (h.pomodoros) this.weeklyPomodoros = h.pomodoros;
+      if (h.gold)      this.weeklyGold      = h.gold;
 
-  @HostListener('touchend')
-  onTouchEnd(): void {
-    if (this.touchStartX - this.touchEndX > 70) {
-      // Swipe left, go to next slide
-      this.nextSlide();
-    } else if (this.touchEndX - this.touchStartX > 70) {
-      // Swipe right, go to previous slide
-      this.prevSlide();
-    }
-    // Reset values
-    this.touchStartX = 0;
-    this.touchEndX = 0;
-  }
+      const s = results.streak as any;
+      if (s.dates)   this.streakDates  = s.dates;
+      if (s.streaks) this.streakValues = s.streaks;
 
-  @HostListener('mousedown', ['$event'])
-  onMouseDown(event: MouseEvent): void {
-    this.isDragging = true;
-    this.dragStartX = event.clientX;
-  }
-
-  @HostListener('mousemove', ['$event'])
-  onMouseMove(event: MouseEvent): void {
-    if (this.isDragging) {
-      this.dragAmount = event.clientX - this.dragStartX;
-      if (this.chartCarouselRef) {
-        const carousel = this.chartCarouselRef.nativeElement;
-        const transform = `translateX(${this.dragAmount}px)`;
-        carousel.style.transform = transform;
+      if (this.premium.isPremium) {
+        this.statsService.getFocusInsights().pipe(catchError(() => of(null))).subscribe(ins => {
+          this.insights = ins;
+          this.loading = false;
+          setTimeout(() => this.initCharts(), 50);
+        });
+      } else {
+        this.loading = false;
+        setTimeout(() => this.initCharts(), 50);
       }
-    }
+    });
   }
 
-  @HostListener('mouseup')
-  @HostListener('mouseleave')
-  onMouseUp(): void {
-    if (this.isDragging) {
-      if (this.dragAmount < -70) {
-        this.nextSlide();
-      } else if (this.dragAmount > 70) {
-        this.prevSlide();
-      }
-      
-      // Reset carousel position
-      if (this.chartCarouselRef) {
-        const carousel = this.chartCarouselRef.nativeElement;
-        carousel.style.transform = 'translateX(0)';
-      }
-      
-      this.isDragging = false;
-      this.dragAmount = 0;
-    }
+  unlockPremium(): void {
+    if (this.unlocking) return;
+    this.unlocking = true;
+    this.premiumService.unlock().subscribe({
+      next: (status) => {
+        this.premium = status;
+        this.unlocking = false;
+        // reload insights now that premium is active
+        this.statsService.getFocusInsights().pipe(catchError(() => of(null))).subscribe(ins => {
+          this.insights = ins;
+        });
+      },
+      error: () => { this.unlocking = false; }
+    });
   }
 
-  prevSlide(): void {
-    this.currentSlideIndex = (this.currentSlideIndex === 0) 
-      ? this.slides.length - 1 
-      : this.currentSlideIndex - 1;
-    
-    // Make sure charts are properly rendered when switching slides
+  setTab(tab: 'activity' | 'streak'): void {
+    this.activeTab = tab;
     setTimeout(() => {
-      this.updateChartsForCurrentSlide();
-    }, 100);
+      if (tab === 'activity') this.initActivityChart();
+      else this.initStreakChart();
+    }, 50);
   }
 
-  nextSlide(): void {
-    this.currentSlideIndex = (this.currentSlideIndex === this.slides.length - 1) 
-      ? 0 
-      : this.currentSlideIndex + 1;
-    
-    // Make sure charts are properly rendered when switching slides
-    setTimeout(() => {
-      this.updateChartsForCurrentSlide();
-    }, 100);
+  get focusScoreWidth(): string {
+    return `${this.insights?.focusScore ?? 0}%`;
   }
 
-  goToSlide(index: number): void {
-    this.currentSlideIndex = index;
-    setTimeout(() => {
-      this.updateChartsForCurrentSlide();
-    }, 100);
+  get focusScoreColor(): string {
+    const s = this.insights?.focusScore ?? 0;
+    if (s >= 85) return '#4ade80';
+    if (s >= 68) return '#5271ff';
+    if (s >= 50) return '#facc15';
+    if (s >= 30) return '#fb923c';
+    return '#f87171';
   }
 
-  isCurrentSlide(index: number): boolean {
-    return this.currentSlideIndex === index;
+  totalHoursDisplay(): string {
+    return (this.summary.totalHours ?? 0).toFixed(1);
   }
 
-  loadStats(): void {
-    // Use Promise.all to load multiple API calls in parallel
-    Promise.all([
-      this.fetchSummary(),
-      this.fetchWeeklyActivity(),
-      this.fetchStreakTimeline(),
-      this.fetchAchievements()
-    ]).then(() => {
-      this.loading = false;
-      
-      // Initialize charts after data is loaded
-      setTimeout(() => {
-        this.initCharts();
-      }, 0);
-    }).catch(error => {
-      console.error('Error loading stats:', error);
-      this.loading = false;
-      
-      // Initialize charts with whatever data we have
-      setTimeout(() => {
-        this.initCharts();
-      }, 0);
-    });
+  private initCharts(): void {
+    if (this.activeTab === 'activity') this.initActivityChart();
+    else this.initStreakChart();
   }
 
-  fetchSummary(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.statsService.getUserStatsSummary()
-        .subscribe({
-          next: (data) => {
-            this.summary = data;
-            resolve();
-          },
-          error: (err) => reject(err)
-        });
-    });
+  private destroyCharts(): void {
+    this.activityChart?.destroy();
+    this.streakChart?.destroy();
+    this.activityChart = null;
+    this.streakChart = null;
   }
 
-  fetchWeeklyActivity(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.statsService.getUserStatsHistory('week')
-        .subscribe({
-          next: (data) => {
-            if (data.labels) this.weeklyData.labels = data.labels;
-            if (data.pomodoros) this.weeklyData.pomodoros = data.pomodoros;
-            if (data.hours) this.weeklyData.hours = data.hours;
-            if (data.gold) this.weeklyData.gold = data.gold;
-            resolve();
-          },
-          error: (err) => reject(err)
-        });
-    });
-  }
-
-  fetchStreakTimeline(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.statsService.getStreakTimeline()
-        .subscribe({
-          next: (data) => {
-            if (data.dates) this.streakData.dates = data.dates;
-            if (data.streaks) this.streakData.values = data.streaks;
-            resolve();
-          },
-          error: (err) => reject(err)
-        });
-    });
-  }
-
-  fetchAchievements(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.statsService.getUserAchievements()
-        .subscribe({
-          next: (data) => {
-            this.achievements = data;
-            resolve();
-          },
-          error: (err) => reject(err)
-        });
-    });
-  }
-
-  updateChartsForCurrentSlide(): void {
-    const currentSlide = this.slides[this.currentSlideIndex];
-    
-    // Reinitialize the chart for the current slide
-    if (currentSlide.id === 'weekly' && this.weeklyChartRef) {
-      this.initWeeklyChart();
-    } else if (currentSlide.id === 'gold' && this.goldChartRef) {
-      this.initGoldChart();
-    } else if (currentSlide.id === 'streak' && this.streakChartRef) {
-      this.initStreakChart();
-    }
-    // No need to reinitialize for achievements as it's just a list
-  }
-
-  initCharts(): void {
-    if (this.weeklyChartRef && this.goldChartRef && this.streakChartRef) {
-      // Initialize only the first slide's chart initially
-      this.updateChartsForCurrentSlide();
-    } else {
-      console.warn('Chart references not yet available. Charts will not be initialized.');
-    }
-  }
-  
-  initWeeklyChart(): void {
-    if (!this.weeklyChartRef) return;
-    
-    const ctx = this.weeklyChartRef.nativeElement.getContext('2d');
+  private initActivityChart(): void {
+    if (!this.activityChartRef) return;
+    this.activityChart?.destroy();
+    const ctx = this.activityChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
-    
-    // Destroy previous chart if it exists
-    if (this.weeklyChart) {
-      this.weeklyChart.destroy();
-    }
-    
-    this.weeklyChart = new Chart(ctx, {
+
+    this.activityChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: this.weeklyData.labels,
+        labels: this.weeklyLabels,
         datasets: [
           {
-            label: 'Pomodoros',
-            data: this.weeklyData.pomodoros,
-            backgroundColor: '#3b82f6',
-            borderColor: '#2563eb',
-            borderWidth: 1
+            label: 'Sessions',
+            data: this.weeklyPomodoros,
+            backgroundColor: 'rgba(82, 113, 255, 0.65)',
+            borderColor: 'rgba(82, 113, 255, 0.9)',
+            borderWidth: 1,
+            borderRadius: 6,
           },
           {
-            label: 'Hours',
-            data: this.weeklyData.hours,
-            backgroundColor: '#10b981',
-            borderColor: '#059669',
-            borderWidth: 1
+            label: 'Gold',
+            data: this.weeklyGold,
+            backgroundColor: 'rgba(255, 215, 0, 0.55)',
+            borderColor: 'rgba(255, 215, 0, 0.85)',
+            borderWidth: 1,
+            borderRadius: 6,
           }
         ]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              color: '#ffffff'
-            }
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false
-          }
+          legend: { labels: { color: 'rgba(255,255,255,0.55)', font: { family: 'Courier New', size: 10 }, boxWidth: 12 } },
+          tooltip: { mode: 'index', intersect: false }
         },
         scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#aaaaaa'
-            }
-          },
-          x: {
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#aaaaaa'
-            }
-          }
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 } } },
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 } } }
         }
       }
     });
   }
-  
-  initGoldChart(): void {
-    if (!this.goldChartRef) return;
-    
-    const ctx = this.goldChartRef.nativeElement.getContext('2d');
-    if (!ctx) return;
-    
-    // Destroy previous chart if it exists
-    if (this.goldChart) {
-      this.goldChart.destroy();
-    }
-    
-    this.goldChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: this.weeklyData.labels,
-        datasets: [
-          {
-            label: 'Gold Earned',
-            data: this.weeklyData.gold,
-            backgroundColor: 'rgba(255, 215, 0, 0.7)',
-            borderColor: 'rgba(255, 215, 0, 1)',
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              color: '#ffffff'
-            }
-          },
-          tooltip: {
-            mode: 'index',
-            intersect: false
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#aaaaaa'
-            }
-          },
-          x: {
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#aaaaaa'
-            }
-          }
-        }
-      }
-    });
-  }
-  
-  initStreakChart(): void {
+
+  private initStreakChart(): void {
     if (!this.streakChartRef) return;
-    
+    this.streakChart?.destroy();
     const ctx = this.streakChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
-    
-    // Destroy previous chart if it exists
-    if (this.streakChart) {
-      this.streakChart.destroy();
-    }
-    
-    // Create point colors based on streak values
-    const pointBackgroundColors = this.streakData.values.map(value => 
-      value === 0 ? '#888888' : '#ef4444'
-    );
-    
-    // Create point sizes based on streak values
-    const pointRadii = this.streakData.values.map(value => 
-      5 + value * 1.5
-    );
-    
+
+    const colors = this.streakValues.map(v => v > 0 ? 'rgba(82,113,255,0.85)' : 'rgba(255,255,255,0.12)');
+
     this.streakChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: this.streakData.dates,
-        datasets: [
-          {
-            label: 'Daily Streak',
-            data: this.streakData.values,
-            fill: false,
-            borderColor: '#5271ff',
-            tension: 0.1,
-            pointBackgroundColor: pointBackgroundColors,
-            pointBorderColor: pointBackgroundColors,
-            pointRadius: pointRadii,
-            pointHoverRadius: (context) => {
-              if (context.dataIndex !== undefined) {
-                return pointRadii[context.dataIndex] + 2;
-              }
-              return 7; // Default value
-            }
-          }
-        ]
+        labels: this.streakDates,
+        datasets: [{
+          label: 'Streak',
+          data: this.streakValues,
+          fill: true,
+          backgroundColor: 'rgba(82,113,255,0.08)',
+          borderColor: 'rgba(82,113,255,0.7)',
+          tension: 0.35,
+          pointBackgroundColor: colors,
+          pointBorderColor: colors,
+          pointRadius: 4,
+        }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              color: '#ffffff'
-            }
-          },
+          legend: { display: false },
           tooltip: {
             callbacks: {
-              label: function(context) {
-                const value = context.raw as number;
-                return value === 1 ? '1 day streak' : `${value} days streak`;
+              label: (ctx) => {
+                const v = ctx.raw as number;
+                return v === 1 ? '1 day streak' : `${v} days streak`;
               }
             }
           }
         },
         scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#aaaaaa',
-              stepSize: 1
-            }
-          },
-          x: {
-            grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
-            },
-            ticks: {
-              color: '#aaaaaa',
-              maxRotation: 45,
-              minRotation: 45
-            }
-          }
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, stepSize: 1 } },
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, maxRotation: 45 } }
         }
       }
     });

@@ -9,11 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pomo.Lockedin.dto.AchievementDTO;
+import pomo.Lockedin.dto.FocusInsightsDTO;
 import pomo.Lockedin.dto.StatsControllerSummaryDTO;
 import pomo.Lockedin.entities.User;
 import pomo.Lockedin.service.GoldService;
+import pomo.Lockedin.service.PremiumService;
 import pomo.Lockedin.service.StatsService;
 import pomo.Lockedin.service.StreakService;
+import pomo.Lockedin.service.UserProfileService;
 import pomo.Lockedin.service.UserService;
 
 import java.time.LocalDate;
@@ -31,7 +34,9 @@ public class StatsController {
 
     private final GoldService goldService;
     private final StreakService streakService;
-    private final StatsService statsService; // Updated from PomodoroService
+    private final StatsService statsService;
+    private final PremiumService premiumService;
+    private final UserProfileService userProfileService;
 
     /**
      * Get summary statistics for the authenticated user
@@ -119,6 +124,23 @@ public class StatsController {
 
         // Get achievements from service
         return statsService.getUserAchievements(userEmail);
+    }
+
+    /**
+     * Get personalized focus insights (premium only)
+     */
+    @GetMapping("/insights")
+    @ResponseStatus(HttpStatus.OK)
+    public FocusInsightsDTO getFocusInsights() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String userEmail = user.getEmail();
+
+        if (!premiumService.isPremium(userEmail)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Premium required");
+        }
+
+        return userProfileService.getInsights(userEmail);
     }
 
     // Helper methods
