@@ -24,9 +24,7 @@
       <img [src]="selectedPfp" alt="Profile">
     </div>
     <!-- Change PFP Button that appears on hover -->
-    <button class="change-pfp-btn" (click)="togglePfpSelector()">
-      Change PFP
-    </button>
+    <button class="change-pfp-btn" (click)="togglePfpSelector()">✎</button>
   </div>
   <span class="username">{{ authService.getUsername() }}</span>
   <button class="logout-button" (click)="onSignOut()">Sign Out</button>
@@ -35,49 +33,41 @@
 <!-- PFP Selector Overlay -->
 <div *ngIf="showPfpSelector" class="pfp-selector-overlay" (click)="closePfpSelector()">
   <div class="pfp-selector-panel" (click)="$event.stopPropagation()">
+
     <div class="pfp-selector-header">
-      <h3>Choose Profile Picture</h3>
-      <button class="close-btn" (click)="closePfpSelector()">×</button>
+      <div class="pfp-header-left">
+        <span class="pfp-hud-logo">LOCKED IN</span>
+        <span class="pfp-hud-tag">CHOOSE AVATAR</span>
+      </div>
+      <button class="pfp-close-btn" (click)="closePfpSelector()">✕</button>
     </div>
-    
+
     <div class="pfp-grid">
-      <div *ngFor="let pfp of availablePfps" 
+      <div *ngFor="let pfp of availablePfps"
            class="pfp-item"
-           [ngClass]="{
-             'selected': isPfpSelected(pfp.path),
-             'unlocked': pfp.unlocked,
-             'animated': pfp.isAnimated
-           }"
+           [ngClass]="{'selected': isPfpSelected(pfp.path), 'locked': pfp.premium && !pfp.unlocked}"
            (click)="changePfp(pfp)">
-        
-        <!-- PFP Image -->
+
         <div class="pfp-image-container">
           <img [src]="pfp.path" [alt]="pfp.name" class="pfp-image">
-          
-          <!-- Premium overlay for locked PFPs -->
+
           <div *ngIf="pfp.premium && !pfp.unlocked" class="pfp-premium-overlay">
-            <div class="lock-icon">🔒</div>
+            <span class="pfp-lock-icon">🔒</span>
             <div class="pfp-cost">
               <img src="assets/images/goldcoin.png" alt="Gold" class="gold-icon-small">
               <span>{{ pfp.goldCost }}</span>
             </div>
           </div>
-          
-          <!-- Selected indicator -->
-          <div *ngIf="isPfpSelected(pfp.path)" class="selected-indicator">
-            ✓
-          </div>
-          
-          <!-- Animated indicator -->
-          <div *ngIf="pfp.isAnimated && pfp.unlocked" class="animated-badge">
-            GIF
-          </div>
+
+          <div *ngIf="isPfpSelected(pfp.path)" class="pfp-selected-ring"></div>
+
+          <div *ngIf="pfp.isAnimated && pfp.unlocked" class="pfp-animated-badge">GIF</div>
         </div>
-        
-        <!-- PFP Name -->
+
         <div class="pfp-name">{{ pfp.name }}</div>
       </div>
     </div>
+
   </div>
 </div>
 

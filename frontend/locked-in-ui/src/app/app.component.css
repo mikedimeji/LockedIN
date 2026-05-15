@@ -707,346 +707,288 @@
     0 0 32px rgba(82, 113, 255, 0.2);
 }
 
-/* Enhanced Change PFP Button with Thought Bubble */
+/* ── Change PFP hover button (thought bubble style) ── */
 .change-pfp-btn {
   position: absolute;
-  top: 50px;
+  top: 44px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #5271ff, #6b82ff);
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: bold;
+  background: rgba(8, 18, 34, 0.88);
+  backdrop-filter: blur(12px);
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(82, 113, 255, 0.38);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 14px;
   cursor: pointer;
   opacity: 0;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   white-space: nowrap;
   z-index: 10;
-  box-shadow: 
-    0 4px 15px rgba(82, 113, 255, 0.3),
-    0 2px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 3px rgba(255, 255, 255, 0.2),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.35);
 }
 
-/* Thought bubble circles (small to large leading to main bubble) */
+/* Thought bubble dots */
 .change-pfp-btn::before {
   content: '';
   position: absolute;
-  top: -12px;
-  left: 30%;
-  width: 4px;
-  height: 4px;
-  background: #5271ff;
+  top: -10px;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  background: rgba(82, 113, 255, 0.55);
   border-radius: 50%;
   opacity: 0;
-  transition: all 0.3s ease;
-  box-shadow: 
-    8px -6px 0 2px rgba(82, 113, 255, 0.6),
-    16px -12px 0 4px rgba(82, 113, 255, 0.4);
+  transition: all 0.25s ease;
+  box-shadow:
+    0px -7px 0 1px rgba(82, 113, 255, 0.4),
+    0px -14px 0 2px rgba(82, 113, 255, 0.25);
 }
 
-/* Animated appearance with thought bubble effect */
 .profile-pic-container:hover .change-pfp-btn {
   opacity: 1;
-  transform: translateX(-50%) translateY(-8px) scale(1);
-  animation: thoughtBubbleFloat 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-             gentleFloat 3s ease-in-out 1s infinite;
+  transform: translateX(-50%) translateY(-6px);
+  animation: thoughtFloat 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+             gentleFloat 3s ease-in-out 0.5s infinite;
 }
 
-/* Thought bubble floating animation */
-@keyframes thoughtBubbleFloat {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(15px) scale(0.7);
-  }
-  30% {
-    opacity: 0.6;
-    transform: translateX(-50%) translateY(-2px) scale(0.9);
-  }
-  60% {
-    opacity: 0.9;
-    transform: translateX(-50%) translateY(-10px) scale(1.02);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-8px) scale(1);
-  }
+@keyframes thoughtFloat {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.85); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(-6px) scale(1); }
 }
 
 @keyframes gentleFloat {
-  0%, 100% {
-    transform: translateX(-50%) translateY(-8px);
-  }
-  50% {
-    transform: translateX(-50%) translateY(-12px);
-  }
+  0%, 100% { transform: translateX(-50%) translateY(-6px); }
+  50%       { transform: translateX(-50%) translateY(-9px); }
 }
 
-/* Animate the thought circles appearing */
 .profile-pic-container:hover .change-pfp-btn::before {
-  opacity: 0.8;
-  animation: thoughtCirclesAppear 0.6s ease-out 0.2s both;
+  opacity: 1;
+  animation: dotsAppear 0.3s ease 0.15s both;
 }
 
-@keyframes thoughtCirclesAppear {
-  0% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
+@keyframes dotsAppear {
+  from { opacity: 0; transform: scale(0); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* Hover effect on the button itself */
 .change-pfp-btn:hover {
-  background: linear-gradient(135deg, #6b82ff, #7c93ff);
-  transform: translateX(-50%) translateY(-10px) scale(1.05);
-  box-shadow: 
-    0 6px 20px rgba(82, 113, 255, 0.4),
-    0 3px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(82, 113, 255, 0.18);
+  border-color: rgba(82, 113, 255, 0.65);
+  color: white;
+  transform: translateX(-50%) translateY(-8px) scale(1.04);
 }
 
-/* PFP Selector Overlay */
+/* ── PFP Selector Overlay ── */
 .pfp-selector-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
   z-index: 2000;
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  padding: 20px; 
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  animation: qFadeIn 0.3s ease;
 }
 
-/* PFP Selector Panel - slides in from right */
+/* Panel */
 .pfp-selector-panel {
-  background: linear-gradient(135deg, rgba(11, 25, 43, 0.95), rgba(24, 45, 78, 0.95));
-  border-radius: 15px;
-  max-width: 400px;
+  background: linear-gradient(160deg, rgba(7, 16, 32, 0.99), rgba(12, 28, 54, 0.99));
+  border: 1px solid rgba(82, 113, 255, 0.22);
+  border-radius: 20px;
+  max-width: 420px;
   width: 100%;
-  max-height: 80vh;
+  max-height: 82vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px); 
+  box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+  animation: qSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(82,113,255,0.3) transparent;
 }
 
-/* PFP Selector Header */
+/* Header */
 .pfp-selector-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 20px 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  background: rgba(7,16,32,0.97);
+  backdrop-filter: blur(12px);
+  z-index: 1;
 }
 
-.pfp-selector-header h3 {
-  color: white;
-  margin: 0;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 24px;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
+.pfp-header-left {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
+  gap: 10px;
 }
 
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+.pfp-hud-logo {
+  font-family: bitF1, sans-serif;
+  font-size: 14px;
+  color: #5271ff;
+  letter-spacing: 2.5px;
+  text-shadow: 0 0 14px rgba(82,113,255,0.6);
 }
 
-/* PFP Grid */
+.pfp-hud-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(82,113,255,0.5);
+  text-transform: uppercase;
+  border: 1px solid rgba(82,113,255,0.18);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.pfp-close-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.28);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.pfp-close-btn:hover { color: rgba(255,255,255,0.65); }
+
+/* Grid */
 .pfp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 12px;
   padding: 20px;
 }
 
-/* PFP Item */
+/* Item */
 .pfp-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 10px;
-  border-radius: 10px;
-  border: 2px solid transparent;
+  transition: all 0.2s ease;
+  padding: 10px 8px;
+  border-radius: 14px;
+  border: 1px solid transparent;
 }
 
 .pfp-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(82,113,255,0.06);
+  border-color: rgba(82,113,255,0.25);
   transform: translateY(-2px);
 }
 
 .pfp-item.selected {
-  border-color: #5271ff;
-  background: rgba(82, 113, 255, 0.1);
+  background: rgba(82,113,255,0.1);
+  border-color: rgba(82,113,255,0.55);
+  box-shadow: 0 0 16px rgba(82,113,255,0.12);
 }
 
-.pfp-item.unlocked:hover {
-  border-color: rgba(82, 113, 255, 0.5);
-}
+.pfp-item.locked { opacity: 0.75; }
 
-/* PFP Image Container */
+/* Image container */
 .pfp-image-container {
   position: relative;
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   overflow: hidden;
   margin-bottom: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255,255,255,0.1);
+  transition: border-color 0.2s ease;
 }
 
-.pfp-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.pfp-item:hover .pfp-image-container { border-color: rgba(82,113,255,0.4); }
+.pfp-item.selected .pfp-image-container { border-color: #5271ff; box-shadow: 0 0 10px rgba(82,113,255,0.4); }
 
-/* Premium Overlay for PFPs */
+.pfp-image { width: 100%; height: 100%; object-fit: cover; }
+
+/* Premium overlay */
 .pfp-premium-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
+  background: rgba(0,0,0,0.72);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
 }
 
-.pfp-premium-overlay .lock-icon {
-  font-size: 16px;
-  color: #ffd700;
-}
+.pfp-lock-icon { font-size: 14px; }
 
 .pfp-cost {
   display: flex;
   align-items: center;
   gap: 3px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 2px 6px;
-  border-radius: 10px;
+  background: rgba(0,0,0,0.8);
+  padding: 2px 5px;
+  border-radius: 8px;
 }
 
-.gold-icon-small {
-  width: 12px;
-  height: 12px;
-}
+.gold-icon-small { width: 11px; height: 11px; }
 
 .pfp-cost span {
   color: #ffd700;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: bold;
 }
 
-/* Selected Indicator */
-.selected-indicator {
+/* Selected ring */
+.pfp-selected-ring {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #5271ff;
-  color: white;
+  inset: -3px;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
+  border: 2px solid #5271ff;
+  box-shadow: 0 0 10px rgba(82,113,255,0.5);
+  pointer-events: none;
 }
 
-/* Animated Badge */
-.animated-badge {
+/* GIF badge */
+.pfp-animated-badge {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
-  background: #ff6b35;
+  bottom: -4px;
+  right: -4px;
+  background: rgba(82,113,255,0.9);
   color: white;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: bold;
   padding: 2px 4px;
-  border-radius: 6px;
-  text-transform: uppercase;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
 }
 
-/* PFP Name */
+/* Name */
 .pfp-name {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  font-size: 10px;
   text-align: center;
-  font-weight: 500;
   max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .pfp-item.selected .pfp-name {
-  color: #5271ff;
-  font-weight: bold;
+  color: rgba(82,113,255,0.9);
 }
 
-/* Responsive adjustments for thought bubble */
+/* Responsive */
 @media (max-width: 600px) {
-  .pfp-selector-panel {
-    max-width: 350px;
-    margin-top: 10px;
-  }
-  
-  .pfp-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-    padding: 15px;
-  }
-  
-  .pfp-image-container {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .change-pfp-btn {
-    font-size: 10px;
-    padding: 8px 12px;
-    border-radius: 16px;
-    top: 46px;
-  }
-  
-  .change-pfp-btn::before {
-    width: 3px;
+  .pfp-selector-panel { max-width: 360px; }
+  .pfp-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; padding: 16px; }
+  .pfp-image-container { width: 54px; height: 54px; }
+  .change-pfp-btn { top: 42px; font-size: 12px; }
+  .change-pfp-btn::before { width: 3px;
     height: 3px;
     top: -10px;
     box-shadow: 

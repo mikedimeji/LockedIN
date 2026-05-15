@@ -30,6 +30,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private intervalId: any;
   isRunning: boolean = false;
   isExpanded: boolean = false;
+  timerOpacity: 0 | 1 | 2 = 0; // 0 = opaque, 1 = glass, 2 = ghost
   
   // Gold and streak tracking
   initialMinutes: number = 25;
@@ -534,6 +535,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     return "";
   }
   
+  cycleOpacity(): void {
+    this.timerOpacity = ((this.timerOpacity + 1) % 3) as 0 | 1 | 2;
+  }
+
   handleTimeClick(): void {
     if (this.isRunning) {
       this.showPauseConfirm = true;

@@ -6,10 +6,13 @@
   (onSkip)="onTutorialSkip()">
 </app-tutorial-modal>
 
-<div class="timer" [ngClass]="{'expanded': isExpanded}">
+<div class="timer" [ngClass]="{'expanded': isExpanded, 'opacity-glass': timerOpacity === 1, 'opacity-ghost': timerOpacity === 2}">
 
   <!-- ── Collapsed card ── -->
   <ng-container *ngIf="!isExpanded">
+    <button class="timer-opacity-btn" (click)="cycleOpacity()" [title]="timerOpacity === 0 ? 'Make transparent' : timerOpacity === 1 ? 'Go ghost' : 'Make opaque'">
+      {{ timerOpacity === 0 ? '◐' : timerOpacity === 1 ? '○' : '●' }}
+    </button>
     <div class="timer-session-label">FOCUS SESSION</div>
 
     <div class="time-display"

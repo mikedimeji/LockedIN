@@ -1,5 +1,6 @@
 /* ── Collapsed card ── */
 .timer {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -16,6 +17,48 @@
     inset 0 1px 0 rgba(255,255,255,0.05);
   font-family: bitF1, sans-serif;
   transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Transparency states */
+.timer.opacity-glass {
+  background: rgba(8, 18, 34, 0.35);
+  border-color: rgba(82, 113, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.timer.opacity-ghost {
+  background: rgba(8, 18, 34, 0.08);
+  border-color: rgba(82, 113, 255, 0.07);
+  box-shadow: none;
+  backdrop-filter: blur(2px);
+}
+
+.timer.opacity-ghost .timer-session-label,
+.timer.opacity-ghost .t-sep,
+.timer.opacity-ghost .time-input {
+  opacity: 0.45;
+}
+
+/* Opacity toggle button */
+.timer-opacity-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.3);
+  font-size: 13px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+}
+
+.timer-opacity-btn:hover {
+  color: rgba(255,255,255,0.7);
+  border-color: rgba(82,113,255,0.45);
+  background: rgba(82,113,255,0.08);
 }
 
 /* Session label */
