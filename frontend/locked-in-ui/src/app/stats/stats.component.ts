@@ -120,7 +120,7 @@ export class StatsComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.initActivityChart();
         this.initStreakChart();
-      }, 50);
+      }, 150);
     } else if (s === 'overview') {
       setTimeout(() => this.initTrendChart(), 50);
     }
