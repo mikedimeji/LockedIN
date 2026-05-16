@@ -1,58 +1,49 @@
-<!-- Update ambience.component.html -->
-<div class="ambience-wrapper">
-  <div class="ambience-container" (click)="$event.stopPropagation()">
-    <div class="shimmer-1"></div>
-    <div class="shimmer-2"></div>
-    
-    <!-- Tab Navigation -->
-    <div class="ambience-tabs">
-      <div class="tab-button" 
-           [class.active]="activeTab === 'sounds'"
-           (click)="setActiveTab('sounds')">
-        Sounds
-      </div>
-      <div class="tab-button" 
-           [class.active]="activeTab === 'animations'"
-           (click)="setActiveTab('animations')">
-        Animations
-      </div>
+<div class="amb-panel" (click)="$event.stopPropagation()">
+
+  <!-- Header -->
+  <div class="amb-header">
+    <div class="amb-hud-left">
+      <span class="amb-logo">LOCKED IN</span>
+      <span class="amb-sep">·</span>
+      <span class="amb-tag">AMBIENCE</span>
     </div>
-    
-    <!-- Content Area -->
-    <div class="ambience-content">
-      <!-- Add warning message when effects are disabled -->
-      <div *ngIf="warningMessage" class="warning-message">
-        {{ warningMessage }}
-      </div>
-      
-      <!-- Animations Tab Content -->
-      <div class="tab-content" *ngIf="activeTab === 'animations'">
-        <h2 class="content-title">Animations</h2>
-        
-        <div class="effects-list">
-          <div class="effect-item" *ngFor="let effect of effects" [class.disabled]="isEffectsDisabled">
-            <div class="effect-info">
-              <span class="effect-icon">{{ effect.icon }}</span>
-              <span class="effect-name">{{ effect.name }}</span>
-            </div>
-            <label class="toggle" [class.disabled]="isEffectsDisabled">
-              <input type="checkbox" 
-                     [checked]="effect.enabled" 
-                     (change)="toggleEffect(effect.id)"
-                     [disabled]="isEffectsDisabled">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <button class="reset-button" (click)="resetAll()" [disabled]="isEffectsDisabled">Reset All</button>
-      </div>
-      
-      <!-- Sounds Tab Content (placeholder) -->
-      <div class="tab-content" *ngIf="activeTab === 'sounds'">
-        <h2 class="content-title">Sounds</h2>
-        <p class="coming-soon">Sound effects coming soon!</p>
-      </div>
-    </div>
+    <button class="amb-close" (click)="close()">✕</button>
   </div>
+
+  <!-- Tab nav -->
+  <div class="amb-tabs">
+    <button class="amb-tab" [class.active]="activeTab === 'animations'" (click)="setActiveTab('animations')">ANIMATIONS</button>
+    <button class="amb-tab" [class.active]="activeTab === 'sounds'" (click)="setActiveTab('sounds')">SOUNDS</button>
+  </div>
+
+  <!-- Live theme warning -->
+  <div class="amb-warning" *ngIf="warningMessage">
+    <span class="amb-warn-icon">⚠</span> {{ warningMessage }}
+  </div>
+
+  <!-- Animations tab -->
+  <div class="amb-content" *ngIf="activeTab === 'animations'">
+    <div
+      class="amb-card"
+      *ngFor="let effect of effects"
+      [class.on]="effect.enabled"
+      [class.disabled]="isEffectsDisabled"
+      (click)="toggleEffect(effect.id)">
+      <div class="amb-card-icon">{{ effect.icon }}</div>
+      <div class="amb-card-body">
+        <div class="amb-card-name">{{ effect.name }}</div>
+        <div class="amb-card-desc">{{ effect.description }}</div>
+      </div>
+      <div class="amb-pill" [class.on]="effect.enabled">{{ effect.enabled ? 'ON' : 'OFF' }}</div>
+    </div>
+
+    <button class="amb-reset" (click)="resetAll()" [disabled]="isEffectsDisabled">RESET ALL</button>
+  </div>
+
+  <!-- Sounds tab -->
+  <div class="amb-content amb-soon" *ngIf="activeTab === 'sounds'">
+    <div class="amb-soon-icon">🎵</div>
+    <div class="amb-soon-text">Sound effects coming soon</div>
+  </div>
+
 </div>

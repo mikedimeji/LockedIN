@@ -1,339 +1,230 @@
-/* Main Container Styling */
-.ambience-wrapper {
+/* ── Panel shell ─────────────────────────────────────────────────────────── */
+.amb-panel {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  bottom: 90px;
+  right: 20px;
+  width: 320px;
+  background: rgba(6, 6, 18, 0.88);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(82, 113, 255, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 0 32px rgba(82, 113, 255, 0.12), 0 8px 40px rgba(0,0,0,0.6);
+  overflow: hidden;
+  z-index: 301;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.amb-header {
   display: flex;
-  justify-content: flex-end; /* Changed from center to flex-end */
-  align-items: flex-end; /* Changed from center to flex-end */
-  z-index: 300;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(82, 113, 255, 0.18);
+}
+
+.amb-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.amb-logo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+
+.amb-sep {
+  color: rgba(255,255,255,0.2);
+  font-size: 12px;
+}
+
+.amb-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #5271ff;
+  text-transform: uppercase;
+}
+
+.amb-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.amb-close:hover {
+  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.07);
+}
+
+/* ── Tab nav ─────────────────────────────────────────────────────────────── */
+.amb-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(82, 113, 255, 0.15);
+}
+
+.amb-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: color 0.2s;
+  border-bottom: 2px solid transparent;
+}
+.amb-tab:hover { color: rgba(255,255,255,0.65); }
+.amb-tab.active {
+  color: #5271ff;
+  border-bottom-color: #5271ff;
+}
+
+/* ── Warning ─────────────────────────────────────────────────────────────── */
+.amb-warning {
+  margin: 12px 14px 0;
+  padding: 9px 12px;
+  background: rgba(255, 90, 90, 0.1);
+  border-left: 3px solid rgba(255, 90, 90, 0.5);
+  border-radius: 6px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.75);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.amb-warn-icon { font-size: 13px; }
+
+/* ── Content area ────────────────────────────────────────────────────────── */
+.amb-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Effect cards ────────────────────────────────────────────────────────── */
+.amb-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+.amb-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(82, 113, 255, 0.3);
+}
+.amb-card.on {
+  background: rgba(82, 113, 255, 0.1);
+  border-color: rgba(82, 113, 255, 0.45);
+  box-shadow: 0 0 14px rgba(82, 113, 255, 0.12);
+}
+.amb-card.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
   pointer-events: none;
 }
 
-/* Update rain style to be white instead of blue */
-#rain-container div {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 0 2px rgba(255, 255, 255, 0.5) !important;
-  opacity: 0.8 !important;
-}
-
-/* Make the container smaller - reducing max-width and adjusting margins */
-.ambience-container {
-  width: 80%;
-  max-width: 300px; /* Reduced from 400px */
-  background-color: rgba(0, 0, 0, 0.8);
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  position: relative;
-  border: 2px solid #3b5bd9;
-  z-index: 301;
-  pointer-events: auto;
-  margin: 0 20px 100px 0; /* Keep bottom margin for nav bar clearance */
-}
-
-/* Close button */
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: white;
-  font-size: 20px;
+.amb-card-icon {
+  font-size: 22px;
   line-height: 1;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
-.close-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
-}
-
-/* Shimmering effect */
-.ambience-container::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 15px;
-  border: 2px solid #5271ff;
-  box-shadow: 0 0 10px rgba(82, 113, 255, 0.6);
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none; /* Important: let clicks pass through */
-}
-
-/* First shimmer layer */
-.shimmer-1,
-.shimmer-2 {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  pointer-events: none; /* Important: let clicks pass through */
-}
-
-.shimmer-1::after {
-  content: '';
-  position: absolute;
-  top: -150%;
-  left: -150%;
-  height: 400%;
-  width: 400%;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 20%,
-    rgba(82, 113, 255, 0.3) 25%, 
-    rgba(255, 255, 255, 0.1) 30%,
-    rgba(255, 255, 255, 0) 35%
-  );
-  transform: rotate(70deg);
-  animation: shimmer 12s infinite linear;
-  pointer-events: none; /* Important: let clicks pass through */
-}
-
-.shimmer-2::after {
-  content: '';
-  position: absolute;
-  top: -150%;
-  left: -150%;
-  height: 400%;
-  width: 400%;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(82, 113, 255, 0.2) 45%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 55%
-  );
-  transform: rotate(130deg);
-  animation: shimmer 15s infinite linear;
-  pointer-events: none; /* Important: let clicks pass through */
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-50%) translateY(-50%) rotate(0deg);
-  }
-  100% {
-    transform: translateX(-50%) translateY(-50%) rotate(360deg);
-  }
-}
-
-/* Tab Navigation */
-.ambience-tabs {
-  display: flex;
-  border-bottom: 1px solid rgba(82, 113, 255, 0.3);
-  padding-top: 10px;
-}
-
-.tab-button {
+.amb-card-body {
   flex: 1;
-  text-align: center;
-  padding: 10px 0;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  min-width: 0;
+}
+.amb-card-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.88);
   letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.amb-card-desc {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.3px;
 }
 
-.tab-button:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background-color: rgba(82, 113, 255, 0.1);
-}
-
-.tab-button.active {
-  color: #5271ff;
-  box-shadow: inset 0 -2px 0 #5271ff;
-  background-color: rgba(82, 113, 255, 0.1);
-}
-
-/* Make the content area more compact */
-.ambience-content {
-  padding: 15px; /* Reduced from 20px */
-}
-
-.content-title {
-  font-size: 20px;
-  color: #5271ff;
-  margin-bottom: 20px;
-  text-align: center;
-  text-shadow: 0 0 10px rgba(82, 113, 255, 0.5);
-}
-
-.effects-list {
-  margin-bottom: 20px;
-}
-
-.effect-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-radius: 10px;
-  background-color: rgba(255, 255, 255, 0.05);
-  margin-bottom: 8px;
-  transition: background-color 0.3s ease;
-}
-
-.effect-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.effect-info {
-  display: flex;
-  align-items: center;
-}
-
-.effect-icon {
-  font-size: 20px;
-  margin-right: 10px;
-}
-
-.effect-name {
-  color: white;
-  font-size: 16px;
-}
-
-/* Toggle Switch */
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.2);
-  transition: .4s;
-  border-radius: 24px;
-}
-
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .toggle-slider {
-  background-color: #5271ff;
-}
-
-input:focus + .toggle-slider {
-  box-shadow: 0 0 1px #5271ff;
-}
-
-input:checked + .toggle-slider:before {
-  transform: translateX(26px);
-}
-
-/* Reset Button */
-.reset-button {
-  display: block;
-  margin: 20px auto 0;
-  padding: 10px 20px;
-  background-color: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.7);
+/* ── ON/OFF pill ─────────────────────────────────────────────────────────── */
+.amb-pill {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 4px 9px;
   border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.amb-pill.on {
+  background: rgba(82, 113, 255, 0.25);
+  color: #7b96ff;
+  border-color: rgba(82, 113, 255, 0.5);
+}
+
+/* ── Reset button ────────────────────────────────────────────────────────── */
+.amb-reset {
+  margin-top: 4px;
+  padding: 9px 0;
+  width: 100%;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.35);
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
+  transition: all 0.2s;
+}
+.amb-reset:hover {
+  border-color: rgba(82, 113, 255, 0.5);
+  color: rgba(255,255,255,0.7);
+  background: rgba(82, 113, 255, 0.08);
+}
+.amb-reset:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
-.reset-button:hover {
-  background-color: rgba(82, 113, 255, 0.2);
-  border-color: #5271ff;
-  color: white;
+/* ── Coming soon ─────────────────────────────────────────────────────────── */
+.amb-soon {
+  align-items: center;
+  justify-content: center;
+  padding: 36px 14px;
+  gap: 10px;
 }
-
-/* Coming Soon Message */
-.coming-soon {
-  text-align: center;
-  padding: 20px;
-  color: rgba(255, 255, 255, 0.6);
-  font-style: italic;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .ambience-container {
-    width: 95%;
-    max-width: 350px;
-  }
-  
-  .effect-icon {
-    font-size: 18px;
-  }
-  
-  .effect-name {
-    font-size: 14px;
-  }
-}
-
-
-/* Warning message styling */
-.warning-message {
-  background-color: rgba(255, 100, 100, 0.15);
-  border-left: 3px solid rgba(255, 100, 100, 0.5);
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
-  text-align: center;
-}
-
-/* Disabled effect item styling */
-.effect-item.disabled {
+.amb-soon-icon {
+  font-size: 28px;
   opacity: 0.5;
-  cursor: not-allowed;
 }
-
-/* Disabled toggle styling */
-.toggle.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.toggle input:disabled + .toggle-slider {
-  background-color: rgba(255, 255, 255, 0.1);
-  cursor: not-allowed;
-}
-
-.reset-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.amb-soon-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.5px;
 }
