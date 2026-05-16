@@ -70,6 +70,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   private audio: HTMLAudioElement | null = null;
   private completeAudio: HTMLAudioElement | null = null;
   private subscriptions: Subscription[] = [];
+  private wakeLock: WakeLockSentinel | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -112,15 +113,40 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
-    
+
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
 
     if (isPlatformBrowser(this.platformId)) {
       this.renderer.removeClass(document.body, 'timer-fullscreen-active');
+      document.removeEventListener('visibilitychange', this.onVisibilityChange);
     }
+
+    this.releaseWakeLock();
   }
+
+  private async acquireWakeLock(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId) || !('wakeLock' in navigator)) return;
+    try {
+      this.wakeLock = await (navigator as any).wakeLock.request('screen');
+      document.addEventListener('visibilitychange', this.onVisibilityChange);
+    } catch {}
+  }
+
+  private releaseWakeLock(): void {
+    if (this.wakeLock) {
+      this.wakeLock.release().catch(() => {});
+      this.wakeLock = null;
+    }
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  private onVisibilityChange = (): void => {
+    if (document.visibilityState === 'visible' && this.isRunning) {
+      this.acquireWakeLock();
+    }
+  };
 
   onTutorialComplete(dontShowAgain: boolean): void {
     if (dontShowAgain) {
@@ -178,6 +204,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.isRunning = true;
       this.isExpanded = true;
       document.body.classList.add('timer-running');
+      this.acquireWakeLock();
 
       if (isPlatformBrowser(this.platformId)) {
         const elementsToHide = [
@@ -294,6 +321,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isExpanded = false;
     this.showCompletionScreen = false;
     document.body.classList.remove('timer-running');
+    this.releaseWakeLock();
 
     if (this.intervalId) {
       clearInterval(this.intervalId);
