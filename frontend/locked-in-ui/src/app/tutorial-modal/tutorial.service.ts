@@ -122,34 +122,36 @@ export class TutorialService {
         {
           title: 'Track Your Progress',
           description: 'View detailed statistics about your productivity, streaks, and achievements.',
-          image: 'assets/tutorial/stats-overview.png'
+          image: 'assets/images/tutorial/stats-circle.png'
         },
         {
-          title: 'Streak System',
-          description: 'Maintain daily streaks by completing at least one pomodoro session each day. Watch your longest streak grow!',
-          image: 'assets/tutorial/stats-streak.png'
+          title: 'Focus Patterns',
+          description: 'See when you study most and identify your peak productivity windows with focus pattern breakdowns.',
+          image: 'assets/images/tutorial/stats-focuspattern.png'
         },
         {
-          title: 'Gold Earnings',
-          description: 'See how much gold you\'ve earned and what you\'ve spent it on. Every completed session adds to your total.',
-          image: 'assets/tutorial/stats-gold.png'
+          title: 'Gold & Rewards',
+          description: 'Every completed session earns gold. Track your earnings and spending across your whole journey.',
+          image: 'assets/images/tutorial/stats-rewards.png'
         },
         {
-          title: 'Achievements',
-          description: 'Unlock achievements as you hit milestones. Can you collect them all?',
-          image: 'assets/tutorial/stats-achievements.png'
+          title: 'Session History',
+          description: 'Review your session history over time with detailed graphs. Stay consistent and watch the numbers climb.',
+          image: 'assets/images/tutorial/stats-graph.png'
         }
       ],
       spotify: [
         {
-          title: 'Music While You Work',
-          description: 'Connect your Spotify account to play music during your focus sessions.',
-          image: 'assets/tutorial/spotify-connect.png'
+          title: 'Connect Spotify',
+          description: 'Click the Music icon in the nav bar, then hit "Connect Spotify". You\'ll be redirected to log in with your Spotify account — free or premium both work.'
         },
         {
           title: 'Control Playback',
-          description: 'Control your music without leaving the app. Play, pause, skip tracks, and adjust volume right here.',
-          image: 'assets/tutorial/spotify-controls.png'
+          description: 'Once connected, use the player to play, pause, and skip tracks without leaving the app. Your currently playing track shows in real time.'
+        },
+        {
+          title: 'Pick a Playlist',
+          description: 'Browse and select any of your Spotify playlists directly from the player panel. Queue up your study playlist and get locked in.'
         }
       ],
       profile: [
