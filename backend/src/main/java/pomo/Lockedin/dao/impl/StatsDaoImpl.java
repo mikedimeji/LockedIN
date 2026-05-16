@@ -227,14 +227,15 @@ public class StatsDaoImpl implements StatsDao {
     @Override
     public List<AchievementDTO> getUserAchievements(Long userId) {
         try {
-            String sql = "SELECT id, name, achieved_date, description FROM achievements " +
-                    "WHERE user_id = ? ORDER BY achieved_date DESC";
+            String sql = "SELECT id, name, achieved_date, description, COALESCE(gold_reward, 0) AS gold_reward " +
+                    "FROM achievements WHERE user_id = ? ORDER BY achieved_date DESC";
 
             return jdbcTemplate.query(sql, (rs, rowNum) -> AchievementDTO.builder()
                     .id(rs.getLong("id"))
                     .name(rs.getString("name"))
                     .date(rs.getDate("achieved_date").toLocalDate().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")))
                     .description(rs.getString("description"))
+                    .goldReward(rs.getInt("gold_reward"))
                     .build(), userId);
         } catch (Exception e) {
             log.error("Error retrieving achievements for user ID {}: {}", userId, e.getMessage());

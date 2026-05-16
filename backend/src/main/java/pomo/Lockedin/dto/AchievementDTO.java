@@ -14,4 +14,5 @@ public class AchievementDTO {
     private String name;
     private String date; // Formatted date string
     private String description;
+    private int goldReward;
 }

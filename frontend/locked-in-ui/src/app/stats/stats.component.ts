@@ -21,6 +21,7 @@ interface Achievement {
   name: string;
   date: string;
   description: string;
+  goldReward: number;
 }
 
 type Section = 'overview' | 'focus' | 'activity' | 'achievements';

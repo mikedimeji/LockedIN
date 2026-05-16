@@ -306,7 +306,10 @@
                 <div class="achievement-desc">{{ a.description }}</div>
               </div>
             </div>
-            <span class="achievement-date">{{ a.date }}</span>
+            <div class="achievement-right">
+              <span *ngIf="a.goldReward > 0" class="achievement-gold">+{{ a.goldReward }} ◆</span>
+              <span class="achievement-date">{{ a.date }}</span>
+            </div>
           </div>
         </div>
       </div>

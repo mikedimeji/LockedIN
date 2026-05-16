@@ -10,6 +10,7 @@ import pomo.Lockedin.dto.GoldOperationDTO;
 import pomo.Lockedin.dto.PomodoroCompletionDTO;
 import pomo.Lockedin.dto.StreakDTO;
 import pomo.Lockedin.entities.User;
+import pomo.Lockedin.service.AchievementService;
 import pomo.Lockedin.service.GoldService;
 import pomo.Lockedin.service.StreakService;
 
@@ -20,6 +21,7 @@ public class GoldController {
 
     private final GoldService goldService;
     private final StreakService streakService;
+    private final AchievementService achievementService;
 
     /**
      * Get current gold balance for the authenticated user
@@ -94,6 +96,8 @@ public class GoldController {
             int newBalance = goldService.awardGoldForPomodoros(userEmail, pomodoroCompletion.getPomodorosCompleted());
             int currentStreak = streakService.getCurrentStreak(userEmail);
             int longestStreak = streakService.getLongestStreak(userEmail);
+
+            achievementService.checkAndGrantAchievements(userEmail);
 
             return PomodoroRewardResponse.builder()
                     .currentGold(newBalance)
