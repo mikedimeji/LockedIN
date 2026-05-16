@@ -143,6 +143,37 @@ public class StatsController {
         return userProfileService.getInsights(userEmail);
     }
 
+    /**
+     * Get 28-day daily session trend
+     */
+    @GetMapping("/trend")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> getTrend(
+            @RequestParam(defaultValue = "28") int days) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return statsService.getTrend(user.getEmail(), days);
+    }
+
+    /**
+     * Get focus pattern heatmap (premium only)
+     */
+    @GetMapping("/heatmap")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> getHeatmap() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = user.getEmail();
+        if (!premiumService.isPremium(email)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Premium required");
+        }
+        int[][] grid = statsService.getHeatmap(email);
+        Map<String, Object> response = new HashMap<>();
+        response.put("grid", grid);
+        response.put("days", List.of("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"));
+        response.put("blocks", List.of("Night", "Morning", "Afternoon", "Evening"));
+        return response;
+    }
+
     // Helper methods
     private List<String> getDaysOfWeek() {
         return List.of("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");

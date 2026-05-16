@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -195,6 +196,31 @@ public class StatsDaoImpl implements StatsDao {
                         .build());
             }
             return history;
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getTrend(Long userId, int days) {
+        try {
+            String sql = "SELECT DATE(start_time) as day, COALESCE(SUM(pomodoros_completed), 0) as count " +
+                         "FROM pomodoro_sessions WHERE user_id = ? AND DATE(start_time) >= DATE_SUB(CURDATE(), INTERVAL ? DAY) " +
+                         "GROUP BY DATE(start_time) ORDER BY day";
+            return jdbcTemplate.queryForList(sql, userId, days);
+        } catch (Exception e) {
+            log.error("Error getting trend for user {}: {}", userId, e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getHeatmap(Long userId) {
+        try {
+            String sql = "SELECT DAYOFWEEK(start_time) as dow, HOUR(start_time) as hr, COUNT(*) as cnt " +
+                         "FROM pomodoro_sessions WHERE user_id = ? GROUP BY dow, hr";
+            return jdbcTemplate.queryForList(sql, userId);
+        } catch (Exception e) {
+            log.error("Error getting heatmap for user {}: {}", userId, e.getMessage());
+            return new ArrayList<>();
         }
     }
 

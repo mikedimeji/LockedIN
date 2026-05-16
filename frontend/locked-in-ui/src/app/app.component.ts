@@ -188,6 +188,7 @@ availablePfps = [
   isLoading: boolean = false;
 
   isPremium: boolean = false;
+  premiumPlan: string | null = null;
   showPremiumModal: boolean = false;
   premiumCheckingOut: boolean = false;
   showPremiumBanner: boolean = false;
@@ -281,6 +282,7 @@ private loadUserDataFromBackend(): void {
       this.premiumService.getStatus().subscribe({
         next: (status) => {
           this.isPremium = status.isPremium;
+          this.premiumPlan = status.plan ?? null;
           if (!status.isPremium && !localStorage.getItem('premiumBannerDismissed')) {
             this.showPremiumBanner = true;
           }

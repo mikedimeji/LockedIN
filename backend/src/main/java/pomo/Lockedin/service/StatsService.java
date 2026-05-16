@@ -9,8 +9,12 @@ import pomo.Lockedin.dao.StatsDao;
 import pomo.Lockedin.dto.AchievementDTO;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +82,61 @@ public class StatsService {
         }
 
         return statsDao.getStreakHistory(userId, days);
+    }
+
+    /**
+     * Get 28-day daily session counts for trend chart
+     */
+    public Map<String, Object> getTrend(String userEmail, int days) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) throw new RuntimeException("User not found: " + userEmail);
+
+        List<Map<String, Object>> rawData = statsDao.getTrend(userId, days);
+        Map<String, Integer> byDate = new HashMap<>();
+        for (Map<String, Object> row : rawData) {
+            String key = row.get("day").toString().substring(0, 10);
+            byDate.put(key, ((Number) row.get("count")).intValue());
+        }
+
+        LocalDate today = LocalDate.now();
+        List<String> labels = new ArrayList<>();
+        List<Integer> values = new ArrayList<>();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM/dd");
+        for (int i = days - 1; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            labels.add(date.format(fmt));
+            values.add(byDate.getOrDefault(date.toString(), 0));
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("labels", labels);
+        result.put("values", values);
+        return result;
+    }
+
+    /**
+     * Get session counts grouped into 4 time blocks × 7 days for heatmap
+     */
+    public int[][] getHeatmap(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) throw new RuntimeException("User not found: " + userEmail);
+
+        List<Map<String, Object>> rawData = statsDao.getHeatmap(userId);
+        int[][] grid = new int[4][7]; // [timeBlock 0-3][day Mon-Sun]
+
+        for (Map<String, Object> row : rawData) {
+            int dow = ((Number) row.get("dow")).intValue(); // MySQL: 1=Sun, 2=Mon...7=Sat
+            int hr  = ((Number) row.get("hr")).intValue();
+            int cnt = ((Number) row.get("cnt")).intValue();
+
+            int dayIndex = (dow == 1) ? 6 : dow - 2; // 0=Mon...6=Sun
+            int block = (hr >= 6 && hr < 12) ? 1 : (hr >= 12 && hr < 17) ? 2 : (hr >= 17 && hr < 22) ? 3 : 0;
+
+            if (dayIndex >= 0 && dayIndex < 7) {
+                grid[block][dayIndex] += cnt;
+            }
+        }
+        return grid;
     }
 
     /**

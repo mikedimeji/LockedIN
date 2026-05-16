@@ -6,13 +6,16 @@
   (onSkip)="onTutorialSkip()">
 </app-tutorial-modal>
 
-
 <div class="planner-container">
-  
+
+  <!-- Inline status message -->
+  <div *ngIf="statusMsg" class="status-bar" [class.status-error]="statusType === 'error'">
+    {{ statusMsg }}
+  </div>
+
   <div class="topic-display">
     <!-- Down Arrow (only in Create Topic view) -->
     <button class="nav-arrow down-arrow" (click)="toggleScreen('down')" *ngIf="!isCarousel && !showForm && topicExists()">
-      <!-- No img needed - CSS handles the arrow -->
     </button>
 
     <!-- Create Topic Card -->
@@ -21,28 +24,26 @@
         <p>+ Create New Topic</p>
       </div>
     </div>
-    
+
     <!-- Topic Card with Navigation -->
     <div class="topic-carousel-container" *ngIf="isCarousel && !showForm">
       <!-- Up Arrow -->
       <button class="nav-arrow up-arrow" (click)="toggleScreen('up')">
-        <!-- No img needed - CSS handles the arrow -->
       </button>
 
       <!-- Left Arrow -->
       <button class="nav-arrow left-arrow" (click)="prevTopic()" [hidden]="currentTopicIndex === 0">
-        <!-- No img needed - CSS handles the arrow -->
       </button>
 
       <!-- Topic Card -->
       <div class="topic-card">
         <h3 class="topic-title">{{ topics[currentTopicIndex].title }}</h3>
         <p class="topic-description">{{ topics[currentTopicIndex].description }}</p>
-        <span class="pomodoro-count">Pomodoro Count: {{ topics[currentTopicIndex].pomodoroNumber }}</span>
-        
-        <div class="start-icon" (click)="startTimer(topics[currentTopicIndex].pomodoroNumber)">
-          <img src="assets/images/start_icon2.png" alt="Start Timer" />
-        </div>
+        <span class="pomodoro-count">◆ {{ topics[currentTopicIndex].pomodoroNumber }}x 25 min</span>
+
+        <div class="topic-counter">{{ currentTopicIndex + 1 }} / {{ topics.length }}</div>
+
+        <div class="start-icon" (click)="startTimer(topics[currentTopicIndex].pomodoroNumber)"></div>
 
         <button class="delete-button" (click)="confirmDelete(topics[currentTopicIndex].revisionTopicId)">
           Delete
@@ -51,66 +52,63 @@
 
       <!-- Right Arrow -->
       <button class="nav-arrow right-arrow" (click)="nextTopic()" [hidden]="currentTopicIndex === topics.length - 1">
-        <!-- No img needed - CSS handles the arrow -->
       </button>
     </div>
   </div>
 
-  <!-- Modal Form -->
-  <div class="modal" *ngIf="showForm">
-    <div class="modal-content">
-      <h2>Create a New Topic</h2>
-      <form (ngSubmit)="createTopic()">
-        <input
-          type="text"
-          class="input-field"
-          placeholder="Topic Title"
-          [(ngModel)]="newTopic.title"
-          name="title"
-          required
-        />
-        <textarea
-          class="input-field"
-          placeholder="Description"
-          [(ngModel)]="newTopic.description"
-          name="description"
-          rows="4"
-          required
-        ></textarea>
-        <input
-          type="number"
-          class="input-field"
-          placeholder="Pomodoro Count"
-          [(ngModel)]="newTopic.pomodoroNumber"
-          name="pomodoroNumber"
-          min="1"
-          required
-        />
-        <div class="button-container">
-          <button type="submit" class="retro-btn">Save</button>
-          <button type="button" class="retro-btn close-btn" (click)="toggleForm()">Cancel</button>
-        </div>
-      </form>
-    </div>    
-  </div>
-  
-  <!-- Delete Confirmation Dialog -->
-  <div class="modal" *ngIf="confirmingDelete">
-    <div class="confirm-dialog">
-      <h3>Confirm Delete</h3>
-      <p>Are you sure you want to delete this topic?</p>
-      <div class="button-container">
-        <button class="retro-btn" (click)="deleteTopic(topicToDelete!)" *ngIf="topicToDelete !== null">Yes, Delete</button>
-        <button class="retro-btn close-btn" (click)="cancelDelete()">Cancel</button>
-      </div>
+</div>
+
+<!-- Modal Form -->
+<div class="modal" *ngIf="showForm">
+  <div class="modal-content">
+    <div class="modal-header-row">
+      <h2>NEW TOPIC</h2>
+      <button class="modal-x" (click)="toggleForm()">✕</button>
     </div>
+    <form (ngSubmit)="createTopic()">
+      <label class="field-label">TITLE</label>
+      <input
+        type="text"
+        class="input-field"
+        placeholder="e.g. Calculus Integration"
+        [(ngModel)]="newTopic.title"
+        name="title"
+        required
+      />
+      <label class="field-label">DESCRIPTION</label>
+      <textarea
+        class="input-field"
+        placeholder="What will you focus on?"
+        [(ngModel)]="newTopic.description"
+        name="description"
+        rows="3"
+        required
+      ></textarea>
+      <label class="field-label">SESSIONS (25 min each)</label>
+      <input
+        type="number"
+        class="input-field"
+        [(ngModel)]="newTopic.pomodoroNumber"
+        name="pomodoroNumber"
+        min="1"
+        required
+      />
+      <div class="button-container">
+        <button type="submit" class="retro-btn">SAVE</button>
+        <button type="button" class="retro-btn close-btn" (click)="toggleForm()">CANCEL</button>
+      </div>
+    </form>
   </div>
 </div>
 
-
-
-
-
-
-
-  
+<!-- Delete Confirmation Dialog -->
+<div class="modal" *ngIf="confirmingDelete">
+  <div class="confirm-dialog">
+    <h3>CONFIRM DELETE</h3>
+    <p>This topic will be permanently removed.</p>
+    <div class="button-container">
+      <button class="retro-btn retro-btn-danger" (click)="deleteTopic(topicToDelete!)" *ngIf="topicToDelete !== null">DELETE</button>
+      <button class="retro-btn close-btn" (click)="cancelDelete()">CANCEL</button>
+    </div>
+  </div>
+</div>

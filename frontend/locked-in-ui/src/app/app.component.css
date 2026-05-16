@@ -208,31 +208,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-/* Background video */
+/* Background video — fixed so it stays while routed content scrolls */
 .background-video {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensure video covers entire container */
-  z-index: -1; /* Place video behind other content */
+  object-fit: cover;
+  z-index: -1;
 }
 
 /* Background image */
 .background-image {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-size: cover; /* Ensure image covers entire container */
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  z-index: -1; /* Place image behind other content */
+  z-index: -1;
 }
 
 .spotify-player {
@@ -592,7 +593,7 @@
 
 /* GIF background styling */
 .gif-background {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -1374,6 +1375,29 @@ body.timer-fullscreen-active .hero {
   color: rgba(255,255,255,0.25);
   letter-spacing: 0.5px;
   margin: 0;
+}
+
+/* ── Premium: best-plan confirmation ── */
+.pm-best-message {
+  text-align: center;
+  padding: 10px 0 8px;
+}
+
+.pm-best-checkmark {
+  font-size: 16px;
+  color: #ffd700;
+  letter-spacing: 6px;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 0 8px rgba(255,215,0,0.5));
+}
+
+.pm-best-text {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.5px;
+  line-height: 1.7;
+  margin: 0 0 20px;
 }
 
 

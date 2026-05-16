@@ -27,80 +27,142 @@
       </div>
     </div>
 
-    <!-- Summary Row -->
-    <div class="summary-row">
-      <div class="metric-card">
-        <span class="metric-value">{{ summary.currentGold }}</span>
-        <span class="metric-label">GOLD</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-value">{{ summary.totalPomodoros }}</span>
-        <span class="metric-label">SESSIONS</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-value">{{ summary.currentStreak }}</span>
-        <span class="metric-label">STREAK</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-value">{{ totalHoursDisplay() }}</span>
-        <span class="metric-label">HOURS</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-value">{{ summary.longestStreak }}</span>
-        <span class="metric-label">BEST STREAK</span>
-      </div>
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn" [class.active]="activeSection === 'overview'"     (click)="setSection('overview')">OVERVIEW</button>
+      <button class="tab-btn" [class.active]="activeSection === 'focus'"        (click)="setSection('focus')">FOCUS</button>
+      <button class="tab-btn" [class.active]="activeSection === 'activity'"     (click)="setSection('activity')">ACTIVITY</button>
+      <button class="tab-btn" [class.active]="activeSection === 'achievements'" (click)="setSection('achievements')">AWARDS</button>
     </div>
 
-    <!-- ── PREMIUM GATE ── -->
-    <div *ngIf="!premium.isPremium" class="premium-gate">
-      <div class="gate-glow"></div>
-      <div class="gate-icon">◆</div>
-      <h2 class="gate-title">LOCKED IN PREMIUM</h2>
-      <p class="gate-desc">
-        Unlock your full Focus Profile, personalised workflow plan, and detailed session charts.
-      </p>
-      <ul class="gate-benefits">
-        <li><span class="gate-diamond">◆</span> Unlimited todo entries</li>
-        <li><span class="gate-diamond">◆</span> Advanced analytics &amp; focus profile</li>
-        <li><span class="gate-diamond">◆</span> Advanced time tracking features</li>
-        <li><span class="gate-diamond">◆</span> No ads — ever</li>
-      </ul>
-      <button class="gate-btn gate-btn-gold" (click)="openUpgrade()">UPGRADE TO PREMIUM</button>
-      <p class="gate-hint">Secure payment via Stripe · Cancel anytime</p>
-    </div>
+    <!-- ══════════════════════════════════════════ -->
+    <!-- OVERVIEW                                   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div [hidden]="activeSection !== 'overview'">
 
-    <!-- ── PREMIUM CONTENT ── -->
-    <ng-container *ngIf="premium.isPremium">
+      <!-- Summary metric cards -->
+      <div class="summary-row">
+        <div class="metric-card">
+          <span class="metric-value">{{ summary.currentGold }}</span>
+          <span class="metric-label">GOLD</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">{{ summary.totalPomodoros }}</span>
+          <span class="metric-label">SESSIONS</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">{{ summary.currentStreak }}</span>
+          <span class="metric-label">STREAK</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">{{ totalHoursDisplay() }}</span>
+          <span class="metric-label">HOURS</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">{{ summary.longestStreak }}</span>
+          <span class="metric-label">BEST STREAK</span>
+        </div>
+      </div>
 
-      <!-- Focus Profile -->
+      <!-- This Week Snapshot -->
+      <div class="week-snapshot">
+        <div class="week-snapshot-label">THIS WEEK</div>
+        <div class="week-stat-row">
+          <div class="week-stat">
+            <span class="week-value">{{ weeklyTotalSessions }}</span>
+            <span class="week-label">SESSIONS</span>
+          </div>
+          <div class="week-divider"></div>
+          <div class="week-stat">
+            <span class="week-value">{{ weeklyTotalGold }}</span>
+            <span class="week-label">GOLD EARNED</span>
+          </div>
+          <div class="week-divider"></div>
+          <div class="week-stat">
+            <span class="week-value">{{ bestDay }}</span>
+            <span class="week-label">BEST DAY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 28-Day Trend Chart -->
       <div class="section">
         <div class="section-header">
-          <span class="section-label">FOCUS PROFILE</span>
-          <span *ngIf="!insights?.hasProfile" class="section-hint">Complete the questionnaire to unlock insights</span>
+          <span class="section-label">28-DAY TREND</span>
+          <span class="section-hint">Sessions per day</span>
         </div>
+        <div class="chart-wrap">
+          <canvas #trendChart></canvas>
+        </div>
+      </div>
+
+    </div>
+    <!-- /overview -->
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- FOCUS                                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div [hidden]="activeSection !== 'focus'">
+
+      <!-- Non-premium gate -->
+      <div *ngIf="!premium.isPremium" class="premium-gate">
+        <div class="gate-glow"></div>
+        <div class="gate-icon">◆</div>
+        <h2 class="gate-title">LOCKED IN PREMIUM</h2>
+        <p class="gate-desc">Unlock your full Focus Profile, personalised workflow plan, and focus pattern heatmap.</p>
+        <ul class="gate-benefits">
+          <li><span class="gate-diamond">◆</span> Unlimited todo entries</li>
+          <li><span class="gate-diamond">◆</span> Focus profile &amp; AI insights</li>
+          <li><span class="gate-diamond">◆</span> Focus pattern heatmap</li>
+          <li><span class="gate-diamond">◆</span> No ads — ever</li>
+        </ul>
+        <button class="gate-btn gate-btn-gold" (click)="openUpgrade()">UPGRADE TO PREMIUM</button>
+        <p class="gate-hint">Secure payment via Stripe · Cancel anytime</p>
+      </div>
+
+      <ng-container *ngIf="premium.isPremium">
 
         <!-- No profile yet -->
         <div *ngIf="!insights?.hasProfile" class="no-profile-card">
-          <p>Head to your profile and complete the questionnaire to generate your personalised focus report.</p>
+          <div class="gate-icon" style="font-size: 18px; margin-bottom: 10px;">◆</div>
+          <p>Head to your profile and complete the questionnaire to unlock your personalised focus report.</p>
         </div>
 
-        <!-- Full insights -->
         <ng-container *ngIf="insights?.hasProfile">
-          <!-- Score -->
+
+          <!-- Score Ring -->
           <div class="score-card">
-            <div class="score-left">
-              <span class="score-number" [style.color]="focusScoreColor">{{ insights!.focusScore }}</span>
-              <span class="score-label">/ 100</span>
+            <div class="score-ring-wrap">
+              <svg class="score-ring" viewBox="0 0 120 120">
+                <circle class="ring-track" cx="60" cy="60" r="50"/>
+                <circle class="ring-fill" cx="60" cy="60" r="50"
+                  [style.stroke]="focusScoreColor"
+                  [style.stroke-dashoffset]="scoreDashOffset"/>
+              </svg>
+              <div class="score-ring-center">
+                <span class="score-number" [style.color]="focusScoreColor">{{ insights!.focusScore }}</span>
+                <span class="score-sub">/ 100</span>
+              </div>
             </div>
             <div class="score-right">
               <span class="score-category" [style.color]="focusScoreColor">{{ insights!.focusCategory }}</span>
-              <div class="score-bar-track">
-                <div class="score-bar-fill" [style.width]="focusScoreWidth" [style.background]="focusScoreColor"></div>
+              <p class="score-blurb">Your personalised focus score based on study habits and session data.</p>
+              <div class="goal-row">
+                <div class="goal-label-row">
+                  <span class="goal-label">WEEKLY GOAL</span>
+                  <span class="goal-value">{{ weeklyTotalSessions }} / {{ insights!.weeklySessionGoal }} sessions</span>
+                </div>
+                <div class="goal-track">
+                  <div class="goal-fill"
+                    [style.width.%]="weeklyGoalProgress"
+                    [style.background]="focusScoreColor">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Quick stats grid -->
+          <!-- Quick stats pills -->
           <div class="insight-grid">
             <div class="insight-pill">
               <span class="insight-pill-label">SESSION LENGTH</span>
@@ -111,24 +173,41 @@
               <span class="insight-pill-value">{{ insights!.bestStudyWindow }}</span>
             </div>
             <div class="insight-pill">
-              <span class="insight-pill-label">WEEKLY GOAL</span>
+              <span class="insight-pill-label">WEEKLY TARGET</span>
               <span class="insight-pill-value">{{ insights!.weeklySessionGoal }} sessions</span>
             </div>
           </div>
 
-          <!-- Challenge advice -->
-          <div class="advice-card">
-            <div class="advice-header">
-              <span class="advice-tag">YOUR CHALLENGE</span>
+          <!-- Focus Pattern Heatmap -->
+          <div class="section" *ngIf="heatmapGrid.length > 0">
+            <div class="section-header">
+              <span class="section-label">FOCUS PATTERN</span>
+              <span class="section-hint">When you study most</span>
             </div>
-            <p class="advice-text">{{ insights!.challengeAdvice }}</p>
+            <div class="heatmap-wrap">
+              <div class="heatmap-day-labels">
+                <span class="heatmap-spacer"></span>
+                <span *ngFor="let d of dayLabels" class="heatmap-day-label">{{ d }}</span>
+              </div>
+              <div *ngFor="let row of heatmapGrid; let bi = index" class="heatmap-row">
+                <span class="heatmap-block-label">{{ blockLabels[bi] }}</span>
+                <div *ngFor="let val of row"
+                     class="heatmap-cell"
+                     [style.background]="'rgba(82,113,255,' + getHeatmapOpacity(val) + ')'"
+                     [title]="val + ' sessions'">
+                  <span *ngIf="val > 0" class="heatmap-cell-val">{{ val }}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Procrastination tip -->
+          <!-- Advice cards -->
+          <div class="advice-card">
+            <div class="advice-header"><span class="advice-tag">YOUR CHALLENGE</span></div>
+            <p class="advice-text">{{ insights!.challengeAdvice }}</p>
+          </div>
           <div class="advice-card advice-card-alt">
-            <div class="advice-header">
-              <span class="advice-tag">CONSISTENCY TIP</span>
-            </div>
+            <div class="advice-header"><span class="advice-tag">CONSISTENCY TIP</span></div>
             <p class="advice-text">{{ insights!.procrastinationTip }}</p>
           </div>
 
@@ -142,35 +221,82 @@
               <span class="tip-text">{{ tip }}</span>
             </div>
           </div>
+
         </ng-container>
+      </ng-container>
+    </div>
+    <!-- /focus -->
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- ACTIVITY                                   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div [hidden]="activeSection !== 'activity'">
+
+      <!-- Non-premium gate -->
+      <div *ngIf="!premium.isPremium" class="premium-gate">
+        <div class="gate-glow"></div>
+        <div class="gate-icon">◆</div>
+        <h2 class="gate-title">LOCKED IN PREMIUM</h2>
+        <p class="gate-desc">Unlock detailed session charts and streak history to track your progress.</p>
+        <button class="gate-btn gate-btn-gold" (click)="openUpgrade()">UPGRADE TO PREMIUM</button>
+        <p class="gate-hint">Secure payment via Stripe · Cancel anytime</p>
       </div>
 
-      <!-- Charts section -->
-      <div class="section">
-        <div class="section-header">
-          <span class="section-label">ACTIVITY</span>
-          <div class="chart-tabs">
-            <button class="chart-tab" [class.active]="activeTab === 'activity'" (click)="setTab('activity')">THIS WEEK</button>
-            <button class="chart-tab" [class.active]="activeTab === 'streak'"   (click)="setTab('streak')">STREAK</button>
+      <ng-container *ngIf="premium.isPremium">
+
+        <!-- This Week bar chart -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-label">THIS WEEK</span>
+            <span class="section-hint">Sessions &amp; gold per day</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas #activityChart></canvas>
           </div>
         </div>
 
-        <div class="chart-wrap">
-          <canvas *ngIf="activeTab === 'activity'" #activityChart></canvas>
-          <canvas *ngIf="activeTab === 'streak'"   #streakChart></canvas>
+        <!-- Streak History line chart -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-label">STREAK HISTORY</span>
+            <span class="section-hint">Last 14 days</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas #streakChart></canvas>
+          </div>
         </div>
-      </div>
 
-      <!-- Achievements -->
+        <!-- Streak Calendar -->
+        <div class="section">
+          <div class="section-header">
+            <span class="section-label">STREAK CALENDAR</span>
+            <span class="section-hint">Last 14 days</span>
+          </div>
+          <div class="streak-calendar">
+            <div *ngFor="let day of last14DaysList"
+                 class="streak-dot"
+                 [class.active]="day.active"
+                 [title]="day.date || 'No data'">
+            </div>
+          </div>
+          <div class="streak-calendar-legend">
+            <span class="legend-dot"></span><span class="legend-label">Active day</span>
+            <span class="legend-dot legend-dot-off"></span><span class="legend-label">No session</span>
+          </div>
+        </div>
+
+      </ng-container>
+    </div>
+    <!-- /activity -->
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- ACHIEVEMENTS                               -->
+    <!-- ══════════════════════════════════════════ -->
+    <div [hidden]="activeSection !== 'achievements'">
       <div class="section">
-        <div class="section-header">
-          <span class="section-label">ACHIEVEMENTS</span>
-        </div>
-
         <div *ngIf="achievements.length === 0" class="no-achievements">
           <p>No achievements yet — complete sessions to start earning them.</p>
         </div>
-
         <div class="achievements-list">
           <div *ngFor="let a of achievements" class="achievement-item">
             <div class="achievement-left">
@@ -184,9 +310,8 @@
           </div>
         </div>
       </div>
-
-    </ng-container>
-    <!-- end premium content -->
+    </div>
+    <!-- /achievements -->
 
   </ng-container>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
 import { StatsService } from './stats.service';
@@ -23,6 +23,8 @@ interface Achievement {
   description: string;
 }
 
+type Section = 'overview' | 'focus' | 'activity' | 'achievements';
+
 @Component({
   selector: 'app-stats',
   standalone: true,
@@ -30,7 +32,8 @@ interface Achievement {
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.css']
 })
-export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class StatsComponent implements OnInit, OnDestroy {
+  @ViewChild('trendChart')    trendChartRef!:    ElementRef<HTMLCanvasElement>;
   @ViewChild('activityChart') activityChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('streakChart')   streakChartRef!:   ElementRef<HTMLCanvasElement>;
 
@@ -38,35 +41,57 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
   tutorialSteps: TutorialStep[] = [];
 
   loading = true;
+  activeSection: Section = 'overview';
 
   summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0 };
   premium: PremiumStatus = { isPremium: false, subscriptionStatus: 'inactive' };
-  checkingOut = false;
-  subSuccessMsg = false;
   insights: FocusInsights | null = null;
   achievements: Achievement[] = [];
 
-  weeklyLabels: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  weeklyLabels:    string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   weeklyPomodoros: number[] = [0, 0, 0, 0, 0, 0, 0];
-  weeklyGold: number[]      = [0, 0, 0, 0, 0, 0, 0];
-  streakDates: string[]     = [];
-  streakValues: number[]    = [];
+  weeklyGold:      number[] = [0, 0, 0, 0, 0, 0, 0];
+  streakDates:     string[] = [];
+  streakValues:    number[] = [];
 
-  activeTab: 'activity' | 'streak' = 'activity';
+  trendLabels: string[] = [];
+  trendValues: number[] = [];
 
+  heatmapGrid:   number[][] = [];
+  heatmapMax = 1;
+  readonly blockLabels = ['Night', 'Morning', 'Afternoon', 'Evening'];
+  readonly dayLabels   = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  weeklyTotalSessions = 0;
+  weeklyTotalGold     = 0;
+  bestDay             = '--';
+  scoreDashOffset     = 0;
+  weeklyGoalProgress  = 0;
+  last14DaysList: { date: string; active: boolean }[] = [];
+
+  private trendChart:    Chart | null = null;
   private activityChart: Chart | null = null;
-  private streakChart: Chart | null = null;
+  private streakChart:   Chart | null = null;
+
+  readonly RING_CIRCUMFERENCE = 2 * Math.PI * 50;
+
+  get focusScoreColor(): string {
+    const s = this.insights?.focusScore ?? 0;
+    if (s >= 85) return '#4ade80';
+    if (s >= 68) return '#5271ff';
+    if (s >= 50) return '#facc15';
+    if (s >= 30) return '#fb923c';
+    return '#f87171';
+  }
 
   constructor(
     private statsService: StatsService,
     private premiumService: PremiumService,
     private premiumModal: PremiumModalService,
     private tutorialService: TutorialService
-  ) { }
+  ) {}
 
-  openUpgrade(): void {
-    this.premiumModal.open();
-  }
+  openUpgrade(): void { this.premiumModal.open(); }
 
   ngOnInit(): void {
     if (!this.tutorialService.hasSeenTutorial('stats')) {
@@ -76,26 +101,38 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadAll();
   }
 
-  ngAfterViewInit(): void {}
-
   ngOnDestroy(): void {
-    this.destroyCharts();
+    this.trendChart?.destroy();
+    this.activityChart?.destroy();
+    this.streakChart?.destroy();
   }
 
   onTutorialComplete(dontShowAgain: boolean): void {
     if (dontShowAgain) this.tutorialService.markTutorialAsSeen('stats');
     this.showTutorial = false;
   }
-
   onTutorialSkip(): void { this.showTutorial = false; }
+
+  setSection(s: Section): void {
+    this.activeSection = s;
+    if (s === 'activity' && this.premium.isPremium) {
+      setTimeout(() => {
+        this.initActivityChart();
+        this.initStreakChart();
+      }, 50);
+    } else if (s === 'overview') {
+      setTimeout(() => this.initTrendChart(), 50);
+    }
+  }
 
   loadAll(): void {
     forkJoin({
-      summary:  this.statsService.getUserStatsSummary().pipe(catchError(() => of(this.summary))),
-      premium:  this.premiumService.getStatus().pipe(catchError(() => of(this.premium))),
-      history:  this.statsService.getUserStatsHistory('week').pipe(catchError(() => of({}))),
-      streak:   this.statsService.getStreakTimeline().pipe(catchError(() => of({}))),
+      summary:      this.statsService.getUserStatsSummary().pipe(catchError(() => of(this.summary))),
+      premium:      this.premiumService.getStatus().pipe(catchError(() => of(this.premium))),
+      history:      this.statsService.getUserStatsHistory('week').pipe(catchError(() => of({}))),
+      streak:       this.statsService.getStreakTimeline().pipe(catchError(() => of({}))),
       achievements: this.statsService.getUserAchievements().pipe(catchError(() => of([]))),
+      trend:        this.statsService.getTrend(28).pipe(catchError(() => of({ labels: [], values: [] }))),
     }).subscribe(results => {
       this.summary      = results.summary;
       this.premium      = results.premium;
@@ -110,55 +147,116 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
       if (s.dates)   this.streakDates  = s.dates;
       if (s.streaks) this.streakValues = s.streaks;
 
+      const t = results.trend as any;
+      if (t.labels) this.trendLabels = t.labels;
+      if (t.values) this.trendValues = t.values;
+
+      this.computeWeeklyStats();
+      this.computeStreakCalendar();
+
       if (this.premium.isPremium) {
-        this.statsService.getFocusInsights().pipe(catchError(() => of(null))).subscribe(ins => {
-          this.insights = ins;
+        forkJoin({
+          insights: this.statsService.getFocusInsights().pipe(catchError(() => of(null))),
+          heatmap:  this.statsService.getHeatmap().pipe(catchError(() => of({ grid: [] }))),
+        }).subscribe(pr => {
+          this.insights = pr.insights;
+          this.computeInsightStats();
+          const hm = pr.heatmap as any;
+          if (hm.grid && hm.grid.length) {
+            this.heatmapGrid = hm.grid;
+            let max = 1;
+            for (const row of this.heatmapGrid) {
+              for (const v of row) { if (v > max) max = v; }
+            }
+            this.heatmapMax = max;
+          }
           this.loading = false;
-          setTimeout(() => this.initCharts(), 50);
+          setTimeout(() => this.initTrendChart(), 300);
         });
       } else {
         this.loading = false;
-        setTimeout(() => this.initCharts(), 50);
+        setTimeout(() => this.initTrendChart(), 300);
       }
     });
   }
 
-
-  setTab(tab: 'activity' | 'streak'): void {
-    this.activeTab = tab;
-    setTimeout(() => {
-      if (tab === 'activity') this.initActivityChart();
-      else this.initStreakChart();
-    }, 50);
+  private computeWeeklyStats(): void {
+    this.weeklyTotalSessions = this.weeklyPomodoros.reduce((a, b) => a + b, 0);
+    this.weeklyTotalGold     = this.weeklyGold.reduce((a, b) => a + b, 0);
+    const max = Math.max(...this.weeklyPomodoros);
+    this.bestDay = max === 0 ? '--' : (this.weeklyLabels[this.weeklyPomodoros.indexOf(max)] ?? '--');
   }
 
-  get focusScoreWidth(): string {
-    return `${this.insights?.focusScore ?? 0}%`;
+  private computeStreakCalendar(): void {
+    if (this.streakDates.length === 0) {
+      this.last14DaysList = Array.from({ length: 14 }, () => ({ date: '', active: false }));
+      return;
+    }
+    const len = this.streakDates.length;
+    const start = Math.max(0, len - 14);
+    this.last14DaysList = this.streakDates.slice(start).map((d, i) => ({
+      date: d,
+      active: (this.streakValues[start + i] ?? 0) > 0
+    }));
   }
 
-  get focusScoreColor(): string {
-    const s = this.insights?.focusScore ?? 0;
-    if (s >= 85) return '#4ade80';
-    if (s >= 68) return '#5271ff';
-    if (s >= 50) return '#facc15';
-    if (s >= 30) return '#fb923c';
-    return '#f87171';
+  private computeInsightStats(): void {
+    const score = this.insights?.focusScore ?? 0;
+    this.scoreDashOffset  = this.RING_CIRCUMFERENCE * (1 - score / 100);
+    const goal = this.insights?.weeklySessionGoal ?? 0;
+    this.weeklyGoalProgress = goal ? Math.min(100, Math.round(this.weeklyTotalSessions / goal * 100)) : 0;
   }
 
   totalHoursDisplay(): string {
     return (this.summary.totalHours ?? 0).toFixed(1);
   }
 
-  private initCharts(): void {
-    if (this.activeTab === 'activity') this.initActivityChart();
-    else this.initStreakChart();
+  getHeatmapOpacity(val: number): number {
+    if (val === 0) return 0.07;
+    return Math.max(0.2, val / this.heatmapMax);
   }
 
-  private destroyCharts(): void {
-    this.activityChart?.destroy();
-    this.streakChart?.destroy();
-    this.activityChart = null;
-    this.streakChart = null;
+  private initTrendChart(): void {
+    if (!this.trendChartRef) return;
+    this.trendChart?.destroy();
+    const ctx = this.trendChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    this.trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: this.trendLabels,
+        datasets: [{
+          label: 'Sessions',
+          data: this.trendValues,
+          fill: true,
+          backgroundColor: 'rgba(82,113,255,0.08)',
+          borderColor: 'rgba(82,113,255,0.7)',
+          tension: 0.35,
+          pointRadius: 2,
+          pointBackgroundColor: 'rgba(82,113,255,0.9)',
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (c) => `${c.raw} sessions` } }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, stepSize: 1 }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, maxTicksLimit: 7 }
+          }
+        }
+      }
+    });
   }
 
   private initActivityChart(): void {
@@ -175,16 +273,16 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
           {
             label: 'Sessions',
             data: this.weeklyPomodoros,
-            backgroundColor: 'rgba(82, 113, 255, 0.65)',
-            borderColor: 'rgba(82, 113, 255, 0.9)',
+            backgroundColor: 'rgba(82,113,255,0.65)',
+            borderColor: 'rgba(82,113,255,0.9)',
             borderWidth: 1,
             borderRadius: 6,
           },
           {
             label: 'Gold',
             data: this.weeklyGold,
-            backgroundColor: 'rgba(255, 215, 0, 0.55)',
-            borderColor: 'rgba(255, 215, 0, 0.85)',
+            backgroundColor: 'rgba(255,215,0,0.55)',
+            borderColor: 'rgba(255,215,0,0.85)',
             borderWidth: 1,
             borderRadius: 6,
           }
@@ -198,8 +296,15 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
           tooltip: { mode: 'index', intersect: false }
         },
         scales: {
-          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 } } },
-          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 } } }
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 } }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 } }
+          }
         }
       }
     });
@@ -236,16 +341,23 @@ export class StatsComponent implements OnInit, AfterViewInit, OnDestroy {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => {
-                const v = ctx.raw as number;
+              label: (c) => {
+                const v = c.raw as number;
                 return v === 1 ? '1 day streak' : `${v} days streak`;
               }
             }
           }
         },
         scales: {
-          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, stepSize: 1 } },
-          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, maxRotation: 45 } }
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255,255,255,0.06)' },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, stepSize: 1 }
+          },
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: 'rgba(255,255,255,0.35)', font: { family: 'Courier New', size: 10 }, maxRotation: 45 }
+          }
         }
       }
     });

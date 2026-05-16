@@ -31,7 +31,7 @@ public class PremiumService {
 
     public PremiumStatusDTO getStatus(String email) {
         if (isAdminUser(email)) {
-            return PremiumStatusDTO.builder().isPremium(true).subscriptionStatus("active").build();
+            return PremiumStatusDTO.builder().isPremium(true).subscriptionStatus("active").plan(null).build();
         }
         Long userId = userService.getUserIdByEmail(email);
         if (userId == null) {
@@ -39,9 +39,11 @@ public class PremiumService {
         }
         String subStatus = subscriptionService.getSubscriptionStatus(userId);
         boolean active = "active".equals(subStatus) || "past_due".equals(subStatus);
+        String plan = active ? subscriptionService.getSubscriptionPlan(userId) : null;
         return PremiumStatusDTO.builder()
                 .isPremium(active)
                 .subscriptionStatus(subStatus)
+                .plan(plan)
                 .build();
     }
 

@@ -4,6 +4,7 @@ import pomo.Lockedin.dto.AchievementDTO;
 import pomo.Lockedin.service.StatsService.DailyStreakDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface StatsDao {
     /**
@@ -54,4 +55,14 @@ public interface StatsDao {
      * @return List of user achievements
      */
     List<AchievementDTO> getUserAchievements(Long userId);
+
+    /**
+     * Get daily session counts for the past N days (for trend chart)
+     */
+    List<Map<String, Object>> getTrend(Long userId, int days);
+
+    /**
+     * Get session counts grouped by day-of-week × hour (for heatmap)
+     */
+    List<Map<String, Object>> getHeatmap(Long userId);
 }

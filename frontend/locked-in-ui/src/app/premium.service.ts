@@ -6,6 +6,7 @@ import { environment } from '../environments/environment';
 export interface PremiumStatus {
   isPremium: boolean;
   subscriptionStatus: string; // 'active' | 'past_due' | 'cancelled' | 'inactive'
+  plan?: string; // 'monthly' | 'annual' | null for admin
 }
 
 export interface FocusInsights {

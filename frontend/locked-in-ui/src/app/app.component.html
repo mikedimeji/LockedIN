@@ -40,34 +40,68 @@
     <div class="pm-glow"></div>
     <div class="pm-icon">◆</div>
     <h2 class="pm-title">LOCKED IN PREMIUM</h2>
-    <p class="pm-tagline">Your focus, supercharged.</p>
 
-    <ul class="pm-benefits">
-      <li><span class="pm-diamond">◆</span> Unlimited todo entries</li>
-      <li><span class="pm-diamond">◆</span> Advanced analytics &amp; focus profile</li>
-      <li><span class="pm-diamond">◆</span> Advanced time tracking features</li>
-      <li><span class="pm-diamond">◆</span> No ads — ever</li>
-    </ul>
+    <!-- Not yet premium: show full pitch + both plans -->
+    <ng-container *ngIf="!isPremium">
+      <p class="pm-tagline">Your focus, supercharged.</p>
+      <ul class="pm-benefits">
+        <li><span class="pm-diamond">◆</span> Unlimited todo entries</li>
+        <li><span class="pm-diamond">◆</span> Advanced analytics &amp; focus profile</li>
+        <li><span class="pm-diamond">◆</span> Advanced time tracking features</li>
+        <li><span class="pm-diamond">◆</span> No ads — ever</li>
+      </ul>
+      <div class="pm-plan-row">
+        <div class="pm-plan-card">
+          <span class="pm-plan-label">MONTHLY</span>
+          <span class="pm-plan-price">£3.99<span class="pm-plan-period">/mo</span></span>
+          <button class="pm-btn" [disabled]="premiumCheckingOut" (click)="subscribePremium('monthly')">
+            {{ premiumCheckingOut ? 'REDIRECTING...' : 'START MONTHLY' }}
+          </button>
+        </div>
+        <div class="pm-plan-card pm-plan-featured">
+          <span class="pm-plan-best">BEST VALUE</span>
+          <span class="pm-plan-label">ANNUAL</span>
+          <span class="pm-plan-price">£29.99<span class="pm-plan-period">/yr</span></span>
+          <span class="pm-plan-saving">Save 37%</span>
+          <button class="pm-btn pm-btn-gold" [disabled]="premiumCheckingOut" (click)="subscribePremium('annual')">
+            {{ premiumCheckingOut ? 'REDIRECTING...' : 'START ANNUAL' }}
+          </button>
+        </div>
+      </div>
+      <p class="pm-hint">Secure payment via Stripe · Cancel anytime from your account</p>
+    </ng-container>
 
-    <div class="pm-plan-row">
-      <div class="pm-plan-card">
-        <span class="pm-plan-label">MONTHLY</span>
-        <span class="pm-plan-price">£3.99<span class="pm-plan-period">/mo</span></span>
-        <button class="pm-btn" [disabled]="premiumCheckingOut" (click)="subscribePremium('monthly')">
-          {{ premiumCheckingOut ? 'REDIRECTING...' : 'START MONTHLY' }}
-        </button>
+    <!-- Monthly plan: offer upgrade to annual -->
+    <ng-container *ngIf="isPremium && premiumPlan === 'monthly'">
+      <p class="pm-tagline">You're premium. Save more by switching to annual.</p>
+      <div class="pm-plan-row" style="justify-content: center;">
+        <div class="pm-plan-card pm-plan-featured" style="max-width: 220px;">
+          <span class="pm-plan-best">BEST VALUE</span>
+          <span class="pm-plan-label">ANNUAL</span>
+          <span class="pm-plan-price">£29.99<span class="pm-plan-period">/yr</span></span>
+          <span class="pm-plan-saving">Save 37% vs monthly</span>
+          <button class="pm-btn pm-btn-gold" [disabled]="premiumCheckingOut" (click)="subscribePremium('annual')">
+            {{ premiumCheckingOut ? 'REDIRECTING...' : 'UPGRADE TO ANNUAL' }}
+          </button>
+        </div>
       </div>
-      <div class="pm-plan-card pm-plan-featured">
-        <span class="pm-plan-best">BEST VALUE</span>
-        <span class="pm-plan-label">ANNUAL</span>
-        <span class="pm-plan-price">£29.99<span class="pm-plan-period">/yr</span></span>
-        <span class="pm-plan-saving">Save 37%</span>
-        <button class="pm-btn pm-btn-gold" [disabled]="premiumCheckingOut" (click)="subscribePremium('annual')">
-          {{ premiumCheckingOut ? 'REDIRECTING...' : 'START ANNUAL' }}
-        </button>
+      <p class="pm-hint">Switching upgrades your billing cycle · Secure via Stripe</p>
+    </ng-container>
+
+    <!-- Annual or admin: already on best plan -->
+    <ng-container *ngIf="isPremium && premiumPlan !== 'monthly'">
+      <p class="pm-tagline">Thank you for being premium.</p>
+      <div class="pm-best-message">
+        <div class="pm-best-checkmark">◆◆◆</div>
+        <p class="pm-best-text">You're on our best plan. All premium features are fully unlocked.</p>
+        <ul class="pm-benefits" style="margin-bottom: 0;">
+          <li><span class="pm-diamond">◆</span> Unlimited todo entries — active</li>
+          <li><span class="pm-diamond">◆</span> Full analytics &amp; focus profile — active</li>
+          <li><span class="pm-diamond">◆</span> Advanced time tracking — active</li>
+          <li><span class="pm-diamond">◆</span> No ads — active</li>
+        </ul>
       </div>
-    </div>
-    <p class="pm-hint">Secure payment via Stripe · Cancel anytime from your account</p>
+    </ng-container>
   </div>
 </div>
 

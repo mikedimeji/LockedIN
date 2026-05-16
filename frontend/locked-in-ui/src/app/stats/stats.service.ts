@@ -29,4 +29,12 @@ export class StatsService {
   getFocusInsights(): Observable<FocusInsights> {
     return this.http.get<FocusInsights>(`${this.base}/insights`);
   }
+
+  getTrend(days: number = 28): Observable<any> {
+    return this.http.get<any>(`${this.base}/trend?days=${days}`);
+  }
+
+  getHeatmap(): Observable<any> {
+    return this.http.get<any>(`${this.base}/heatmap`);
+  }
 }

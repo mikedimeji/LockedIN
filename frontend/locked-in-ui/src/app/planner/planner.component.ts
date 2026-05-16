@@ -35,6 +35,8 @@ export class PlannerComponent implements OnInit {
   isCarousel = false;
   confirmingDelete = false;
   topicToDelete: number | null = null;
+  statusMsg = '';
+  statusType: 'success' | 'error' = 'success';
   private audio: HTMLAudioElement | null = null;
 
   constructor(
@@ -71,6 +73,12 @@ export class PlannerComponent implements OnInit {
     this.showTutorial = false;
   }
 
+  private showStatus(msg: string, type: 'success' | 'error' = 'success'): void {
+    this.statusMsg = msg;
+    this.statusType = type;
+    setTimeout(() => { this.statusMsg = ''; }, 3500);
+  }
+
   private getAuthToken(): string | null {
     return localStorage.getItem('authToken');
   }
@@ -104,7 +112,7 @@ export class PlannerComponent implements OnInit {
         },
         (error) => {
           console.error('Error fetching revision topics:', error);
-          alert('Failed to load revision topics.');
+          this.showStatus('Failed to load topics.', 'error');
         }
       );
   }
@@ -118,13 +126,13 @@ export class PlannerComponent implements OnInit {
     const token = this.getAuthToken();
 
     if (!token) {
-      alert('User is not authenticated. Please log in.');
+      this.showStatus('Please log in to continue.', 'error');
       this.router.navigateByUrl('/login');
       return;
     }
 
     if (!this.newTopic.title || !this.newTopic.description || this.newTopic.pomodoroNumber < 1) {
-      alert('Please fill in all fields with valid values.');
+      this.showStatus('Please fill in all fields with valid values.', 'error');
       return;
     }
 
@@ -146,9 +154,9 @@ export class PlannerComponent implements OnInit {
         (createdTopic) => {
           this.topics.push(createdTopic);
           this.newTopic = { title: '', description: '', pomodoroNumber: 1 };
-          this.toggleForm(); 
-          alert('Revision topic created successfully!');
-          
+          this.toggleForm();
+          this.showStatus('Topic created successfully!');
+
           if (this.topics.length === 1) {
             setTimeout(() => {
               this.toggleScreen('down');
@@ -160,7 +168,7 @@ export class PlannerComponent implements OnInit {
             this.premiumModal.open();
           } else {
             console.error('Error creating revision topic:', error);
-            alert('Failed to create revision topic.');
+            this.showStatus('Failed to create topic.', 'error');
           }
         }
       );
@@ -199,7 +207,7 @@ export class PlannerComponent implements OnInit {
     const token = this.getAuthToken();
 
     if (!token) {
-      alert('User is not authenticated. Please log in.');
+      this.showStatus('Please log in to continue.', 'error');
       this.router.navigateByUrl('/login');
       return;
     }
@@ -214,15 +222,15 @@ export class PlannerComponent implements OnInit {
           if (this.currentTopicIndex >= this.topics.length) {
             this.currentTopicIndex = Math.max(0, this.topics.length - 1);
           }
-          if(this.topics.length === 0){
+          if (this.topics.length === 0) {
             this.toggleScreen('up');
           }
-          alert('Revision topic deleted successfully!');
+          this.showStatus('Topic deleted.');
           this.topicToDelete = null;
         },
         (error) => {
           console.error('Error deleting revision topic:', error);
-          alert('Failed to delete revision topic.');
+          this.showStatus('Failed to delete topic.', 'error');
           this.topicToDelete = null;
         }
       );

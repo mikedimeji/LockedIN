@@ -2,7 +2,7 @@ import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Renderer2 } from '@a
 import { isPlatformBrowser, NgIf, NgClass } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Subscription, catchError, switchMap, of } from 'rxjs';
+import { Subscription, catchError, of } from 'rxjs';
 
 import { GoldStreakService } from '../gold-streak.service';
 import { AuthService } from '../auth.service';
@@ -130,7 +130,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   loadUserStats(): void {
     const goldSub = this.goldStreakService.getGoldBalance().subscribe({
       next: (response) => { this.previousGold = response.currentGold; },
-      error: (error) => { if (error.status === 403) this.handleTokenRefresh(); }
+      error: () => {}
     });
     this.subscriptions.push(goldSub);
 
@@ -139,27 +139,13 @@ export class TimerComponent implements OnInit, OnDestroy {
         this.currentStreak = response.currentStreak;
         this.longestStreak = response.longestStreak;
       },
-      error: (error) => { if (error.status === 403) this.handleTokenRefresh(); }
+      error: () => {}
     });
     this.subscriptions.push(streakSub);
 
     // getHearts() updates the shared BehaviorSubject via tap — no local assignment needed
     const heartSub = this.heartService.getHearts().subscribe({ error: () => {} });
     this.subscriptions.push(heartSub);
-  }
-
-  handleTokenRefresh(): void {
-    const refreshSub = this.authService.refreshAccessToken().subscribe({
-      next: (response) => {
-        if (response && response.token) {
-          this.loadUserStats();
-        }
-      },
-      error: (error) => {
-        console.error('Error refreshing token:', error);
-      }
-    });
-    this.subscriptions.push(refreshSub);
   }
 
   setDuration(durationInMinutes: number): void {
@@ -415,23 +401,6 @@ export class TimerComponent implements OnInit, OnDestroy {
         .pipe(
           catchError((error: HttpErrorResponse) => {
             console.error('Error rewarding pomodoro:', error);
-            
-            if (error.status === 403) {
-              return this.authService.refreshAccessToken().pipe(
-                switchMap(refreshResponse => {
-                  if (refreshResponse && refreshResponse.token) {
-                    return this.goldStreakService.rewardPomodoro(totalPomodorosCompleted);
-                  }
-                  return of(null);
-                }),
-                catchError(refreshError => {
-                  console.error('Failed to refresh token:', refreshError);
-                  this.showErrorMessage();
-                  return of(null);
-                })
-              );
-            }
-            
             this.showErrorMessage();
             return of(null);
           })

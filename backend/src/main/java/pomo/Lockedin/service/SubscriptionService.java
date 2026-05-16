@@ -167,6 +167,15 @@ public class SubscriptionService {
         }
     }
 
+    public String getSubscriptionPlan(Long userId) {
+        try {
+            String sql = "SELECT plan FROM user_subscriptions WHERE user_id = ?";
+            return jdbcTemplate.queryForObject(sql, String.class, userId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private void upsertSubscription(Long userId, String customerId, String subscriptionId,
                                      String plan, String status, LocalDateTime periodEnd) {
         String sql = """
