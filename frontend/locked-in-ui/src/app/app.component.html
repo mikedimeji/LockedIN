@@ -173,7 +173,10 @@
   <div class="stats-item">
     <div class="icon-container">
       <button class="notifications-btn" (click)="toggleNotifications()" title="Notifications">
-        🔔
+        <svg class="notif-bell" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 2.5a1 1 0 0 0-1 1v.28A5.5 5.5 0 0 0 4.5 9v3.5L3 14.5h14l-1.5-2V9A5.5 5.5 0 0 0 11 3.78V3.5a1 1 0 0 0-1-1z" fill="currentColor"/>
+          <path d="M8.2 15.5a1.8 1.8 0 0 0 3.6 0" fill="currentColor" opacity="0.7"/>
+        </svg>
         <span *ngIf="hasUnreadNotifications" class="notification-dot"></span>
       </button>
     </div>

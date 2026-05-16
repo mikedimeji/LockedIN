@@ -400,53 +400,47 @@
 
 /* NOTIFICATIONS BUTTON STYLES - CORRECTED */
 .notifications-btn {
-  background: none !important;
-  border: none !important;
-  color: white !important;
-  font-size: 16px !important;
-  padding: 0 !important;
-  cursor: pointer !important;
-  position: relative !important;
-  transition: all 0.3s ease !important;
-  width: 18px !important;
-  height: 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  outline: none !important;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  transition: color 0.2s ease, filter 0.2s ease;
 }
 
 .notifications-btn:hover {
-  transform: scale(1.3) !important;
-  filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)) !important;
+  color: rgba(255, 255, 255, 0.9);
+  filter: drop-shadow(0 0 5px rgba(82, 113, 255, 0.55));
 }
 
-.notifications-btn:focus {
-  outline: none !important;
+.notifications-btn:focus { outline: none; }
+
+.notif-bell {
+  width: 15px;
+  height: 15px;
 }
 
 .notification-dot {
-  position: absolute !important;
-  top: -3px !important;
-  right: -3px !important;
-  width: 8px !important;
-  height: 8px !important;
-  background: #ff0080 !important;
-  border-radius: 50% !important;
-  animation: notificationPulse 1.5s infinite !important;
-  box-shadow: 0 0 6px rgba(255, 0, 128, 0.8) !important;
-  z-index: 10 !important;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 5px;
+  height: 5px;
+  background: #5271ff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(82, 113, 255, 0.9);
+  animation: notificationPulse 2s infinite;
+  z-index: 10;
 }
 
 @keyframes notificationPulse {
-  0%, 100% { 
-    transform: scale(1); 
-    opacity: 1; 
-  }
-  50% { 
-    transform: scale(1.4); 
-    opacity: 0.7; 
-  }
+  0%, 100% { opacity: 1;   transform: scale(1);   }
+  50%       { opacity: 0.5; transform: scale(1.5); }
 }
 
 /* FEEDBACK BUTTON STYLES */
