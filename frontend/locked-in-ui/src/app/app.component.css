@@ -377,6 +377,11 @@
   max-height: 100%;
 }
 
+.stats-item.streak-stat .icon-container img {
+  position: relative;
+  top: -2px;
+}
+
 /* Keep icon container the same size */
 .icon-container {
   width: 18px;
