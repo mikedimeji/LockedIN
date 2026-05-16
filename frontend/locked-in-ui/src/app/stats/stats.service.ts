@@ -30,6 +30,10 @@ export class StatsService {
     return this.http.get<FocusInsights>(`${this.base}/insights`);
   }
 
+  syncAchievements(): Observable<any> {
+    return this.http.post<any>(`${this.base}/achievements/sync`, {});
+  }
+
   getTrend(days: number = 28): Observable<any> {
     return this.http.get<any>(`${this.base}/trend?days=${days}`);
   }

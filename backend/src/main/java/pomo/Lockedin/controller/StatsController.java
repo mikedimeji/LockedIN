@@ -12,6 +12,7 @@ import pomo.Lockedin.dto.AchievementDTO;
 import pomo.Lockedin.dto.FocusInsightsDTO;
 import pomo.Lockedin.dto.StatsControllerSummaryDTO;
 import pomo.Lockedin.entities.User;
+import pomo.Lockedin.service.AchievementService;
 import pomo.Lockedin.service.GoldService;
 import pomo.Lockedin.service.PremiumService;
 import pomo.Lockedin.service.StatsService;
@@ -37,6 +38,7 @@ public class StatsController {
     private final StatsService statsService;
     private final PremiumService premiumService;
     private final UserProfileService userProfileService;
+    private final AchievementService achievementService;
 
     /**
      * Get summary statistics for the authenticated user
@@ -141,6 +143,18 @@ public class StatsController {
         }
 
         return userProfileService.getInsights(userEmail);
+    }
+
+    /**
+     * Check and grant any achievements the user has earned but not yet received.
+     * Called on stats page load so historically-seeded data gets picked up.
+     */
+    @PostMapping("/achievements/sync")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> syncAchievements() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        achievementService.checkAndGrantAchievements(user.getEmail());
+        return Map.of("synced", true);
     }
 
     /**

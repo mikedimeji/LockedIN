@@ -127,6 +127,14 @@ export class StatsComponent implements OnInit, OnDestroy {
   }
 
   loadAll(): void {
+    // Sync achievements first (grants anything earned from historical/seeded data),
+    // then fetch all stats. Errors here are non-fatal.
+    this.statsService.syncAchievements().pipe(catchError(() => of(null))).subscribe(() => {
+      this.fetchAll();
+    });
+  }
+
+  private fetchAll(): void {
     forkJoin({
       summary:      this.statsService.getUserStatsSummary().pipe(catchError(() => of(this.summary))),
       premium:      this.premiumService.getStatus().pipe(catchError(() => of(this.premium))),
