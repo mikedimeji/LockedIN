@@ -751,6 +751,25 @@
 }
 
 /* ── Achievements ── */
+.awards-count {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.awards-count-num {
+  font-family: bitF1, sans-serif;
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1;
+}
+.awards-count-label {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2.5px;
+  color: rgba(255, 255, 255, 0.28);
+}
+
 .achievements-list {
   display: flex;
   flex-direction: column;
@@ -759,41 +778,78 @@
 
 .achievement-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  gap: 0;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
-  transition: border-color 0.2s ease;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
 }
 
-.achievement-item:hover { border-color: rgba(82, 113, 255, 0.25); }
+/* Tier border colors */
+.tier-bronze { border-color: rgba(180, 110, 50, 0.35); }
+.tier-silver { border-color: rgba(140, 160, 200, 0.35); }
+.tier-gold   { border-color: rgba(255, 200, 0, 0.35); }
+.tier-diamond { border-color: rgba(160, 120, 255, 0.45); }
+
+.tier-bronze:hover  { border-color: rgba(180, 110, 50, 0.65);  box-shadow: 0 0 16px rgba(180, 110, 50, 0.12); }
+.tier-silver:hover  { border-color: rgba(140, 160, 200, 0.65); box-shadow: 0 0 16px rgba(140, 160, 200, 0.12); }
+.tier-gold:hover    { border-color: rgba(255, 200, 0, 0.65);   box-shadow: 0 0 16px rgba(255, 200, 0, 0.14); }
+.tier-diamond:hover { border-color: rgba(160, 120, 255, 0.7);  box-shadow: 0 0 20px rgba(160, 120, 255, 0.18); }
+
+/* Left accent bar */
+.achievement-tier-bar {
+  width: 3px;
+  align-self: stretch;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+.tier-bronze  .achievement-tier-bar { background: rgba(180, 110, 50, 0.75); }
+.tier-silver  .achievement-tier-bar { background: rgba(140, 160, 200, 0.75); }
+.tier-gold    .achievement-tier-bar { background: rgba(255, 200, 0, 0.8); }
+.tier-diamond .achievement-tier-bar { background: linear-gradient(180deg, rgba(160,120,255,0.9), rgba(82,113,255,0.9)); }
 
 .achievement-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  flex: 1;
+  padding: 14px 16px;
 }
 
-.achievement-icon {
-  width: 20px;
-  height: 20px;
-  opacity: 0.7;
+/* Orb icon */
+.achievement-orb {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
+.orb-bronze  { background: rgba(180, 110, 50, 0.15); color: rgba(200, 140, 70, 0.9);  border-color: rgba(180, 110, 50, 0.35); }
+.orb-silver  { background: rgba(140, 160, 200, 0.12); color: rgba(170, 190, 220, 0.9); border-color: rgba(140, 160, 200, 0.35); }
+.orb-gold    { background: rgba(255, 200, 0, 0.12);   color: rgba(255, 210, 50, 0.95);  border-color: rgba(255, 200, 0, 0.4); }
+.orb-diamond { background: rgba(160, 120, 255, 0.15); color: rgba(180, 140, 255, 0.95); border-color: rgba(160, 120, 255, 0.45); }
 
 .achievement-name {
   font-family: bitF1, sans-serif;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   letter-spacing: 0.5px;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .achievement-desc {
   font-family: 'Courier New', monospace;
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.32);
   letter-spacing: 0.3px;
 }
 
@@ -803,6 +859,7 @@
   align-items: flex-end;
   gap: 4px;
   flex-shrink: 0;
+  padding: 14px 16px;
 }
 
 .achievement-gold {
@@ -810,9 +867,13 @@
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
-  color: rgba(255, 215, 0, 0.8);
   white-space: nowrap;
+  color: rgba(255, 215, 0, 0.7);
 }
+.gold-bronze  { color: rgba(200, 140, 70, 0.9); }
+.gold-silver  { color: rgba(170, 190, 220, 0.9); }
+.gold-gold    { color: rgba(255, 210, 50, 1); }
+.gold-diamond { color: rgba(190, 150, 255, 1); }
 
 .achievement-date {
   font-family: 'Courier New', monospace;

@@ -293,23 +293,45 @@
     <!-- ACHIEVEMENTS                               -->
     <!-- ══════════════════════════════════════════ -->
     <div [hidden]="activeSection !== 'achievements'">
-      <div class="section">
-        <div *ngIf="achievements.length === 0" class="no-achievements">
-          <p>No achievements yet — complete sessions to start earning them.</p>
-        </div>
-        <div class="achievements-list">
-          <div *ngFor="let a of achievements" class="achievement-item">
-            <div class="achievement-left">
-              <img src="assets/images/goldcoin.png" alt="" class="achievement-icon">
-              <div>
-                <div class="achievement-name">{{ a.name }}</div>
-                <div class="achievement-desc">{{ a.description }}</div>
-              </div>
+
+      <div class="awards-count" *ngIf="achievements.length > 0">
+        <span class="awards-count-num">{{ achievements.length }}</span>
+        <span class="awards-count-label">AWARDS UNLOCKED</span>
+      </div>
+
+      <div *ngIf="achievements.length === 0" class="no-achievements">
+        <p>No achievements yet — complete sessions to start earning them.</p>
+      </div>
+
+      <div class="achievements-list">
+        <div *ngFor="let a of achievements"
+             class="achievement-item"
+             [class.tier-bronze]="a.goldReward >= 5  && a.goldReward <= 10"
+             [class.tier-silver]="a.goldReward >= 15 && a.goldReward <= 20"
+             [class.tier-gold]="a.goldReward >= 25   && a.goldReward <= 35"
+             [class.tier-diamond]="a.goldReward >= 40">
+          <div class="achievement-tier-bar"></div>
+          <div class="achievement-left">
+            <div class="achievement-orb" [class.orb-bronze]="a.goldReward >= 5 && a.goldReward <= 10"
+                                         [class.orb-silver]="a.goldReward >= 15 && a.goldReward <= 20"
+                                         [class.orb-gold]="a.goldReward >= 25 && a.goldReward <= 35"
+                                         [class.orb-diamond]="a.goldReward >= 40">
+              ◆
             </div>
-            <div class="achievement-right">
-              <span *ngIf="a.goldReward > 0" class="achievement-gold">+{{ a.goldReward }} ◆</span>
-              <span class="achievement-date">{{ a.date }}</span>
+            <div>
+              <div class="achievement-name">{{ a.name }}</div>
+              <div class="achievement-desc">{{ a.description }}</div>
             </div>
+          </div>
+          <div class="achievement-right">
+            <span *ngIf="a.goldReward > 0" class="achievement-gold"
+                  [class.gold-bronze]="a.goldReward >= 5  && a.goldReward <= 10"
+                  [class.gold-silver]="a.goldReward >= 15 && a.goldReward <= 20"
+                  [class.gold-gold]="a.goldReward >= 25   && a.goldReward <= 35"
+                  [class.gold-diamond]="a.goldReward >= 40">
+              +{{ a.goldReward }} ◆
+            </span>
+            <span class="achievement-date">{{ a.date }}</span>
           </div>
         </div>
       </div>
