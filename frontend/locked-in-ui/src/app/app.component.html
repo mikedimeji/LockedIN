@@ -255,14 +255,14 @@
   <!-- GIFs displayed as background images -->
   <div *ngIf="isVideoBackground && selectedTheme.toLowerCase().endsWith('.gif')"
        class="gif-background"
-       [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}"
+       [ngStyle]="{'background-image': 'url(&quot;' + selectedTheme + '&quot;)'}"
        ngSkipHydration>
   </div>
-  
+
   <!-- Static images -->
-  <div *ngIf="!isVideoBackground" 
-       class="background-image" 
-       [ngStyle]="{'background-image': 'url(' + selectedTheme + ')'}" 
+  <div *ngIf="!isVideoBackground"
+       class="background-image"
+       [ngStyle]="{'background-image': 'url(&quot;' + selectedTheme + '&quot;)'}"
        ngSkipHydration>
   </div>
 

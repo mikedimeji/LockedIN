@@ -79,9 +79,23 @@ export class ThemesComponent implements OnInit {
     { path: 'assets/videos/tokyo.gif',          name: 'Tokyo',          premium: true, category: 'anime',      isLive: true,  goldCost: 500,  unlocked: false },
     { path: 'assets/videos/scottpill.gif',      name: 'Scott Pill',     premium: true, category: 'aesthetic',  isLive: true,  goldCost: 800,  unlocked: false },
 
+    // ── Premium live themes (new) ──
+    { path: 'assets/videos/aquareum.gif',           name: 'Aquareum',     premium: true, category: 'chill',     isLive: true,  goldCost: 150, unlocked: false },
+    { path: 'assets/videos/boat.gif',               name: 'Boat',         premium: true, category: 'chill',     isLive: true,  goldCost: 120, unlocked: false },
+    { path: 'assets/videos/gif38bit-restaurant.gif',name: 'Pixel Diner',  premium: true, category: 'aesthetic', isLive: true,  goldCost: 200, unlocked: false },
+    { path: 'assets/videos/mario.gif',              name: 'Mario',        premium: true, category: 'custom',    isLive: true,  goldCost: 250, unlocked: false },
+    { path: 'assets/videos/zelda.gif',              name: 'Zelda',        premium: true, category: 'custom',    isLive: true,  goldCost: 300, unlocked: false },
+
     // ── Premium static themes ──
-    { path: 'assets/images/themes/-9.jpg',   name: 'Lofi Room', premium: true, category: 'study', isLive: false, goldCost: 60,  unlocked: false },
-    { path: 'assets/images/themes/rei.webp', name: 'Rei',       premium: true, category: 'anime', isLive: false, goldCost: 100, unlocked: false },
+    { path: 'assets/images/themes/-9.jpg',          name: '-9',           premium: true, category: 'study',     isLive: false, goldCost: 60,  unlocked: false },
+    { path: 'assets/images/themes/rei.webp',        name: 'Rei',          premium: true, category: 'anime',     isLive: false, goldCost: 100, unlocked: false },
+    { path: 'assets/images/themes/abstractwell.webp',name: 'Abstract Well',premium: true, category: 'aesthetic', isLive: false, goldCost: 150, unlocked: false },
+    { path: 'assets/images/themes/bones.webp',      name: 'Bones',        premium: true, category: 'aesthetic', isLive: false, goldCost: 150, unlocked: false },
+    { path: 'assets/images/themes/flcl.webp',       name: 'FLCL',         premium: true, category: 'anime',     isLive: false, goldCost: 200, unlocked: false },
+    { path: 'assets/images/themes/isolation.jpg',   name: 'Isolation',    premium: true, category: 'chill',     isLive: false, goldCost: 120, unlocked: false },
+    { path: 'assets/images/themes/lol.jpg',         name: 'League',       premium: true, category: 'custom',    isLive: false, goldCost: 200, unlocked: false },
+    { path: 'assets/images/themes/poke.jpg',        name: 'Pokémon',      premium: true, category: 'anime',     isLive: false, goldCost: 200, unlocked: false },
+    { path: 'assets/images/themes/smoker.jpg',      name: 'Smoker',       premium: true, category: 'chill',     isLive: false, goldCost: 150, unlocked: false },
   ];
 
   // Themes that match the current filter
