@@ -68,6 +68,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   tutorialSteps: TutorialStep[] = [];
   
   private audio: HTMLAudioElement | null = null;
+  private completeAudio: HTMLAudioElement | null = null;
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -82,6 +83,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.audio = new Audio('/assets/sounds/soundbit.wav');
+      this.completeAudio = new Audio('/assets/sounds/complete2.mp3');
     }
   }
 
@@ -425,6 +427,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.longestStreak = response.longestStreak;
               this.streakUpdated = true;
             }
+            this.completeAudio?.play().catch(() => {});
             this.showCompletionScreen = true;
           }
         });
