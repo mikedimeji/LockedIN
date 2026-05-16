@@ -12,8 +12,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Repository
@@ -127,76 +129,81 @@ public class StatsDaoImpl implements StatsDao {
 
     @Override
     public List<DailyStreakDTO> getStreakHistory(Long userId, int days) {
-        List<DailyStreakDTO> history = new ArrayList<>();
         LocalDate today = LocalDate.now();
-
+        List<DailyStreakDTO> history = new ArrayList<>();
         try {
-            // Get the current streak info from userstats
-            String streakSql = "SELECT current_streak, last_pomodoro_date FROM userstats WHERE user_id = ?";
-            Map<String, Object> userStats = jdbcTemplate.queryForMap(streakSql, userId);
+            Set<LocalDate> sessionSet = getSessionDateSet(userId);
 
-            int currentStreak = ((Number) userStats.getOrDefault("current_streak", 0)).intValue();
-            LocalDate lastPomodoroDate = null;
-            if (userStats.get("last_pomodoro_date") != null) {
-                lastPomodoroDate = ((java.sql.Date) userStats.get("last_pomodoro_date")).toLocalDate();
-            }
-
-            // Get pomodoro completion dates for the last 'days' days
-            String pomodoroDatesSql = "SELECT DISTINCT date(start_time) as completion_date " +
-                    "FROM pomodoro_sessions " +
-                    "WHERE user_id = ? AND date(start_time) >= DATE_SUB(CURDATE(), INTERVAL ? DAY) " +
-                    "ORDER BY completion_date";
-
-            List<LocalDate> completionDates = jdbcTemplate.query(
-                    pomodoroDatesSql,
-                    (rs, rowNum) -> rs.getDate("completion_date").toLocalDate(),
-                    userId, days
-            );
-
-            // Build streak history by working backwards from current streak
-            int streakValue = currentStreak;
-            for (int i = 0; i < days; i++) {
+            for (int i = days - 1; i >= 0; i--) {
                 LocalDate date = today.minusDays(i);
-
-                // If this date is after the last pomodoro date, streak was 0
-                if (lastPomodoroDate != null && date.isAfter(lastPomodoroDate) && !date.isEqual(lastPomodoroDate)) {
-                    streakValue = 0;
+                int streak = 0;
+                LocalDate cursor = date;
+                while (sessionSet.contains(cursor)) {
+                    streak++;
+                    cursor = cursor.minusDays(1);
                 }
-
-                // If this date is not in completion dates, and it's not today, streak was broken
-                if (!completionDates.contains(date) && !date.isEqual(today)) {
-                    streakValue = 0;
-                }
-
-                // Add to history (in reverse order as we're going backwards)
-                history.add(0, DailyStreakDTO.builder()
-                        .date(date)
-                        .streakValue(streakValue)
-                        .build());
-
-                // If streak was 0 but the previous day had a pomodoro, start a new streak count
-                if (streakValue == 0 && completionDates.contains(date.minusDays(1))) {
-                    streakValue = 1;
-                } else if (streakValue > 0 && completionDates.contains(date.minusDays(1))) {
-                    // If maintaining a streak and previous day had pomodoro, increment streak going backwards
-                    streakValue++;
-                }
+                history.add(DailyStreakDTO.builder().date(date).streakValue(streak).build());
             }
-
             return history;
         } catch (Exception e) {
             log.error("Error retrieving streak history for user ID {}: {}", userId, e.getMessage(), e);
-
-            // If we can't get real data, generate empty streak history
-            for (int i = 0; i < days; i++) {
-                LocalDate date = today.minusDays(days - i - 1);
-                history.add(DailyStreakDTO.builder()
-                        .date(date)
-                        .streakValue(0)
-                        .build());
+            for (int i = days - 1; i >= 0; i--) {
+                history.add(DailyStreakDTO.builder().date(today.minusDays(i)).streakValue(0).build());
             }
             return history;
         }
+    }
+
+    @Override
+    public int computeCurrentStreak(Long userId) {
+        try {
+            Set<LocalDate> sessionSet = getSessionDateSet(userId);
+            LocalDate today = LocalDate.now();
+            // Accept streak starting from today or yesterday
+            LocalDate start = sessionSet.contains(today) ? today : today.minusDays(1);
+            if (!sessionSet.contains(start)) return 0;
+            int streak = 0;
+            LocalDate cursor = start;
+            while (sessionSet.contains(cursor)) {
+                streak++;
+                cursor = cursor.minusDays(1);
+            }
+            return streak;
+        } catch (Exception e) {
+            log.error("Error computing current streak for user ID {}: {}", userId, e.getMessage());
+            return 0;
+        }
+    }
+
+    @Override
+    public int computeLongestStreak(Long userId) {
+        try {
+            List<LocalDate> dates = jdbcTemplate.query(
+                "SELECT DISTINCT DATE(start_time) as d FROM pomodoro_sessions WHERE user_id = ? ORDER BY d ASC",
+                (rs, row) -> rs.getDate("d").toLocalDate(), userId);
+            int longest = 0, run = 0;
+            LocalDate prev = null;
+            for (LocalDate d : dates) {
+                if (prev != null && d.minusDays(1).equals(prev)) {
+                    run++;
+                } else {
+                    run = 1;
+                }
+                if (run > longest) longest = run;
+                prev = d;
+            }
+            return longest;
+        } catch (Exception e) {
+            log.error("Error computing longest streak for user ID {}: {}", userId, e.getMessage());
+            return 0;
+        }
+    }
+
+    private Set<LocalDate> getSessionDateSet(Long userId) {
+        List<LocalDate> dates = jdbcTemplate.query(
+            "SELECT DISTINCT DATE(start_time) as d FROM pomodoro_sessions WHERE user_id = ?",
+            (rs, row) -> rs.getDate("d").toLocalDate(), userId);
+        return new HashSet<>(dates);
     }
 
     @Override

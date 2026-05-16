@@ -65,4 +65,10 @@ public interface StatsDao {
      * Get session counts grouped by day-of-week × hour (for heatmap)
      */
     List<Map<String, Object>> getHeatmap(Long userId);
+
+    /** Compute current streak from actual session dates (no userstats dependency) */
+    int computeCurrentStreak(Long userId);
+
+    /** Compute longest streak ever from actual session dates (no userstats dependency) */
+    int computeLongestStreak(Long userId);
 }

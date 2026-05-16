@@ -139,6 +139,20 @@ public class StatsService {
         return grid;
     }
 
+    /** Current streak computed from actual session dates */
+    public int computeCurrentStreak(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return 0;
+        return statsDao.computeCurrentStreak(userId);
+    }
+
+    /** Longest streak ever computed from actual session dates */
+    public int computeLongestStreak(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return 0;
+        return statsDao.computeLongestStreak(userId);
+    }
+
     /**
      * Get user achievements
      */

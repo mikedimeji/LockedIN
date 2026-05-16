@@ -51,8 +51,8 @@ public class StatsController {
 
         // Fetch all the required data
         int currentGold = goldService.getUserGold(userEmail);
-        int currentStreak = streakService.getCurrentStreak(userEmail);
-        int longestStreak = streakService.getLongestStreak(userEmail);
+        int currentStreak = statsService.computeCurrentStreak(userEmail);
+        int longestStreak = statsService.computeLongestStreak(userEmail);
         int totalPomodoros = statsService.getTotalPomodorosCompleted(userEmail);
         double totalHours = statsService.getTotalHoursRevised(userEmail);
 
