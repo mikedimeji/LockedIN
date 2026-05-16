@@ -62,11 +62,15 @@
 
         <!-- Premium lock overlay -->
         <div *ngIf="theme.premium && !theme.unlocked" class="premium-overlay">
-          <span class="lock-icon">🔒</span>
+          <svg class="lock-icon-svg" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="9" width="12" height="9" rx="2.5" fill="currentColor" opacity="0.95"/>
+            <path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
           <div class="premium-cost">
             <img src="assets/images/goldcoin.png" alt="Gold" class="gold-icon">
             <span>{{ theme.goldCost || 500 }}</span>
           </div>
+          <span class="preview-hint">HOVER TO PREVIEW</span>
         </div>
 
         <!-- Badges -->

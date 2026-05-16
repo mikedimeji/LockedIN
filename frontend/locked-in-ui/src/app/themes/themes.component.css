@@ -271,16 +271,49 @@
   inset: 0;
   background: rgba(4, 10, 22, 0.78);
   backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 8px;
   z-index: 3;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
 }
 
-.lock-icon {
-  font-size: 22px;
+.premium-overlay .lock-icon-svg,
+.premium-overlay .premium-cost,
+.premium-overlay .preview-hint {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover: fade overlay so the theme previews through */
+.theme-item:hover .premium-overlay {
+  background: rgba(4, 10, 22, 0.1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.theme-item:hover .premium-overlay .lock-icon-svg,
+.theme-item:hover .premium-overlay .premium-cost,
+.theme-item:hover .premium-overlay .preview-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lock-icon-svg {
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.85);
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
+}
+
+.preview-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 2px;
 }
 
 .premium-cost {

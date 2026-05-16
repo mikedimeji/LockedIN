@@ -1,71 +1,53 @@
-<div class="tutorial-overlay" (click)="onBackdropClick($event)">
-  <div class="tutorial-content" (click)="$event.stopPropagation()">
-    
+<div class="tut-overlay" (click)="onBackdropClick($event)">
+  <div class="tut-card" (click)="$event.stopPropagation()">
+
     <!-- Header -->
-    <div class="tutorial-header">
-      <h2>{{ featureName }} Guide</h2>
-      <button class="close-btn" (click)="skip()">✕</button>
-    </div>
-
-    <!-- Current Step Content -->
-    <div class="tutorial-body">
-      <h3>{{ currentStepData.title }}</h3>
-      <p>{{ currentStepData.description }}</p>
-      
-      <!-- Optional image/gif -->
-      <div *ngIf="currentStepData.image" class="tutorial-image">
-        <img [src]="currentStepData.image" [alt]="currentStepData.title">
+    <div class="tut-header">
+      <div class="tut-hud-left">
+        <span class="tut-logo">LOCKED IN</span>
+        <span class="tut-sep">·</span>
+        <span class="tut-feature">{{ featureName | uppercase }}</span>
       </div>
+      <button class="tut-close" (click)="skip()">✕</button>
     </div>
 
-    <!-- Progress Dots -->
-    <div class="progress-dots">
-      <span *ngFor="let step of steps; let i = index"
-            class="dot"
-            [class.active]="i === currentStep"
-            (click)="goToStep(i)">
+    <!-- Step counter bar -->
+    <div class="tut-step-bar">
+      <span class="tut-step-dots">
+        <span *ngFor="let step of steps; let i = index"
+              class="tut-dot"
+              [class.active]="i === currentStep"
+              (click)="goToStep(i)">
+        </span>
       </span>
+      <span class="tut-step-counter">{{ (currentStep + 1).toString().padStart(2,'0') }} / {{ totalSteps.toString().padStart(2,'0') }}</span>
     </div>
 
-    <!-- Navigation -->
-    <div class="tutorial-footer">
-      <div class="footer-left">
-        <button class="skip-btn" (click)="skip()">Skip Tutorial</button>
-      </div>
+    <!-- Body -->
+    <div class="tut-body">
+      <div class="tut-title">{{ currentStepData.title }}</div>
+      <p class="tut-desc">{{ currentStepData.description }}</p>
 
-      <div class="footer-center">
-        <button class="nav-btn prev-btn" 
-                [disabled]="isFirstStep" 
-                (click)="previousStep()">
-          ← Previous
-        </button>
-        
-        <span class="step-counter">{{ currentStep + 1 }} / {{ totalSteps }}</span>
-        
-        <button *ngIf="!isLastStep" 
-                class="nav-btn next-btn" 
-                (click)="nextStep()">
-          Next →
-        </button>
-        
-        <button *ngIf="isLastStep" 
-                class="nav-btn done-btn" 
-                (click)="complete()">
-          Got it!
-        </button>
-      </div>
-
-      <div class="footer-right">
-        <!-- Spacer for alignment -->
+      <div *ngIf="currentStepData.image" class="tut-image-wrap">
+        <img [src]="currentStepData.image" [alt]="currentStepData.title" class="tut-image">
       </div>
     </div>
 
-    <!-- Don't Show Again Checkbox -->
-    <div class="dont-show-again">
-      <label>
-        <input type="checkbox" [(ngModel)]="dontShowAgain">
-        <span>Don't show this again</span>
+    <!-- Footer nav -->
+    <div class="tut-footer">
+      <button class="tut-btn tut-prev" [disabled]="isFirstStep" (click)="previousStep()">← PREV</button>
+
+      <button *ngIf="!isLastStep" class="tut-btn tut-next" (click)="nextStep()">NEXT →</button>
+      <button *ngIf="isLastStep"  class="tut-btn tut-done" (click)="complete()">GOT IT</button>
+    </div>
+
+    <!-- Don't show again -->
+    <div class="tut-dsa">
+      <label class="tut-dsa-label">
+        <input type="checkbox" [(ngModel)]="dontShowAgain" class="tut-check">
+        <span>don't show again</span>
       </label>
+      <button class="tut-skip" (click)="skip()">skip</button>
     </div>
 
   </div>
