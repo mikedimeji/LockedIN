@@ -63,17 +63,47 @@
     </div>
   </div>
 
-  <!-- ── Reward message ── -->
-  <div class="reward-message" *ngIf="showGoldMessage" [ngClass]="{'show': showGoldMessage}">
-    <div class="reward-icons">
-      <div class="reward-icon" *ngIf="goldEarned > 0">
-        <img src="assets/images/goldcoin.png" alt="Gold">
+  <!-- ── Session completion screen ── -->
+  <div class="completion-overlay" *ngIf="showCompletionScreen">
+    <div class="completion-card">
+
+      <div class="comp-label">SESSION COMPLETE</div>
+      <div class="comp-title">WELL DONE.</div>
+
+      <div class="comp-divider"></div>
+
+      <!-- Gold earned -->
+      <div class="comp-gold" *ngIf="goldEarned > 0">
+        <span class="comp-gold-orb">◆</span>
+        <span class="comp-gold-amount">+{{ goldEarned }}</span>
+        <span class="comp-gold-label">GOLD EARNED</span>
       </div>
-      <div class="reward-icon streak" *ngIf="streakUpdated">
-        <img src="assets/images/fire.gif" alt="Streak">
+      <div class="comp-no-gold" *ngIf="goldEarned <= 0">
+        <span class="comp-no-gold-text">Complete 25 min to earn gold</span>
       </div>
+
+      <div class="comp-divider"></div>
+
+      <!-- Stats row -->
+      <div class="comp-stats">
+        <div class="comp-stat">
+          <div class="comp-stat-val">{{ sessionDurationMinutes }}<span class="comp-stat-unit">m</span></div>
+          <div class="comp-stat-key">SESSION</div>
+        </div>
+        <div class="comp-stat-sep"></div>
+        <div class="comp-stat">
+          <div class="comp-stat-val">{{ currentStreak }}</div>
+          <div class="comp-stat-key">DAY STREAK</div>
+        </div>
+        <div class="comp-stat-sep"></div>
+        <div class="comp-stat">
+          <div class="comp-stat-val">{{ longestStreak }}</div>
+          <div class="comp-stat-key">BEST STREAK</div>
+        </div>
+      </div>
+
+      <button class="comp-continue" (click)="dismissCompletion()">— CONTINUE —</button>
     </div>
-    <div class="reward-text" [innerHTML]="getGoldMessage()"></div>
   </div>
 
 </div>

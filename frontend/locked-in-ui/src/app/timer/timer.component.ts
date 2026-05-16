@@ -45,6 +45,10 @@ export class TimerComponent implements OnInit, OnDestroy {
   longestStreak: number = 0;
   showGoldMessage: boolean = false;
   streakUpdated: boolean = false;
+
+  // Completion screen
+  showCompletionScreen = false;
+  sessionDurationMinutes = 0;
   
   // Pause functionality
   completedPomodoros: number = 0;
@@ -171,6 +175,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       
       this.isRunning = true;
       this.isExpanded = true;
+      document.body.classList.add('timer-running');
 
       if (isPlatformBrowser(this.platformId)) {
         const elementsToHide = [
@@ -277,10 +282,17 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
+  dismissCompletion(): void {
+    this.showCompletionScreen = false;
+    this.resetTimer();
+  }
+
   resetTimer(): void {
     this.isRunning = false;
     this.isExpanded = false;
-    
+    this.showCompletionScreen = false;
+    document.body.classList.remove('timer-running');
+
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
@@ -385,79 +397,45 @@ export class TimerComponent implements OnInit, OnDestroy {
       }
     }
 
+    const totalDurationMs = this.timerEndTime.getTime() - this.timerStartTime.getTime() - this.totalPauseTime;
+    const durationMinutes = Math.floor((totalDurationMs + 15000) / (1000 * 60));
+    this.sessionDurationMinutes = durationMinutes;
+    const totalPomodorosCompleted = Math.floor(durationMinutes / 25) + this.completedPomodoros;
+
     if (!this.authService.isLoggedIn()) {
-      console.log('User not logged in - no gold will be awarded');
-      this.showNotLoggedInMessage();
+      this.goldEarned = 0;
+      this.showCompletionScreen = true;
+      this.completedPomodoros = 0;
+      this.pausedMidPomodoro = false;
       return;
     }
 
-    const totalDurationMs = this.timerEndTime.getTime() - this.timerStartTime.getTime() - this.totalPauseTime;
-    const durationMinutes = Math.floor((totalDurationMs + 15000) / (1000 * 60));
-    
-    const totalPomodorosCompleted = Math.floor(durationMinutes / 25) + this.completedPomodoros;
-    
     if (totalPomodorosCompleted > 0) {
       const rewardSub = this.goldStreakService.rewardPomodoro(totalPomodorosCompleted)
-        .pipe(
-          catchError((error: HttpErrorResponse) => {
-            console.error('Error rewarding pomodoro:', error);
-            this.showErrorMessage();
-            return of(null);
-          })
-        )
+        .pipe(catchError((error: HttpErrorResponse) => {
+          console.error('Error rewarding pomodoro:', error);
+          return of(null);
+        }))
         .subscribe({
           next: (response) => {
             if (response) {
-              console.log('Pomodoro reward response:', response);
-              
               this.goldEarned = response.currentGold - this.previousGold;
               this.previousGold = response.currentGold;
-              
               this.currentStreak = response.currentStreak;
               this.longestStreak = response.longestStreak;
               this.streakUpdated = true;
-              
-              this.showGoldMessage = true;
-
-              setTimeout(() => {
-                this.showGoldMessage = false;
-                this.resetTimer();
-              }, 5000);
             }
+            this.showCompletionScreen = true;
           }
         });
-        
       this.subscriptions.push(rewardSub);
     } else {
       this.goldEarned = 0;
-      this.streakUpdated = false;
-      this.showGoldMessage = true;
-      setTimeout(() => {
-        this.showGoldMessage = false;
-        this.resetTimer();
-      }, 5000);
+      this.showCompletionScreen = true;
     }
-    
+
     this.completedPomodoros = 0;
     this.pausedMidPomodoro = false;
-  }
-
-  private showErrorMessage(): void {
-    this.goldEarned = 0;
-    this.streakUpdated = false;
-    this.showGoldMessage = true;
-    setTimeout(() => {
-      this.showGoldMessage = false;
-    }, 5000);
-  }
-
-  private showNotLoggedInMessage(): void {
-    this.goldEarned = 0;
-    this.streakUpdated = false;
-    this.showGoldMessage = true;
-    setTimeout(() => {
-      this.showGoldMessage = false;
-    }, 5000);
   }
 
   getGoldMessage(): string {

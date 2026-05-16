@@ -44,3 +44,14 @@ html, body {
 }
 
 
+
+/* ── Ambience effects dim during timer ──────────────────────────────────── */
+body.timer-running #rain-container,
+body.timer-running #snow-container {
+  opacity: 0.35;
+  transition: opacity 0.8s ease;
+}
+#rain-container,
+#snow-container {
+  transition: opacity 0.8s ease;
+}
