@@ -978,3 +978,266 @@
   .heatmap-block-label { width: 56px; font-size: 7px; }
   .heatmap-day-label { min-width: 28px; font-size: 7px; }
 }
+
+/* ══════════════════════════════════════════
+   PREMIUM FEATURES — Focus Score, Subjects, Goals
+   ══════════════════════════════════════════ */
+
+.prem-section { margin-top: 0; }
+
+.prem-empty {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.28);
+  text-align: center;
+  padding: 16px 0 4px;
+}
+
+/* Focus Score ring */
+.focus-score-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.fs-ring {
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+
+.fs-ring-bg {
+  fill: none;
+  stroke: rgba(255,255,255,0.07);
+  stroke-width: 8;
+}
+
+.fs-ring-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease, stroke 0.4s ease;
+}
+
+.fs-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fs-number {
+  font-family: bitF1, sans-serif;
+  font-size: 36px;
+  letter-spacing: 2px;
+  line-height: 1;
+  transition: color 0.4s ease;
+}
+
+.fs-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+}
+
+.fs-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.25);
+  line-height: 1.5;
+  max-width: 200px;
+}
+
+/* Subject breakdown */
+.subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.subject-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subject-name {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.65);
+  width: 80px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subject-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.subject-bar {
+  height: 100%;
+  background: rgba(82,113,255,0.7);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  min-width: 4px;
+}
+
+.subject-time {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.45);
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Weekly Goals */
+.goal-add-btn {
+  margin-left: auto;
+  background: rgba(82,113,255,0.1);
+  border: 1px solid rgba(82,113,255,0.3);
+  color: rgba(82,113,255,0.85);
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.goal-add-btn:hover {
+  background: rgba(82,113,255,0.2);
+  border-color: rgba(82,113,255,0.55);
+}
+
+.goal-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0 4px;
+  flex-wrap: wrap;
+}
+
+.goal-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.75);
+  outline: none;
+  flex: 1;
+  min-width: 100px;
+  transition: border-color 0.2s ease;
+}
+
+.goal-input:focus { border-color: rgba(82,113,255,0.45); }
+.goal-input::placeholder { color: rgba(255,255,255,0.2); }
+.goal-input-num { flex: 0 0 80px; }
+
+.goal-save-btn {
+  background: rgba(82,113,255,0.18);
+  border: 1px solid rgba(82,113,255,0.45);
+  color: rgba(255,255,255,0.85);
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.goal-save-btn:hover {
+  background: rgba(82,113,255,0.3);
+}
+
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 6px;
+}
+
+.goal-item { display: flex; flex-direction: column; gap: 5px; }
+
+.goal-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.goal-subject {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-progress-text {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+}
+
+.goal-delete-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.2);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.goal-delete-btn:hover { color: rgba(255,80,80,0.7); }
+
+.goal-bar-wrap {
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.goal-bar {
+  height: 100%;
+  background: rgba(82,113,255,0.65);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  min-width: 3px;
+}
+
+.goal-bar.goal-complete { background: rgba(74,222,128,0.75); }
+
+.goal-pct {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.25);
+  text-align: right;
+}
+

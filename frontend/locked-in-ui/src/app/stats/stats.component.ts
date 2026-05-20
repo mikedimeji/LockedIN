@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
 import { StatsService } from './stats.service';
 import { PremiumService, PremiumModalService, PremiumStatus, FocusInsights } from '../premium.service';
@@ -29,7 +30,7 @@ type Section = 'overview' | 'focus' | 'activity' | 'achievements';
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [CommonModule, TutorialModalComponent],
+  imports: [CommonModule, FormsModule, TutorialModalComponent],
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.css']
 })
@@ -62,6 +63,14 @@ export class StatsComponent implements OnInit, OnDestroy {
   heatmapMax = 1;
   readonly blockLabels = ['Night', 'Morning', 'Afternoon', 'Evening'];
   readonly dayLabels   = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  // Premium features
+  focusScore = 0;
+  subjectBreakdown: { subject: string; total_minutes: number; session_count: number }[] = [];
+  studyGoals: { id: number; subject: string; weeklyHoursTarget: number; weeklyHoursCompleted: number }[] = [];
+  newGoalSubject = '';
+  newGoalHours: number | null = null;
+  showGoalForm = false;
 
   weeklyTotalSessions = 0;
   weeklyTotalGold     = 0;
@@ -165,11 +174,17 @@ export class StatsComponent implements OnInit, OnDestroy {
 
       if (this.premium.isPremium) {
         forkJoin({
-          insights: this.statsService.getFocusInsights().pipe(catchError(() => of(null))),
-          heatmap:  this.statsService.getHeatmap().pipe(catchError(() => of({ grid: [] }))),
+          insights:  this.statsService.getFocusInsights().pipe(catchError(() => of(null))),
+          heatmap:   this.statsService.getHeatmap().pipe(catchError(() => of({ grid: [] }))),
+          fscore:    this.statsService.getFocusScore().pipe(catchError(() => of({ score: 0 }))),
+          subjects:  this.statsService.getSubjectBreakdown().pipe(catchError(() => of([]))),
+          goals:     this.statsService.getStudyGoals().pipe(catchError(() => of([]))),
         }).subscribe(pr => {
           this.insights = pr.insights;
           this.computeInsightStats();
+          this.focusScore = (pr.fscore as any)?.score ?? 0;
+          this.subjectBreakdown = (pr.subjects as any[]) ?? [];
+          this.studyGoals = (pr.goals as any[]) ?? [];
           const hm = pr.heatmap as any;
           if (hm.grid && hm.grid.length) {
             this.heatmapGrid = hm.grid;
@@ -218,6 +233,50 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   totalHoursDisplay(): string {
     return (this.summary.totalHours ?? 0).toFixed(1);
+  }
+
+  addGoal(): void {
+    if (!this.newGoalSubject.trim() || !this.newGoalHours || this.newGoalHours <= 0) return;
+    this.statsService.createStudyGoal(this.newGoalSubject.trim(), this.newGoalHours).subscribe({
+      next: (goal) => {
+        this.studyGoals = [...this.studyGoals.filter(g => g.subject.toLowerCase() !== goal.subject.toLowerCase()), goal];
+        this.newGoalSubject = '';
+        this.newGoalHours = null;
+        this.showGoalForm = false;
+      },
+      error: () => {}
+    });
+  }
+
+  deleteGoal(id: number): void {
+    this.statsService.deleteStudyGoal(id).subscribe({
+      next: () => { this.studyGoals = this.studyGoals.filter(g => g.id !== id); },
+      error: () => {}
+    });
+  }
+
+  goalProgress(goal: { weeklyHoursCompleted: number; weeklyHoursTarget: number }): number {
+    if (!goal.weeklyHoursTarget) return 0;
+    return Math.min(100, Math.round((goal.weeklyHoursCompleted / goal.weeklyHoursTarget) * 100));
+  }
+
+  subjectMinutesToDisplay(minutes: number): string {
+    if (minutes < 60) return `${minutes}m`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
+  }
+
+  scoreColor(score: number): string {
+    if (score >= 85) return '#4ade80';
+    if (score >= 68) return '#5271ff';
+    if (score >= 50) return '#facc15';
+    if (score >= 30) return '#fb923c';
+    return '#f87171';
+  }
+
+  scoreDashOffsetFor(score: number): number {
+    return this.RING_CIRCUMFERENCE * (1 - score / 100);
   }
 
   getHeatmapOpacity(val: number): number {

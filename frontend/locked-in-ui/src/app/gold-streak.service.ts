@@ -33,15 +33,50 @@ export class GoldStreakService {
 
   /**
    * Award gold for completed pomodoros
-   * @param pomodorosCompleted The number of pomodoros completed
    */
-  rewardPomodoro(pomodorosCompleted: number): Observable<any> {
+  rewardPomodoro(
+    pomodorosCompleted: number,
+    opts?: {
+      subject?: string;
+      startTime?: string;
+      endTime?: string;
+      durationMinutes?: number;
+      pauseCount?: number;
+    }
+  ): Observable<any> {
     return this.http.post<any>(`${this.apiBaseUrl}/gold/pomodoro-reward`, {
-      pomodorosCompleted: pomodorosCompleted
-    })
-    .pipe(
-      catchError(this.handleError)
-    );
+      pomodorosCompleted,
+      subject: opts?.subject ?? null,
+      startTime: opts?.startTime ?? null,
+      endTime: opts?.endTime ?? null,
+      durationMinutes: opts?.durationMinutes ?? 0,
+      pauseCount: opts?.pauseCount ?? 0
+    }).pipe(catchError(this.handleError));
+  }
+
+  getSubjectBreakdown(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/stats/subjects`)
+      .pipe(catchError(this.handleError));
+  }
+
+  getFocusScore(): Observable<{score: number}> {
+    return this.http.get<{score: number}>(`${this.apiBaseUrl}/stats/focus-score`)
+      .pipe(catchError(this.handleError));
+  }
+
+  getStudyGoals(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiBaseUrl}/goals`)
+      .pipe(catchError(this.handleError));
+  }
+
+  createStudyGoal(subject: string, weeklyHoursTarget: number): Observable<any> {
+    return this.http.post<any>(`${this.apiBaseUrl}/goals`, { subject, weeklyHoursTarget })
+      .pipe(catchError(this.handleError));
+  }
+
+  deleteStudyGoal(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiBaseUrl}/goals/${id}`)
+      .pipe(catchError(this.handleError));
   }
 
   /**

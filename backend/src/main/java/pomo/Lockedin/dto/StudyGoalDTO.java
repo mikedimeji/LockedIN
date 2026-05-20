@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PomodoroCompletionDTO {
-    private int pomodorosCompleted;
+public class StudyGoalDTO {
+    private Long id;
     private String subject;
-    private String startTime;
-    private String endTime;
-    private int durationMinutes;
-    private int pauseCount;
+    private double weeklyHoursTarget;
+    private double weeklyHoursCompleted;
 }

@@ -1,5 +1,5 @@
 import { Component, Inject, PLATFORM_ID, OnInit, OnDestroy, Renderer2 } from '@angular/core';
-import { isPlatformBrowser, NgIf, NgClass } from '@angular/common';
+import { isPlatformBrowser, NgIf, NgFor, NgClass } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Subscription, catchError, of } from 'rxjs';
@@ -7,8 +7,10 @@ import { Subscription, catchError, of } from 'rxjs';
 import { GoldStreakService } from '../gold-streak.service';
 import { AuthService } from '../auth.service';
 import { HeartService } from '../heart.service';
+import { PremiumService } from '../premium.service';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
 import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-timer',
@@ -18,6 +20,8 @@ import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.compone
   imports: [
     NgClass,
     NgIf,
+    NgFor,
+    FormsModule,
     TutorialModalComponent
   ]
 })
@@ -66,6 +70,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   // Tutorial
   showTutorial: boolean = false;
   tutorialSteps: TutorialStep[] = [];
+
+  // Subject tagging (premium)
+  isPremium: boolean = false;
+  selectedSubject: string = '';
+  readonly subjectPresets = ['Maths', 'Science', 'History', 'English', 'Coding', 'Other'];
   
   private audio: HTMLAudioElement | null = null;
   private completeAudio: HTMLAudioElement | null = null;
@@ -79,6 +88,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     private goldStreakService: GoldStreakService,
     public authService: AuthService,
     public heartService: HeartService,
+    private premiumService: PremiumService,
     private renderer: Renderer2,
     private tutorialService: TutorialService
   ) {
@@ -105,9 +115,14 @@ export class TimerComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.push(routeSub);
 
-    // Get initial gold balance and streak info if user is logged in
+    // Get initial gold balance, streak, and premium status if user is logged in
     if (this.authService.isLoggedIn()) {
       this.loadUserStats();
+      const premSub = this.premiumService.getStatus().subscribe({
+        next: (s) => { this.isPremium = s.isPremium; },
+        error: () => {}
+      });
+      this.subscriptions.push(premSub);
     }
   }
 
@@ -313,6 +328,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   dismissCompletion(): void {
     this.showCompletionScreen = false;
+    this.selectedSubject = '';
     this.resetTimer();
   }
 
@@ -441,8 +457,13 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
 
     if (totalPomodorosCompleted > 0) {
-      const rewardSub = this.goldStreakService.rewardPomodoro(totalPomodorosCompleted)
-        .pipe(catchError((error: HttpErrorResponse) => {
+      const rewardSub = this.goldStreakService.rewardPomodoro(totalPomodorosCompleted, {
+        subject: this.selectedSubject || undefined,
+        startTime: this.timerStartTime?.toISOString(),
+        endTime: this.timerEndTime?.toISOString(),
+        durationMinutes,
+        pauseCount: this.pauseCount
+      }).pipe(catchError((error: HttpErrorResponse) => {
           console.error('Error rewarding pomodoro:', error);
           return of(null);
         }))

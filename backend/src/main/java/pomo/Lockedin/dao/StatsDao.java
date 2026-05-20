@@ -71,4 +71,14 @@ public interface StatsDao {
 
     /** Compute longest streak ever from actual session dates (no userstats dependency) */
     int computeLongestStreak(Long userId);
+
+    /** Save a completed session record */
+    void saveSession(Long userId, String startTime, String endTime, int durationMinutes,
+                     int pomodorosCompleted, int pauseCount, String subject);
+
+    /** Minutes studied per subject (all time) */
+    List<Map<String, Object>> getSubjectBreakdown(Long userId);
+
+    /** Focus score 0-100 based on sessions and consistency this week */
+    int getFocusScore(Long userId);
 }

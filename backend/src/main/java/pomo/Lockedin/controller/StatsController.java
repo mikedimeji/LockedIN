@@ -188,6 +188,34 @@ public class StatsController {
         return response;
     }
 
+    /**
+     * Get minutes studied per subject (premium only)
+     */
+    @GetMapping("/subjects")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Map<String, Object>> getSubjectBreakdown() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = user.getEmail();
+        if (!premiumService.isPremium(email)) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "Premium required");
+        }
+        return statsService.getSubjectBreakdown(email);
+    }
+
+    /**
+     * Get focus score 0-100 (premium only)
+     */
+    @GetMapping("/focus-score")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> getFocusScore() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = user.getEmail();
+        if (!premiumService.isPremium(email)) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "Premium required");
+        }
+        return Map.of("score", statsService.getFocusScore(email));
+    }
+
     // Helper methods
     private List<String> getDaysOfWeek() {
         return List.of("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun");

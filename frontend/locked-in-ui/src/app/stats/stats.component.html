@@ -285,6 +285,90 @@
           </div>
         </div>
 
+        <!-- ── Focus Score ── -->
+        <div class="section prem-section">
+          <div class="section-header">
+            <span class="section-label">FOCUS SCORE</span>
+            <span class="section-hint">This week</span>
+          </div>
+          <div class="focus-score-row">
+            <svg class="fs-ring" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" class="fs-ring-bg"/>
+              <circle cx="60" cy="60" r="50" class="fs-ring-fill"
+                      [style.stroke]="scoreColor(focusScore)"
+                      [style.strokeDashoffset]="scoreDashOffsetFor(focusScore)"
+                      [style.strokeDasharray]="RING_CIRCUMFERENCE"/>
+            </svg>
+            <div class="fs-info">
+              <span class="fs-number" [style.color]="scoreColor(focusScore)">{{ focusScore }}</span>
+              <span class="fs-label">/ 100</span>
+              <span class="fs-sub">Based on sessions, streak, and focus consistency this week</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Subject Breakdown ── -->
+        <div class="section prem-section" *ngIf="subjectBreakdown.length > 0">
+          <div class="section-header">
+            <span class="section-label">SUBJECTS</span>
+            <span class="section-hint">Time studied per subject</span>
+          </div>
+          <div class="subject-list">
+            <div *ngFor="let s of subjectBreakdown" class="subject-row">
+              <span class="subject-name">{{ s.subject }}</span>
+              <div class="subject-bar-wrap">
+                <div class="subject-bar"
+                     [style.width.%]="(s.total_minutes / subjectBreakdown[0].total_minutes) * 100">
+                </div>
+              </div>
+              <span class="subject-time">{{ subjectMinutesToDisplay(s.total_minutes) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section prem-section" *ngIf="subjectBreakdown.length === 0">
+          <div class="section-header">
+            <span class="section-label">SUBJECTS</span>
+          </div>
+          <p class="prem-empty">No tagged sessions yet. Tag your sessions after each timer to see your subject breakdown.</p>
+        </div>
+
+        <!-- ── Weekly Study Goals ── -->
+        <div class="section prem-section">
+          <div class="section-header">
+            <span class="section-label">WEEKLY GOALS</span>
+            <span class="section-hint">Hours per subject this week</span>
+            <button class="goal-add-btn" (click)="showGoalForm = !showGoalForm">{{ showGoalForm ? '✕' : '+ ADD' }}</button>
+          </div>
+
+          <div class="goal-form" *ngIf="showGoalForm">
+            <input class="goal-input" type="text" placeholder="Subject name" [(ngModel)]="newGoalSubject" maxlength="50">
+            <input class="goal-input goal-input-num" type="number" placeholder="hrs/wk" [(ngModel)]="newGoalHours" min="0.5" max="40" step="0.5">
+            <button class="goal-save-btn" (click)="addGoal()">SAVE</button>
+          </div>
+
+          <div *ngIf="studyGoals.length === 0 && !showGoalForm" class="prem-empty">
+            No goals set. Add a subject goal to track your weekly progress.
+          </div>
+
+          <div class="goals-list">
+            <div *ngFor="let g of studyGoals" class="goal-item">
+              <div class="goal-top">
+                <span class="goal-subject">{{ g.subject }}</span>
+                <span class="goal-progress-text">{{ g.weeklyHoursCompleted.toFixed(1) }} / {{ g.weeklyHoursTarget }}h</span>
+                <button class="goal-delete-btn" (click)="deleteGoal(g.id)">✕</button>
+              </div>
+              <div class="goal-bar-wrap">
+                <div class="goal-bar"
+                     [style.width.%]="goalProgress(g)"
+                     [class.goal-complete]="goalProgress(g) >= 100">
+                </div>
+              </div>
+              <span class="goal-pct">{{ goalProgress(g) }}%</span>
+            </div>
+          </div>
+        </div>
+
       </ng-container>
     </div>
     <!-- /activity -->

@@ -50,16 +50,30 @@
   <!-- ── Heart break warning ── -->
   <div class="heart-warning-overlay" *ngIf="showHeartWarning">
     <div class="heart-warning-dialog">
-      <div class="heart-warning-icon">
+
+      <div class="hw-hud-header">
+        <span class="hw-logo">LOCKED IN</span>
+        <span class="hw-sep">·</span>
+        <span class="hw-tag">WARNING</span>
+      </div>
+
+      <div class="hw-icon">
         <img *ngIf="heartService.currentHeartPoints >= 2" src="assets/images/hearts/redheart.png" alt="heart">
         <img *ngIf="heartService.currentHeartPoints === 1" src="assets/images/hearts/heart-halfred.png" alt="heart">
       </div>
-      <h3>Break your heart?</h3>
-      <p>Stopping mid-session will cost you a heart.<span *ngIf="heartService.currentHeartPoints === 1"> You only have one left — losing it resets your streak!</span></p>
-      <div class="heart-warning-buttons">
-        <button class="heart-btn-yes" (click)="onHeartWarningConfirm()">Yes, break it</button>
-        <button class="heart-btn-no" (click)="onHeartWarningCancel()">Keep going</button>
+
+      <div class="hw-title">ABANDON SESSION?</div>
+      <div class="hw-cost">
+        <span class="hw-cost-label">COST</span>
+        <span class="hw-cost-value">− 1 HEART</span>
       </div>
+      <p class="hw-desc">Stopping mid-session breaks your focus streak and costs a heart.<span *ngIf="heartService.currentHeartPoints === 1"> This is your last one — losing it resets your streak.</span></p>
+
+      <div class="hw-buttons">
+        <button class="hw-btn-abandon" (click)="onHeartWarningConfirm()">ABANDON</button>
+        <button class="hw-btn-stay" (click)="onHeartWarningCancel()">STAY LOCKED IN</button>
+      </div>
+
     </div>
   </div>
 
@@ -100,6 +114,22 @@
           <div class="comp-stat-val">{{ longestStreak }}</div>
           <div class="comp-stat-key">BEST STREAK</div>
         </div>
+      </div>
+
+      <!-- Subject tagging (premium only) -->
+      <div class="comp-subject" *ngIf="isPremium && goldEarned > 0">
+        <div class="comp-subject-label">TAG THIS SESSION</div>
+        <div class="comp-subject-chips">
+          <span *ngFor="let s of subjectPresets"
+                class="comp-subject-chip"
+                [class.active]="selectedSubject === s"
+                (click)="selectedSubject = selectedSubject === s ? '' : s">{{ s }}</span>
+        </div>
+        <input class="comp-subject-input"
+               type="text"
+               placeholder="or type a subject..."
+               [(ngModel)]="selectedSubject"
+               maxlength="50">
       </div>
 
       <button class="comp-continue" (click)="dismissCompletion()">— CONTINUE —</button>

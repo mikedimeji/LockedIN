@@ -246,8 +246,57 @@ public class StatsDaoImpl implements StatsDao {
                     .build(), userId);
         } catch (Exception e) {
             log.error("Error retrieving achievements for user ID {}: {}", userId, e.getMessage());
-            // Return empty list instead of sample data
             return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void saveSession(Long userId, String startTime, String endTime,
+                            int durationMinutes, int pomodorosCompleted, int pauseCount, String subject) {
+        try {
+            String sql = "INSERT INTO pomodoro_sessions " +
+                         "(user_id, start_time, end_time, duration_minutes, pomodoros_completed, pause_count, subject) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sql, userId, startTime, endTime, durationMinutes, pomodorosCompleted, pauseCount,
+                    (subject != null && !subject.isBlank()) ? subject : null);
+        } catch (Exception e) {
+            log.error("Error saving session for user {}: {}", userId, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Map<String, Object>> getSubjectBreakdown(Long userId) {
+        try {
+            String sql = "SELECT subject, SUM(duration_minutes) as total_minutes, COUNT(*) as session_count " +
+                         "FROM pomodoro_sessions WHERE user_id = ? AND subject IS NOT NULL AND subject != '' " +
+                         "GROUP BY subject ORDER BY total_minutes DESC";
+            return jdbcTemplate.queryForList(sql, userId);
+        } catch (Exception e) {
+            log.error("Error getting subject breakdown for user {}: {}", userId, e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public int getFocusScore(Long userId) {
+        try {
+            String sessionsSql = "SELECT COUNT(*) FROM pomodoro_sessions " +
+                                 "WHERE user_id = ? AND start_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            Integer sessionsThisWeek = jdbcTemplate.queryForObject(sessionsSql, Integer.class, userId);
+
+            String pauseSql = "SELECT COALESCE(AVG(pause_count), 0) FROM pomodoro_sessions " +
+                              "WHERE user_id = ? AND start_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            Double avgPauses = jdbcTemplate.queryForObject(pauseSql, Double.class, userId);
+
+            int streak = computeCurrentStreak(userId);
+            int sessions = sessionsThisWeek != null ? sessionsThisWeek : 0;
+            double pauses = avgPauses != null ? avgPauses : 0;
+
+            int score = (int) (sessions * 12 + Math.min(20, streak * 2) - pauses * 3);
+            return Math.min(100, Math.max(0, score));
+        } catch (Exception e) {
+            log.error("Error computing focus score for user {}: {}", userId, e.getMessage());
+            return 0;
         }
     }
 }

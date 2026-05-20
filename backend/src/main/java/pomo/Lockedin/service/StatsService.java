@@ -139,6 +139,25 @@ public class StatsService {
         return grid;
     }
 
+    public void saveSession(String userEmail, String startTime, String endTime,
+                            int durationMinutes, int pomodorosCompleted, int pauseCount, String subject) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return;
+        statsDao.saveSession(userId, startTime, endTime, durationMinutes, pomodorosCompleted, pauseCount, subject);
+    }
+
+    public List<Map<String, Object>> getSubjectBreakdown(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) throw new RuntimeException("User not found: " + userEmail);
+        return statsDao.getSubjectBreakdown(userId);
+    }
+
+    public int getFocusScore(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return 0;
+        return statsDao.getFocusScore(userId);
+    }
+
     /** Current streak computed from actual session dates */
     public int computeCurrentStreak(String userEmail) {
         Long userId = userService.getUserIdByEmail(userEmail);

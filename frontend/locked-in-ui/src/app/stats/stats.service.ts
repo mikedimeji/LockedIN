@@ -41,4 +41,24 @@ export class StatsService {
   getHeatmap(): Observable<any> {
     return this.http.get<any>(`${this.base}/heatmap`);
   }
+
+  getSubjectBreakdown(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/subjects`);
+  }
+
+  getFocusScore(): Observable<{score: number}> {
+    return this.http.get<{score: number}>(`${this.base}/focus-score`);
+  }
+
+  getStudyGoals(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/home/goals`);
+  }
+
+  createStudyGoal(subject: string, weeklyHoursTarget: number): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/home/goals`, { subject, weeklyHoursTarget });
+  }
+
+  deleteStudyGoal(id: number): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/home/goals/${id}`);
+  }
 }
