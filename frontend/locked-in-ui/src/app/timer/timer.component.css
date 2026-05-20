@@ -378,15 +378,13 @@
 
 /* Icon */
 .hw-icon {
-  margin-bottom: 16px;
-  animation: heartPulse 1s ease infinite;
+  margin-bottom: 14px;
 }
 
-.hw-icon img { width: 52px; height: 52px; object-fit: contain; }
-
-@keyframes heartPulse {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(1.1); }
+.hw-heart-svg {
+  width: 32px;
+  height: 32px;
+  opacity: 0.9;
 }
 
 /* Title */

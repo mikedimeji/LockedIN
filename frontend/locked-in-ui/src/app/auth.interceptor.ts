@@ -22,8 +22,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // On 401 or 403 try to silently refresh the token and replay the request once
-      if (error.status === 401 || error.status === 403) {
+      // On 401 only — silently refresh the token and replay the request once.
+      // 403 means "forbidden / not premium", not "expired token" — do not sign out.
+      if (error.status === 401) {
         return auth.refreshAccessToken().pipe(
           switchMap((response: any) => {
             if (response?.token) {

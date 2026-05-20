@@ -79,10 +79,13 @@ export class ThemesComponent implements OnInit {
     { path: 'assets/videos/tokyo.gif',          name: 'Tokyo',          premium: true, category: 'anime',      isLive: true,  goldCost: 500,  unlocked: false },
     { path: 'assets/videos/scottpill.gif',      name: 'Scott Pill',     premium: true, category: 'aesthetic',  isLive: true,  goldCost: 800,  unlocked: false },
 
-    // ── Premium live themes (new) ──
+    // ── Premium live themes ──
     { path: 'assets/videos/aquareum.gif',           name: 'Aquareum',     premium: true, category: 'chill',     isLive: true,  goldCost: 150, unlocked: false },
     { path: 'assets/videos/boat.gif',               name: 'Boat',         premium: true, category: 'chill',     isLive: true,  goldCost: 120, unlocked: false },
+    { path: 'assets/videos/sunflower.gif',          name: 'Sunflower',    premium: true, category: 'chill',     isLive: true,  goldCost: 150, unlocked: false },
+    { path: 'assets/videos/lustrous.gif',           name: 'Lustrous',     premium: true, category: 'anime',     isLive: true,  goldCost: 200, unlocked: false },
     { path: 'assets/videos/gif38bit-restaurant.gif',name: 'Pixel Diner',  premium: true, category: 'aesthetic', isLive: true,  goldCost: 200, unlocked: false },
+    { path: 'assets/videos/samurai.gif',            name: 'Samurai',      premium: true, category: 'anime',     isLive: true,  goldCost: 250, unlocked: false },
     { path: 'assets/videos/mario.gif',              name: 'Mario',        premium: true, category: 'custom',    isLive: true,  goldCost: 250, unlocked: false },
     { path: 'assets/videos/zelda.gif',              name: 'Zelda',        premium: true, category: 'custom',    isLive: true,  goldCost: 300, unlocked: false },
 

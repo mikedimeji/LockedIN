@@ -63,119 +63,38 @@ export class AppComponent implements OnInit, OnDestroy {
 showPfpSelector: boolean = false;
 selectedPfp: string = 'assets/images/durarara1.jpg'; // current default
 availablePfps = [
-  {
-    path: 'assets/images/durarara1.jpg',
-    name: 'Durarara Default',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: false
-  },
-  {
-    path: 'assets/images/pfp/cat.jpg',
-    name: 'Anime Style 1',
-    premium: true,
-    unlocked: false,
-    goldCost: 50,
-    isAnimated: false
-  },
-  {
-    path: 'assets/images/pfp/aestheticoon.gif',
-    name: 'aesthetic moon',
-    premium: true,
-    unlocked: false,
-    goldCost: 500,
-    isAnimated: true
-  },
-  {
-    path: 'assets/images/pfp/sailormoon.gif',
-    name: 'sailor moon',
-    premium: true,
-    unlocked: false,
-    goldCost: 800,
-    isAnimated: true
-  },
+  // ── Free / default ──
+  { path: 'assets/images/durarara1.jpg',       name: 'Durarara',       premium: false, unlocked: true,  goldCost: 0,   isAnimated: false },
+  { path: 'assets/images/pfp/cute.gif',         name: 'Cute Pinky',     premium: false, unlocked: true,  goldCost: 0,   isAnimated: true  },
+  { path: 'assets/images/pfp/cat2.jpg',         name: 'Cat Two',        premium: false, unlocked: true,  goldCost: 0,   isAnimated: false },
+  { path: 'assets/images/pfp/gurrenl.jpg',      name: 'Gurren Lagann',  premium: false, unlocked: true,  goldCost: 0,   isAnimated: false },
+  { path: 'assets/images/pfp/ken.png.jpeg',     name: 'Ken',            premium: false, unlocked: true,  goldCost: 0,   isAnimated: false },
+  { path: 'assets/images/pfp/straydogs.jpg',    name: 'Stray Dogs',     premium: false, unlocked: true,  goldCost: 0,   isAnimated: false },
+  { path: 'assets/images/pfp/poutinggirl.jpg',  name: 'Pouting Girl',   premium: false, unlocked: true,  goldCost: 0,   isAnimated: false },
 
-  {
-    path: 'assets/images/pfp/cute.gif',
-    name: 'cute pinky',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: true
-  },
+  // ── Static premium (cheap: 25–150) ──
+  { path: 'assets/images/pfp/cat.jpg',          name: 'Anime Cat',      premium: true,  unlocked: false, goldCost: 25,  isAnimated: false },
+  { path: 'assets/images/pfp/cat3.jpg',         name: 'Cat Three',      premium: true,  unlocked: false, goldCost: 25,  isAnimated: false },
+  { path: 'assets/images/pfp/gurrenl2.jpg',     name: 'Gurren Lagann 2',premium: true,  unlocked: false, goldCost: 30,  isAnimated: false },
+  { path: 'assets/images/pfp/edward.jpg',       name: 'Edward',         premium: true,  unlocked: false, goldCost: 40,  isAnimated: false },
+  { path: 'assets/images/pfp/flcl.jpg',         name: 'FLCL',           premium: true,  unlocked: false, goldCost: 50,  isAnimated: false },
 
-  {
-    path: 'assets/images/pfp/flcl.jpg',
-    name: 'flcl',
-    premium: true,
-    unlocked: false,
-    goldCost: 125,
-    isAnimated: false
-  },
+  // ── GIF premium (mid: 200–500) ──
+  { path: 'assets/images/pfp/edward1.gif',      name: 'Edward (GIF)',   premium: true,  unlocked: false, goldCost: 200, isAnimated: true  },
+  { path: 'assets/images/pfp/fire.gif',         name: 'Fire',           premium: true,  unlocked: false, goldCost: 200, isAnimated: true  },
+  { path: 'assets/images/pfp/pod.gif',          name: 'Pod 042',        premium: true,  unlocked: false, goldCost: 250, isAnimated: true  },
+  { path: 'assets/images/pfp/space.gif',        name: 'Space',          premium: true,  unlocked: false, goldCost: 250, isAnimated: true  },
+  { path: 'assets/images/pfp/lucky.gif',        name: 'Lucky Star',     premium: true,  unlocked: false, goldCost: 300, isAnimated: true  },
+  { path: 'assets/images/pfp/cyber.gif',        name: 'Cyber',          premium: true,  unlocked: false, goldCost: 300, isAnimated: true  },
+  { path: 'assets/images/pfp/gon.gif',          name: 'Gon',            premium: true,  unlocked: false, goldCost: 350, isAnimated: true  },
+  { path: 'assets/images/pfp/mikasa.gif',       name: 'Mikasa',         premium: true,  unlocked: false, goldCost: 350, isAnimated: true  },
+  { path: 'assets/images/pfp/trunks.gif',       name: 'Trunks',         premium: true,  unlocked: false, goldCost: 350, isAnimated: true  },
+  { path: 'assets/images/pfp/kurapika.gif',     name: 'Kurapika',       premium: true,  unlocked: false, goldCost: 400, isAnimated: true  },
+  { path: 'assets/images/pfp/chrollo.gif',      name: 'Chrollo',        premium: true,  unlocked: false, goldCost: 400, isAnimated: true  },
 
-  {
-    path: 'assets/images/pfp/cat2.jpg',
-    name: 'cat two',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: false
-  },
-
-  {
-    path: 'assets/images/pfp/cat3.jpg',
-    name: 'cat three',
-    premium: true,
-    unlocked: false,
-    goldCost: 20,
-    isAnimated: false
-  },
-
-  {
-    path: 'assets/images/pfp/gurrenl.jpg',
-    name: 'gurren lagan',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: false
-  },
-
-  {
-    path: 'assets/images/pfp/gurrenl2.jpg',
-    name: 'gurren lagan two',
-    premium: true,
-    unlocked: false,
-    goldCost: 35,
-    isAnimated: false
-  },
-
-  {
-    path: 'assets/images/pfp/ken.png.jpeg',
-    name: 'ken',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: false
-  },
-
-  {
-    path: 'assets/images/pfp/straydogs.jpg',
-    name: 'stray',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: false
-  },
-
-  {
-    path: 'assets/images/pfp/poutinggirl.jpg',
-    name: 'pouting girl',
-    premium: false,
-    unlocked: true,
-    goldCost: 0,
-    isAnimated: false
-  },
+  // ── GIF premium (premium tier: 500–800) ──
+  { path: 'assets/images/pfp/aestheticoon.gif', name: 'Aesthetic Moon', premium: true,  unlocked: false, goldCost: 500, isAnimated: true  },
+  { path: 'assets/images/pfp/sailormoon.gif',   name: 'Sailor Moon',    premium: true,  unlocked: false, goldCost: 600, isAnimated: true  },
 ];
   selectedTheme: string = 'assets/images/themes/city.jpg'; // Default to video
   isVideoBackground: boolean = true; // Assume video by default
