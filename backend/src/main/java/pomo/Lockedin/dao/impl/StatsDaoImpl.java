@@ -278,6 +278,17 @@ public class StatsDaoImpl implements StatsDao {
     }
 
     @Override
+    public void tagLatestSession(Long userId, String subject) {
+        try {
+            String sql = "UPDATE pomodoro_sessions SET subject = ? " +
+                         "WHERE user_id = ? ORDER BY start_time DESC LIMIT 1";
+            jdbcTemplate.update(sql, subject != null ? subject.trim() : null, userId);
+        } catch (Exception e) {
+            log.error("Error tagging latest session for user {}: {}", userId, e.getMessage());
+        }
+    }
+
+    @Override
     public int getFocusScore(Long userId) {
         try {
             String sessionsSql = "SELECT COUNT(*) FROM pomodoro_sessions " +
@@ -292,7 +303,8 @@ public class StatsDaoImpl implements StatsDao {
             int sessions = sessionsThisWeek != null ? sessionsThisWeek : 0;
             double pauses = avgPauses != null ? avgPauses : 0;
 
-            int score = (int) (sessions * 12 + Math.min(20, streak * 2) - pauses * 3);
+            // sessions*5 → need 14+/wk to approach 100; streak capped at 30 pts; pauses subtract
+            int score = (int) (sessions * 5 + Math.min(30, streak) - pauses * 4);
             return Math.min(100, Math.max(0, score));
         } catch (Exception e) {
             log.error("Error computing focus score for user {}: {}", userId, e.getMessage());

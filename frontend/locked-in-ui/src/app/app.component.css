@@ -1399,6 +1399,269 @@ body.timer-fullscreen-active .hero {
   margin: 0 0 20px;
 }
 
+/* ── Feedback modal ── */
+.feedback-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.feedback-panel {
+  background: rgba(8,18,34,0.97);
+  border: 1px solid rgba(82,113,255,0.3);
+  border-radius: 18px;
+  padding: 26px 30px 24px;
+  max-width: 440px;
+  width: 92%;
+  box-shadow: 0 0 60px rgba(82,113,255,0.14), 0 24px 64px rgba(0,0,0,0.75);
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.feedback-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feedback-logo {
+  font-family: bitF1, sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(82,113,255,0.9);
+}
+
+.feedback-sep {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.2);
+}
+
+.feedback-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+
+.feedback-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.feedback-close:hover { color: rgba(255,255,255,0.7); }
+
+.feedback-desc {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.65;
+  margin: 0 0 14px;
+}
+
+.feedback-textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(82,113,255,0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+  min-height: 100px;
+}
+.feedback-textarea:focus { border-color: rgba(82,113,255,0.5); }
+.feedback-textarea::placeholder { color: rgba(255,255,255,0.18); }
+
+.feedback-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.feedback-char-count {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.2);
+}
+
+.feedback-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.feedback-btn-cancel,
+.feedback-btn-send {
+  font-family: bitF1, sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 9px 20px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-btn-cancel {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.feedback-btn-cancel:hover { background: rgba(255,255,255,0.11); color: rgba(255,255,255,0.75); }
+
+.feedback-btn-send {
+  background: linear-gradient(135deg, #3a55ee, #5271ff);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(82,113,255,0.3);
+}
+.feedback-btn-send:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.1); }
+.feedback-btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── In-app dialog overlay ── */
+.lia-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.lia-panel {
+  background: rgba(8,18,34,0.97);
+  border: 1px solid rgba(82,113,255,0.3);
+  border-radius: 18px;
+  padding: 30px 34px 26px;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(82,113,255,0.14), 0 24px 64px rgba(0,0,0,0.75);
+  font-family: bitF1, sans-serif;
+}
+
+.lia-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.lia-logo {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(82,113,255,0.9);
+}
+
+.lia-sep {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.2);
+}
+
+.lia-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+
+.lia-tag-error   { color: rgba(255,80,80,0.85); }
+.lia-tag-success { color: rgba(74,222,128,0.85); }
+
+.lia-title {
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 12px;
+}
+
+.lia-message {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.48);
+  letter-spacing: 0.3px;
+  white-space: pre-line;
+  margin-bottom: 26px;
+}
+
+.lia-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.lia-btn-cancel,
+.lia-btn-ok {
+  font-family: bitF1, sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lia-btn-cancel {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.lia-btn-cancel:hover {
+  background: rgba(255,255,255,0.11);
+  color: rgba(255,255,255,0.8);
+}
+
+.lia-btn-ok {
+  background: linear-gradient(135deg, #3a55ee, #5271ff);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(82,113,255,0.35);
+}
+
+.lia-btn-ok.lia-btn-gold {
+  background: linear-gradient(135deg, #b8860b, #d4a017);
+  box-shadow: 0 4px 18px rgba(212,160,23,0.35);
+}
+
+.lia-btn-ok.lia-btn-success {
+  background: linear-gradient(135deg, #14803a, #22c55e);
+  box-shadow: 0 4px 18px rgba(34,197,94,0.3);
+}
+
+.lia-btn-ok:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
 
 
 

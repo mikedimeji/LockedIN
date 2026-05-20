@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, Inject, PLATFORM_ID, HostB
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from './header/header.component';
 import { UserLoginComponent } from './user-login/user-login.component';
 import { TimerComponent } from './timer/timer.component';
@@ -32,6 +33,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./app.component.css'],
   imports: [
     CommonModule,
+    FormsModule,
     HeaderComponent,
     TimerComponent,
     AmbienceComponent,
@@ -80,7 +82,7 @@ availablePfps = [
   { path: 'assets/images/pfp/flcl.jpg',         name: 'FLCL',           premium: true,  unlocked: false, goldCost: 50,  isAnimated: false },
 
   // ── GIF premium (mid: 200–500) ──
-  { path: 'assets/images/pfp/edward1.gif',      name: 'Edward (GIF)',   premium: true,  unlocked: false, goldCost: 200, isAnimated: true  },
+  { path: 'assets/images/pfp/edward1.gif',      name: 'Edward Red',     premium: true,  unlocked: false, goldCost: 200, isAnimated: true  },
   { path: 'assets/images/pfp/fire.gif',         name: 'Fire',           premium: true,  unlocked: false, goldCost: 200, isAnimated: true  },
   { path: 'assets/images/pfp/pod.gif',          name: 'Pod 042',        premium: true,  unlocked: false, goldCost: 250, isAnimated: true  },
   { path: 'assets/images/pfp/space.gif',        name: 'Space',          premium: true,  unlocked: false, goldCost: 250, isAnimated: true  },
@@ -111,6 +113,25 @@ availablePfps = [
   showPremiumModal: boolean = false;
   premiumCheckingOut: boolean = false;
   showPremiumBanner: boolean = false;
+
+  appDialog: { show: boolean; mode: 'alert'|'confirm'; type: 'info'|'success'|'error'; title: string; message: string; onConfirm?: () => void } =
+    { show: false, mode: 'alert', type: 'info', title: '', message: '' };
+
+  showAlert(type: 'info'|'success'|'error', title: string, message: string, onConfirm?: () => void): void {
+    this.appDialog = { show: true, mode: 'alert', type, title, message, onConfirm };
+  }
+
+  showConfirm(title: string, message: string, onConfirm: () => void): void {
+    this.appDialog = { show: true, mode: 'confirm', type: 'info', title, message, onConfirm };
+  }
+
+  closeAppDialog(): void { this.appDialog = { ...this.appDialog, show: false }; }
+
+  appDialogConfirm(): void {
+    const cb = this.appDialog.onConfirm;
+    this.closeAppDialog();
+    if (cb) cb();
+  }
 
   // Gold and streak properties
   goldBalance: number = 0;
@@ -497,52 +518,37 @@ changePfp(pfp: any): void {
   // REPLACE the existing purchasePfp() method
 purchasePfp(pfp: any): void {
   if (!this.authService.isLoggedIn()) {
-    alert('Please log in to purchase PFPs!');
+    this.showAlert('info', 'LOGIN REQUIRED', 'Please log in to purchase avatars.');
     return;
   }
 
   if (this.goldBalance >= pfp.goldCost) {
-    // Confirm purchase
-    const confirmed = confirm(`Purchase "${pfp.name}" for ${pfp.goldCost} gold?`);
-    
-    if (confirmed) {
-      // Purchase via backend
+    this.showConfirm('PURCHASE AVATAR', `"${pfp.name}" — ${pfp.goldCost} gold`, () => {
       this.userPreferencesService.purchasePfp(pfp.path, pfp.name, pfp.goldCost).subscribe({
         next: (result) => {
           if (result.success) {
-            // Update local state
             this.goldBalance = result.remainingGold;
             pfp.unlocked = true;
-            
-            // Automatically select the newly purchased PFP
             this.selectedPfp = pfp.path;
-            
             this.closePfpSelector();
-            
             console.log(`Purchased and equipped ${pfp.name} for ${pfp.goldCost} gold`);
-            alert(result.message);
-            
-            // Refresh user data to ensure everything is in sync
+            this.showAlert('success', 'PURCHASED', result.message);
             this.refreshUserData();
           }
         },
         error: (error) => {
           console.error('Error purchasing PFP:', error);
           let errorMessage = 'Purchase failed. Please try again.';
-          
           if (error.status === 400) {
             errorMessage = error.error || 'Insufficient gold or invalid request';
           }
-          
-          alert(errorMessage);
-          
-          // Refresh gold balance in case of error
+          this.showAlert('error', 'PURCHASE FAILED', errorMessage);
           this.refreshUserData();
         }
       });
-    }
+    });
   } else {
-    alert(`Not enough gold! You need ${pfp.goldCost} gold but only have ${this.goldBalance}.`);
+    this.showAlert('error', 'INSUFFICIENT GOLD', `You need ${pfp.goldCost} gold but only have ${this.goldBalance}.`);
   }
 }
 
@@ -581,14 +587,34 @@ private updatePfpUnlockStatus(unlockedPfpPaths: string[]): void {
   });
 }
 
+  showFeedbackModal: boolean = false;
+  feedbackText: string = '';
+  feedbackSending: boolean = false;
+
   openFeedback(): void {
-  const feedbackUrl = 'https://docs.google.com/document/d/YOUR_GOOGLE_DOC_ID/edit';
-  
-  if (isPlatformBrowser(this.platformId)) {
-    window.open(feedbackUrl, '_blank');
+    this.feedbackText = '';
+    this.feedbackSending = false;
+    this.showFeedbackModal = true;
   }
 
-}
+  closeFeedbackModal(): void {
+    this.showFeedbackModal = false;
+    this.feedbackText = '';
+  }
+
+  submitFeedback(): void {
+    const text = this.feedbackText.trim();
+    if (!text) return;
+    this.feedbackSending = true;
+    const subject = encodeURIComponent('LockedIN Feedback');
+    const body = encodeURIComponent(text + '\n\n— Sent from LockedIN\nUser: ' + (this.authService.getUsername() || 'guest'));
+    window.open(`mailto:oladimeji.michael12345@gmail.com?subject=${subject}&body=${body}`, '_blank');
+    setTimeout(() => {
+      this.showFeedbackModal = false;
+      this.feedbackText = '';
+      this.feedbackSending = false;
+    }, 800);
+  }
 
   // Toggle notifications panel
 toggleNotifications(): void {

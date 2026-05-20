@@ -1241,3 +1241,92 @@
   text-align: right;
 }
 
+/* ══════════════════════════════════════════
+   BALATRO-INSPIRED GAMIFICATION
+   ══════════════════════════════════════════ */
+
+/* Deep purple ambient glow on the container */
+.stats-container {
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 100px rgba(80, 0, 160, 0.12);
+}
+
+/* Metric card color variants */
+.metric-card.mc-gold {
+  border-color: rgba(255, 215, 0, 0.22);
+  background: rgba(255, 215, 0, 0.04);
+}
+.metric-card.mc-gold .metric-value {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 180, 0, 0.25);
+}
+.metric-card.mc-gold .metric-label { color: rgba(255, 215, 0, 0.35); }
+
+.metric-card.mc-streak {
+  border-color: rgba(255, 140, 0, 0.22);
+  background: rgba(255, 100, 0, 0.03);
+}
+.metric-card.mc-streak .metric-value {
+  color: #ff9500;
+  text-shadow: 0 0 10px rgba(255, 140, 0, 0.55), 0 0 24px rgba(255, 80, 0, 0.2);
+}
+.metric-card.mc-streak .metric-label { color: rgba(255, 140, 0, 0.35); }
+
+.metric-card.mc-sessions {
+  border-color: rgba(82, 113, 255, 0.26);
+}
+.metric-card.mc-sessions .metric-value {
+  color: rgba(130, 160, 255, 1);
+  text-shadow: 0 0 10px rgba(82, 113, 255, 0.55), 0 0 22px rgba(82, 113, 255, 0.2);
+}
+
+.metric-card.mc-hours {
+  border-color: rgba(74, 222, 128, 0.18);
+}
+.metric-card.mc-hours .metric-value {
+  color: rgba(74, 222, 128, 0.92);
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.45), 0 0 22px rgba(74, 222, 128, 0.18);
+}
+
+.metric-card.mc-best .metric-value {
+  color: rgba(255, 210, 80, 0.9);
+  text-shadow: 0 0 10px rgba(255, 190, 50, 0.38);
+}
+
+/* Hover glow on all metric cards */
+.metric-card:hover {
+  box-shadow: 0 0 20px rgba(82, 113, 255, 0.08);
+}
+.metric-card.mc-gold:hover   { border-color: rgba(255, 215, 0, 0.4);   box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
+.metric-card.mc-streak:hover { border-color: rgba(255, 140, 0, 0.4);   box-shadow: 0 0 20px rgba(255, 140, 0, 0.1); }
+.metric-card.mc-sessions:hover { border-color: rgba(82, 113, 255, 0.45); }
+.metric-card.mc-hours:hover  { border-color: rgba(74, 222, 128, 0.35); }
+
+/* Week value color variants */
+.week-value.wv-blue {
+  color: rgba(130, 160, 255, 1);
+  text-shadow: 0 0 12px rgba(82, 113, 255, 0.45);
+}
+.week-value.wv-gold {
+  color: #ffd700;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+}
+
+/* Section label — subtle purple glow */
+.section-label {
+  text-shadow: 0 0 8px rgba(82, 113, 255, 0.5);
+}
+
+/* Tab active indicator — stronger glow */
+.tab-btn.active {
+  text-shadow: 0 0 8px rgba(82, 113, 255, 0.5);
+}
+
+/* Achievement hover glow — deeper purple for diamond tier */
+.tier-diamond:hover {
+  box-shadow: 0 0 28px rgba(120, 60, 255, 0.22);
+}
+

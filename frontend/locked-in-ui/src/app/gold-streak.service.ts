@@ -79,6 +79,11 @@ export class GoldStreakService {
       .pipe(catchError(this.handleError));
   }
 
+  tagLatestSession(subject: string): Observable<any> {
+    return this.http.post<any>(`${this.apiBaseUrl}/stats/tag-session`, { subject })
+      .pipe(catchError(this.handleError));
+  }
+
   /**
    * Handle HTTP errors
    */

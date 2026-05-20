@@ -73,7 +73,6 @@ export class ThemesComponent implements OnInit {
     { path: 'assets/videos/girlflowers.gif',    name: 'Girl & Flowers', premium: true, category: 'chill',      isLive: true,  goldCost: 180,  unlocked: false },
     { path: 'assets/videos/p-road.gif',         name: 'Night Drive',    premium: true, category: 'aesthetic',  isLive: true,  goldCost: 200,  unlocked: false },
     { path: 'assets/videos/japan.gif',          name: 'Japan Street',   premium: true, category: 'aesthetic',  isLive: true,  goldCost: 200,  unlocked: false },
-    { path: 'assets/videos/yumenikki.mp4',      name: 'Yume Nikki',     premium: true, category: 'custom',     isLive: true,  goldCost: 300,  unlocked: false },
     { path: 'assets/videos/cathargic_day.gif',  name: 'Cathartic Day',  premium: true, category: 'chill',      isLive: true,  goldCost: 350,  unlocked: false },
     { path: 'assets/videos/VA11HALLA.gif',      name: 'VA-11 HALL-A',   premium: true, category: 'custom',     isLive: true,  goldCost: 400,  unlocked: false },
     { path: 'assets/videos/tokyo.gif',          name: 'Tokyo',          premium: true, category: 'anime',      isLive: true,  goldCost: 500,  unlocked: false },
@@ -112,6 +111,25 @@ export class ThemesComponent implements OnInit {
   showLiveThemes: boolean = true;
 
   userGoldBalance: number = 0;
+
+  dialog: { show: boolean; mode: 'alert'|'confirm'; type: 'info'|'success'|'error'; title: string; message: string; onConfirm?: () => void } =
+    { show: false, mode: 'alert', type: 'info', title: '', message: '' };
+
+  showAlert(type: 'info'|'success'|'error', title: string, message: string, onConfirm?: () => void): void {
+    this.dialog = { show: true, mode: 'alert', type, title, message, onConfirm };
+  }
+
+  showConfirm(title: string, message: string, onConfirm: () => void): void {
+    this.dialog = { show: true, mode: 'confirm', type: 'info', title, message, onConfirm };
+  }
+
+  closeDialog(): void { this.dialog = { ...this.dialog, show: false }; }
+
+  dialogConfirm(): void {
+    const cb = this.dialog.onConfirm;
+    this.closeDialog();
+    if (cb) cb();
+  }
 
   //pagination
   currentPage: number = 0;
@@ -320,22 +338,20 @@ export class ThemesComponent implements OnInit {
         
         // Check if user has enough gold
         if (this.userGoldBalance < goldCost) {
-          alert(`Insufficient gold! You need ${goldCost} gold but only have ${this.userGoldBalance}. Complete more pomodoros to earn gold!`);
+          this.showAlert('error', 'INSUFFICIENT GOLD', `You need ${goldCost} gold but only have ${this.userGoldBalance}. Complete more sessions to earn gold.`);
           return;
         }
 
         // Confirm purchase
-        const confirmPurchase = confirm(
-          `Purchase "${theme.name}" for ${goldCost} gold?\n\nYour current balance: ${this.userGoldBalance} gold\nAfter purchase: ${this.userGoldBalance - goldCost} gold`
+        this.showConfirm(
+          'PURCHASE WALLPAPER',
+          `"${theme.name}" — ${goldCost} gold\nBalance after: ${this.userGoldBalance - goldCost} gold`,
+          () => this.purchaseTheme(theme, goldCost)
         );
-
-        if (confirmPurchase) {
-          this.purchaseTheme(theme, goldCost);
-        }
       },
       error: (error) => {
         console.error('Error fetching gold balance:', error);
-        alert('Unable to verify gold balance. Please try again.');
+        this.showAlert('error', 'ERROR', 'Unable to verify gold balance. Please try again.');
       }
     });
   }
@@ -375,21 +391,20 @@ export class ThemesComponent implements OnInit {
                   // Mark tutorial as seen before reload
                   this.tutorialService.markTutorialAsSeen('themes');
 
-                  alert(`Successfully purchased "${theme.name}"! Theme applied. Remaining gold: ${this.userGoldBalance}`);
-                  window.location.reload();
+                  this.showAlert('success', 'PURCHASED', `"${theme.name}" applied. Remaining gold: ${this.userGoldBalance}`, () => window.location.reload());
                 }
               });
             },
             error: (goldError) => {
               console.error('Error spending gold:', goldError);
-              alert('Purchase completed but there was an error updating gold balance.');
+              this.showAlert('error', 'WARNING', 'Purchase completed but there was an error updating gold balance.');
             }
           });
         }
       },
       error: (error) => {
         console.error('Error purchasing theme:', error);
-        alert('Purchase failed. Please try again.');
+        this.showAlert('error', 'PURCHASE FAILED', 'Something went wrong. Please try again.');
       }
     });
   }

@@ -1,5 +1,64 @@
+<!-- ── In-app dialog ── -->
+<div class="lia-overlay" *ngIf="appDialog.show" (click)="closeAppDialog()">
+  <div class="lia-panel" (click)="$event.stopPropagation()">
+    <div class="lia-header">
+      <span class="lia-logo">LOCKED IN</span>
+      <span class="lia-sep">·</span>
+      <span class="lia-tag"
+            [class.lia-tag-error]="appDialog.type === 'error'"
+            [class.lia-tag-success]="appDialog.type === 'success'">
+        {{ appDialog.type === 'error' ? 'ERROR' : appDialog.type === 'success' ? 'SUCCESS' : 'INFO' }}
+      </span>
+    </div>
+    <div class="lia-title">{{ appDialog.title }}</div>
+    <div class="lia-message">{{ appDialog.message }}</div>
+    <div class="lia-buttons">
+      <button *ngIf="appDialog.mode === 'confirm'" class="lia-btn-cancel" (click)="closeAppDialog()">CANCEL</button>
+      <button class="lia-btn-ok"
+              [class.lia-btn-gold]="appDialog.mode === 'confirm'"
+              [class.lia-btn-success]="appDialog.type === 'success'"
+              (click)="appDialogConfirm()">
+        {{ appDialog.mode === 'confirm' ? 'CONFIRM' : 'OK' }}
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Questionnaire modal -->
 <app-questionnaire-modal *ngIf="showQuestionnaire" (closed)="showQuestionnaire = false" ngSkipHydration></app-questionnaire-modal>
+
+<!-- Feedback modal -->
+<div *ngIf="showFeedbackModal" class="feedback-overlay" (click)="closeFeedbackModal()">
+  <div class="feedback-panel" (click)="$event.stopPropagation()">
+    <div class="feedback-header">
+      <div class="feedback-hud-left">
+        <span class="feedback-logo">LOCKED IN</span>
+        <span class="feedback-sep">·</span>
+        <span class="feedback-tag">FEEDBACK</span>
+      </div>
+      <button class="feedback-close" (click)="closeFeedbackModal()">✕</button>
+    </div>
+    <p class="feedback-desc">What's working? What's broken? What would you love to see?</p>
+    <textarea
+      class="feedback-textarea"
+      placeholder="Type your feedback here..."
+      [(ngModel)]="feedbackText"
+      maxlength="1000"
+      rows="5">
+    </textarea>
+    <div class="feedback-footer">
+      <span class="feedback-char-count">{{ feedbackText.length }} / 1000</span>
+      <div class="feedback-btns">
+        <button class="feedback-btn-cancel" (click)="closeFeedbackModal()">CANCEL</button>
+        <button class="feedback-btn-send"
+                [disabled]="!feedbackText.trim() || feedbackSending"
+                (click)="submitFeedback()">
+          {{ feedbackSending ? 'OPENING...' : 'SEND →' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Loading screen -->
 <div *ngIf="isLoading" class="loading-screen">

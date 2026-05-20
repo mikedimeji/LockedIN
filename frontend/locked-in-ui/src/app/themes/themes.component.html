@@ -1,3 +1,29 @@
+<!-- ── In-app dialog ── -->
+<div class="lia-overlay" *ngIf="dialog.show" (click)="closeDialog()">
+  <div class="lia-panel" (click)="$event.stopPropagation()">
+    <div class="lia-header">
+      <span class="lia-logo">LOCKED IN</span>
+      <span class="lia-sep">·</span>
+      <span class="lia-tag"
+            [class.lia-tag-error]="dialog.type === 'error'"
+            [class.lia-tag-success]="dialog.type === 'success'">
+        {{ dialog.type === 'error' ? 'ERROR' : dialog.type === 'success' ? 'SUCCESS' : 'INFO' }}
+      </span>
+    </div>
+    <div class="lia-title">{{ dialog.title }}</div>
+    <div class="lia-message">{{ dialog.message }}</div>
+    <div class="lia-buttons">
+      <button *ngIf="dialog.mode === 'confirm'" class="lia-btn-cancel" (click)="closeDialog()">CANCEL</button>
+      <button class="lia-btn-ok"
+              [class.lia-btn-gold]="dialog.mode === 'confirm'"
+              [class.lia-btn-success]="dialog.type === 'success'"
+              (click)="dialogConfirm()">
+        {{ dialog.mode === 'confirm' ? 'CONFIRM' : 'OK' }}
+      </button>
+    </div>
+  </div>
+</div>
+
 <app-tutorial-modal
   *ngIf="showTutorial"
   [steps]="tutorialSteps"
@@ -52,7 +78,8 @@
            [class.locked]="theme.premium && !theme.unlocked"
            (click)="changeTheme(theme)">
 
-        <img [src]="theme.path" [alt]="theme.name" class="theme-image">
+        <img [src]="theme.path" [alt]="theme.name" class="theme-image"
+             [style.object-position]="theme.path.includes('abstractwell') ? 'center 30%' : 'center center'">
 
         <!-- Name overlay -->
         <div class="theme-name-overlay">{{ theme.name }}</div>

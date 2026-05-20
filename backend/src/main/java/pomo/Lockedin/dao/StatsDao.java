@@ -81,4 +81,7 @@ public interface StatsDao {
 
     /** Focus score 0-100 based on sessions and consistency this week */
     int getFocusScore(Long userId);
+
+    /** Update the subject on the user's most recent session */
+    void tagLatestSession(Long userId, String subject);
 }

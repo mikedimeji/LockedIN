@@ -158,6 +158,12 @@ public class StatsService {
         return statsDao.getFocusScore(userId);
     }
 
+    public void tagLatestSession(String userEmail, String subject) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return;
+        statsDao.tagLatestSession(userId, subject);
+    }
+
     /** Current streak computed from actual session dates */
     public int computeCurrentStreak(String userEmail) {
         Long userId = userService.getUserIdByEmail(userEmail);

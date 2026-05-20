@@ -327,6 +327,12 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   dismissCompletion(): void {
+    // If the user tagged this session and it earned gold, write the subject to the backend now
+    if (this.selectedSubject.trim() && this.goldEarned > 0) {
+      this.goldStreakService.tagLatestSession(this.selectedSubject.trim())
+        .pipe(catchError(() => of(null)))
+        .subscribe();
+    }
     this.showCompletionScreen = false;
     this.selectedSubject = '';
     this.resetTimer();

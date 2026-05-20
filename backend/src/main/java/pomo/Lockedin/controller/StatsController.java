@@ -203,6 +203,19 @@ public class StatsController {
     }
 
     /**
+     * Tag the user's most recent session with a subject (called after completion screen)
+     */
+    @PostMapping("/tag-session")
+    @ResponseStatus(HttpStatus.OK)
+    public void tagLatestSession(@RequestBody Map<String, String> body) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String subject = body.get("subject");
+        if (subject != null && !subject.isBlank()) {
+            statsService.tagLatestSession(user.getEmail(), subject.trim());
+        }
+    }
+
+    /**
      * Get focus score 0-100 (premium only)
      */
     @GetMapping("/focus-score")
