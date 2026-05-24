@@ -2,9 +2,9 @@ package pomo.Lockedin.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pomo.Lockedin.dto.TimeBlockDTO;
 import pomo.Lockedin.entities.User;
 import pomo.Lockedin.service.PremiumService;
@@ -21,40 +21,41 @@ public class ScheduleController {
     private final TimeBlockService timeBlockService;
     private final PremiumService premiumService;
 
-    private String currentEmail() {
-        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getEmail();
-    }
-
-    private boolean requiresPremium() {
-        return !premiumService.isPremium(currentEmail());
+    private String requirePremium() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!premiumService.isPremium(user.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Premium required");
+        }
+        return user.getEmail();
     }
 
     @GetMapping("/{date}")
-    public ResponseEntity<List<TimeBlockDTO>> getBlocks(@PathVariable String date) {
-        if (requiresPremium()) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        LocalDate localDate = LocalDate.parse(date);
-        return ResponseEntity.ok(timeBlockService.getBlocksForDate(currentEmail(), localDate));
+    @ResponseStatus(HttpStatus.OK)
+    public List<TimeBlockDTO> getBlocks(@PathVariable String date) {
+        String email = requirePremium();
+        return timeBlockService.getBlocksForDate(email, LocalDate.parse(date));
     }
 
     @PostMapping("/block")
-    public ResponseEntity<TimeBlockDTO> createBlock(@RequestBody TimeBlockDTO block) {
-        if (requiresPremium()) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(timeBlockService.createBlock(currentEmail(), block));
+    @ResponseStatus(HttpStatus.CREATED)
+    public TimeBlockDTO createBlock(@RequestBody TimeBlockDTO block) {
+        String email = requirePremium();
+        return timeBlockService.createBlock(email, block);
     }
 
     @PutMapping("/block/{id}")
-    public ResponseEntity<TimeBlockDTO> updateBlock(@PathVariable Long id, @RequestBody TimeBlockDTO block) {
-        if (requiresPremium()) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        return timeBlockService.updateBlock(currentEmail(), id, block)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @ResponseStatus(HttpStatus.OK)
+    public TimeBlockDTO updateBlock(@PathVariable Long id, @RequestBody TimeBlockDTO block) {
+        String email = requirePremium();
+        block.setId(id);
+        return timeBlockService.updateBlock(email, id, block)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/block/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteBlock(@PathVariable Long id) {
-        if (requiresPremium()) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        timeBlockService.deleteBlock(currentEmail(), id);
-        return ResponseEntity.noContent().build();
+    public void deleteBlock(@PathVariable Long id) {
+        String email = requirePremium();
+        timeBlockService.deleteBlock(email, id);
     }
 }
