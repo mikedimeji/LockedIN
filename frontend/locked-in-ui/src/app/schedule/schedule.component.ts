@@ -40,6 +40,7 @@ export class ScheduleComponent implements OnInit {
   dayBlocks: TimeBlock[] = [];
   activeSlot: number | null = null;  // slot being picked
   loadingDay = false;
+  nowMinute = 0;  // current hour-slot minute, updated when modal opens
 
   // Deep work launch modal
   showDW       = false;
@@ -105,6 +106,9 @@ export class ScheduleComponent implements OnInit {
     this.errorMsg   = '';
     this.showDay    = true;
     this.loadingDay = true;
+    // Snap now to the nearest slot hour for highlighting
+    const now = new Date();
+    this.nowMinute = cell.today ? now.getHours() * 60 : -1;
     this.svc.getBlocks(cell.date).pipe(catchError(() => of([]))).subscribe(b => {
       this.dayBlocks  = b.sort((a, b) => a.startMinute - b.startMinute);
       this.loadingDay = false;

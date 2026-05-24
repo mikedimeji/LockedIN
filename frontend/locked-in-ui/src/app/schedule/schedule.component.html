@@ -49,7 +49,9 @@
     <div class="loading" *ngIf="loadingDay">loading...</div>
 
     <div class="slot-list" *ngIf="!loadingDay">
-      <div class="slot-row" *ngFor="let s of slots">
+      <div class="slot-row"
+           *ngFor="let s of slots"
+           [class.current-slot]="s.minute <= nowMinute && nowMinute < s.minute + 60">
 
         <span class="slot-time">{{ s.label }}</span>
 

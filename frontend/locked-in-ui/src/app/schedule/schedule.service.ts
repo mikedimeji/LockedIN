@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface TimeBlock {
   id?: number;
@@ -13,7 +14,7 @@ export interface TimeBlock {
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleService {
-  private readonly api = '/api/schedule';
+  private readonly api = `${environment.apiUrl}/schedule`;
 
   constructor(private http: HttpClient) {}
 

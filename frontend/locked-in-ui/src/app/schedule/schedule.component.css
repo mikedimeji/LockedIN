@@ -252,6 +252,12 @@
   min-height: 46px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
+.slot-row.current-slot {
+  background: rgba(245, 200, 66, 0.04);
+}
+.slot-row.current-slot .slot-time {
+  color: #f5c842;
+}
 
 .slot-time {
   width: 48px;
