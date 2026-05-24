@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -8,30 +7,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ScheduleService, TimeBlock } from './schedule.service';
 import { PremiumService } from '../premium.service';
 
-interface CalendarDay {
-  dateStr: string;
-  day: number;
-  inMonth: boolean;
-  isToday: boolean;
-  blocks: TimeBlock[];
-}
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
 
-interface TimeSlot {
-  minute: number; // minutes from midnight (e.g. 420 = 7am)
-  label: string;  // e.g. "7am"
-}
-
-const MONTH_NAMES = ['January','February','March','April','May','June',
-                     'July','August','September','October','November','December'];
-const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-
-// 7am–11pm in 60-min slots
-const TIME_SLOTS: TimeSlot[] = Array.from({ length: 17 }, (_, i) => {
-  const m = (i + 7) * 60;
+// 7am – 10pm
+const SLOTS = Array.from({ length: 16 }, (_, i) => {
   const h = i + 7;
-  const ampm = h >= 12 ? 'pm' : 'am';
-  const display = h > 12 ? h - 12 : h;
-  return { minute: m, label: `${display}${ampm}` };
+  return { minute: h * 60, label: h > 12 ? `${h - 12}pm` : h === 12 ? '12pm' : `${h}am` };
 });
 
 @Component({
@@ -39,259 +21,156 @@ const TIME_SLOTS: TimeSlot[] = Array.from({ length: 17 }, (_, i) => {
   standalone: true,
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.css'],
-  imports: [NgFor, NgIf, NgClass, FormsModule],
+  imports: [NgFor, NgIf, NgClass],
 })
 export class ScheduleComponent implements OnInit {
   isPremium = false;
-  errorMsg = '';
+  errorMsg  = '';
 
   // Calendar
-  calYear  = new Date().getFullYear();
-  calMonth = new Date().getMonth();
-  calDays: CalendarDay[] = [];
-  dayNames = DAY_NAMES;
-  get monthLabel() { return `${MONTH_NAMES[this.calMonth]} ${this.calYear}`; }
+  year  = new Date().getFullYear();
+  month = new Date().getMonth();
+  cells: { date: string; day: number; cur: boolean; today: boolean; blocks: TimeBlock[] }[] = [];
+  readonly dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  readonly slots    = SLOTS;
 
-  // Selected day
-  selectedDay: CalendarDay | null = null;
-  timeSlots = TIME_SLOTS;
+  // Day modal
+  showDay   = false;
+  dayDate   = '';
+  dayBlocks: TimeBlock[] = [];
+  activeSlot: number | null = null;  // slot being picked
+  loadingDay = false;
 
-  // Inline type picker
-  activeSlot: number | null = null; // minute value of the open slot
-
-  // Edit dialog
-  showEditDialog = false;
-  editingBlock: TimeBlock | null = null;
-  editForm = { title: '', type: 'DEEP_WORK' as 'DEEP_WORK'|'BREAK'|'SCHEDULE', startMinute: 0, endMinute: 60 };
-
-  // Deep work dialog
-  showDeepWorkDialog = false;
-  deepWorkBlock: TimeBlock | null = null;
-  deepWorkPomodoros = 2;
-  deepWorkPreset = 0;
-
-  readonly presets = [
-    { label: '25m', minutes: 25 },
-    { label: '45m', minutes: 45 },
-    { label: '1h',  minutes: 60 },
-  ];
-
-  readonly blockTypes: { value: 'DEEP_WORK'|'BREAK'|'SCHEDULE'; label: string }[] = [
-    { value: 'DEEP_WORK', label: 'Deep Work' },
-    { value: 'BREAK',     label: 'Break'     },
-    { value: 'SCHEDULE',  label: 'Schedule'  },
-  ];
+  // Deep work launch modal
+  showDW       = false;
+  dwBlock: TimeBlock | null = null;
+  dwPomodoros  = 2;
+  dwPreset     = 0;
+  readonly presets = [{ label: '25m' }, { label: '45m' }, { label: '1h' }];
 
   constructor(
-    private scheduleService: ScheduleService,
-    private premiumService: PremiumService,
+    private svc: ScheduleService,
+    private premSvc: PremiumService,
     private router: Router,
   ) {}
 
-  ngOnInit(): void {
-    this.premiumService.getStatus().subscribe({
-      next: s => {
-        this.isPremium = s.isPremium;
-        if (this.isPremium) {
-          this.buildCalendar();
-          // Auto-select today
-          const todayStr = this.fmt(new Date());
-          const today = this.calDays.find(d => d.dateStr === todayStr) ?? null;
-          if (today) this.selectDay(today);
-        }
-      },
+  ngOnInit() {
+    this.premSvc.getStatus().subscribe({
+      next: s => { this.isPremium = s.isPremium; if (this.isPremium) this.build(); },
       error: () => {},
     });
   }
 
   // ── Calendar ──────────────────────────────────────────────────────────────
 
-  prevMonth(): void {
-    if (this.calMonth === 0) { this.calMonth = 11; this.calYear--; }
-    else this.calMonth--;
-    this.buildCalendar();
-  }
+  get monthLabel() { return `${MONTHS[this.month]} ${this.year}`; }
 
-  nextMonth(): void {
-    if (this.calMonth === 11) { this.calMonth = 0; this.calYear++; }
-    else this.calMonth++;
-    this.buildCalendar();
-  }
+  prev() { this.month--; if (this.month < 0) { this.month = 11; this.year--; } this.build(); }
+  next() { this.month++; if (this.month > 11) { this.month = 0;  this.year++; } this.build(); }
 
-  goToday(): void {
-    const now = new Date();
-    this.calYear = now.getFullYear();
-    this.calMonth = now.getMonth();
-    this.buildCalendar();
-    const todayStr = this.fmt(now);
-    const today = this.calDays.find(d => d.dateStr === todayStr) ?? null;
-    if (today) this.selectDay(today);
-  }
-
-  buildCalendar(): void {
-    const firstDay = new Date(this.calYear, this.calMonth, 1);
-    const lastDay  = new Date(this.calYear, this.calMonth + 1, 0);
-    let startOffset = (firstDay.getDay() + 6) % 7;
-    const days: CalendarDay[] = [];
+  build() {
+    const first  = new Date(this.year, this.month, 1);
+    const last   = new Date(this.year, this.month + 1, 0);
+    const offset = (first.getDay() + 6) % 7;
     const todayStr = this.fmt(new Date());
+    const arr: typeof this.cells = [];
 
-    for (let i = startOffset - 1; i >= 0; i--) {
-      const d = new Date(this.calYear, this.calMonth, -i);
-      days.push({ dateStr: this.fmt(d), day: d.getDate(), inMonth: false, isToday: false, blocks: [] });
+    for (let i = offset - 1; i >= 0; i--) {
+      const d = new Date(this.year, this.month, -i);
+      arr.push({ date: this.fmt(d), day: d.getDate(), cur: false, today: false, blocks: [] });
     }
-    for (let n = 1; n <= lastDay.getDate(); n++) {
-      const d   = new Date(this.calYear, this.calMonth, n);
-      const str = this.fmt(d);
-      days.push({ dateStr: str, day: n, inMonth: true, isToday: str === todayStr, blocks: [] });
+    for (let n = 1; n <= last.getDate(); n++) {
+      const d = new Date(this.year, this.month, n);
+      const s = this.fmt(d);
+      arr.push({ date: s, day: n, cur: true, today: s === todayStr, blocks: [] });
     }
-    const rem = (7 - (days.length % 7)) % 7;
+    const rem = (7 - arr.length % 7) % 7;
     for (let i = 1; i <= rem; i++) {
-      const d = new Date(this.calYear, this.calMonth + 1, i);
-      days.push({ dateStr: this.fmt(d), day: d.getDate(), inMonth: false, isToday: false, blocks: [] });
+      const d = new Date(this.year, this.month + 1, i);
+      arr.push({ date: this.fmt(d), day: d.getDate(), cur: false, today: false, blocks: [] });
     }
-    this.calDays = days;
-    this.loadMonthBlocks();
-  }
+    this.cells = arr;
 
-  private loadMonthBlocks(): void {
-    this.calDays.filter(d => d.inMonth).forEach(day => {
-      this.scheduleService.getBlocks(day.dateStr)
-        .pipe(catchError(() => of([])))
-        .subscribe(blocks => { day.blocks = blocks; });
+    // Load dots for current month
+    arr.filter(c => c.cur).forEach(c => {
+      this.svc.getBlocks(c.date).pipe(catchError(() => of([]))).subscribe(b => c.blocks = b);
     });
   }
 
-  selectDay(day: CalendarDay): void {
-    if (!day.inMonth) return;
-    this.selectedDay = day;
+  clickDay(cell: typeof this.cells[0]) {
+    if (!cell.cur) return;
+    this.dayDate    = cell.date;
+    this.dayBlocks  = [];
     this.activeSlot = null;
-    this.scheduleService.getBlocks(day.dateStr)
-      .pipe(catchError(() => of([])))
-      .subscribe(blocks => {
-        day.blocks = blocks.sort((a, b) => a.startMinute - b.startMinute);
-      });
+    this.errorMsg   = '';
+    this.showDay    = true;
+    this.loadingDay = true;
+    this.svc.getBlocks(cell.date).pipe(catchError(() => of([]))).subscribe(b => {
+      this.dayBlocks  = b.sort((a, b) => a.startMinute - b.startMinute);
+      this.loadingDay = false;
+    });
   }
 
-  isSelected(day: CalendarDay): boolean {
-    return this.selectedDay?.dateStr === day.dateStr;
+  // ── Day modal ─────────────────────────────────────────────────────────────
+
+  get dayLabel() {
+    const d = new Date(this.dayDate + 'T12:00:00');
+    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${this.year}`;
   }
 
-  // ── Time slots ────────────────────────────────────────────────────────────
-
-  blocksInSlot(slotMinute: number): TimeBlock[] {
-    if (!this.selectedDay) return [];
-    return this.selectedDay.blocks.filter(
-      b => b.startMinute >= slotMinute && b.startMinute < slotMinute + 60
-    );
+  blocksAt(minute: number) {
+    return this.dayBlocks.filter(b => b.startMinute >= minute && b.startMinute < minute + 60);
   }
 
-  toggleSlot(slotMinute: number): void {
-    this.activeSlot = this.activeSlot === slotMinute ? null : slotMinute;
-  }
-
-  quickAdd(slotMinute: number, type: 'DEEP_WORK'|'BREAK'|'SCHEDULE'): void {
-    if (!this.selectedDay) return;
+  pickType(minute: number, type: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE') {
     this.activeSlot = null;
-    this.errorMsg = '';
-
+    this.errorMsg   = '';
+    const label = type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule';
     const payload: Omit<TimeBlock, 'id'> = {
-      date:        this.selectedDay.dateStr,
-      startMinute: slotMinute,
-      endMinute:   slotMinute + 60,
-      type,
-      title: type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule',
+      date: this.dayDate, startMinute: minute, endMinute: minute + 60, type, title: label,
     };
-
-    this.scheduleService.createBlock(payload)
-      .pipe(catchError((err: HttpErrorResponse) => {
-        this.errorMsg = `Failed to add block (${err.status})`;
+    this.svc.createBlock(payload)
+      .pipe(catchError((e: HttpErrorResponse) => {
+        this.errorMsg = `Could not save block (${e.status || 'network error'})`;
         return of(null);
       }))
-      .subscribe(created => {
-        if (created && this.selectedDay) {
-          this.selectedDay.blocks = [...this.selectedDay.blocks, created]
-            .sort((a, b) => a.startMinute - b.startMinute);
+      .subscribe(b => {
+        if (b) {
+          this.dayBlocks = [...this.dayBlocks, b].sort((a, x) => a.startMinute - x.startMinute);
+          // update dot on calendar cell
+          const cell = this.cells.find(c => c.date === this.dayDate);
+          if (cell) cell.blocks = [...cell.blocks, b];
         }
       });
   }
 
-  // ── Edit dialog ───────────────────────────────────────────────────────────
-
-  openEdit(block: TimeBlock, e: MouseEvent): void {
+  deleteBlock(block: TimeBlock, e: MouseEvent) {
     e.stopPropagation();
-    this.editingBlock = block;
-    this.editForm = { title: block.title, type: block.type, startMinute: block.startMinute, endMinute: block.endMinute };
-    this.showEditDialog = true;
-  }
-
-  saveEdit(): void {
-    if (!this.editingBlock?.id || !this.selectedDay) return;
-    const payload = { ...this.selectedDay && { date: this.selectedDay.dateStr }, ...this.editForm };
-    this.scheduleService.updateBlock(this.editingBlock.id, {
-      date: this.selectedDay.dateStr,
-      startMinute: Number(this.editForm.startMinute),
-      endMinute:   Number(this.editForm.endMinute),
-      type:  this.editForm.type,
-      title: this.editForm.title.trim() || this.labelFor(this.editForm.type),
-    }).pipe(catchError(() => of(null))).subscribe(updated => {
-      if (updated && this.selectedDay) {
-        this.selectedDay.blocks = this.selectedDay.blocks
-          .map(b => b.id === updated.id ? updated : b)
-          .sort((a, b) => a.startMinute - b.startMinute);
-      }
-      this.showEditDialog = false;
-      this.editingBlock = null;
+    if (!block.id) return;
+    this.svc.deleteBlock(block.id).pipe(catchError(() => of(null))).subscribe(() => {
+      this.dayBlocks = this.dayBlocks.filter(b => b.id !== block.id);
+      const cell = this.cells.find(c => c.date === this.dayDate);
+      if (cell) cell.blocks = cell.blocks.filter(b => b.id !== block.id);
     });
-  }
-
-  deleteBlock(block: TimeBlock, e: MouseEvent): void {
-    e.stopPropagation();
-    if (!block.id || !this.selectedDay) return;
-    this.scheduleService.deleteBlock(block.id)
-      .pipe(catchError(() => of(null)))
-      .subscribe(() => {
-        if (this.selectedDay)
-          this.selectedDay.blocks = this.selectedDay.blocks.filter(b => b.id !== block.id);
-      });
   }
 
   // ── Deep work ─────────────────────────────────────────────────────────────
 
-  openDeepWork(block: TimeBlock, e: MouseEvent): void {
+  openDW(block: TimeBlock, e: MouseEvent) {
     e.stopPropagation();
-    this.deepWorkBlock = block;
-    this.deepWorkPomodoros = Math.max(1, Math.floor((block.endMinute - block.startMinute) / 25));
-    this.deepWorkPreset = 0;
-    this.showDeepWorkDialog = true;
+    this.dwBlock     = block;
+    this.dwPomodoros = Math.max(1, Math.floor((block.endMinute - block.startMinute) / 25));
+    this.dwPreset    = 0;
+    this.showDW      = true;
   }
 
-  launchDeepWork(): void {
-    this.showDeepWorkDialog = false;
+  launchDW() {
+    this.showDW = false;
     this.router.navigate(['/timer'], {
-      queryParams: { deepWork: 'true', pomodoros: this.deepWorkPomodoros, preset: this.deepWorkPreset },
+      queryParams: { deepWork: 'true', pomodoros: this.dwPomodoros, preset: this.dwPreset },
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  labelFor(type: string): string {
-    return type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule';
-  }
-
-  displayTime(m: number): string { return this.scheduleService.minutesToDisplay(m); }
-
-  minuteOptions() {
-    const opts = [];
-    for (let m = 0; m < 24 * 60; m += 15)
-      opts.push({ value: m, label: this.scheduleService.minutesToDisplay(m) });
-    return opts;
-  }
-
-  get selectedDayLabel(): string {
-    if (!this.selectedDay) return '';
-    const d = new Date(this.selectedDay.dateStr + 'T00:00:00');
-    return `${d.getDate()} ${MONTH_NAMES[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
-  }
-
-  private fmt(d: Date): string { return d.toISOString().split('T')[0]; }
+  disp(m: number) { return this.svc.minutesToDisplay(m); }
+  private fmt(d: Date) { return d.toISOString().split('T')[0]; }
 }

@@ -1,177 +1,123 @@
 <!-- Premium gate -->
-<div class="sched-gate" *ngIf="!isPremium">
-  <div class="gate-card">
-    <div class="gate-label">PREMIUM FEATURE</div>
-    <div class="gate-title">TIME BLOCKING</div>
-    <p class="gate-desc">Plan your day with deep work, break, and schedule blocks.</p>
+<div class="card" *ngIf="!isPremium">
+  <div class="gate-label">PREMIUM FEATURE</div>
+  <div class="gate-title">TIME BLOCKING</div>
+  <p class="gate-desc">Plan your day with deep work, break, and schedule blocks.</p>
+</div>
+
+<!-- Calendar card -->
+<div class="card" *ngIf="isPremium">
+
+  <!-- Header -->
+  <div class="cal-header">
+    <button class="nav-btn" (click)="prev()">‹</button>
+    <span class="month-label">{{ monthLabel }}</span>
+    <button class="nav-btn" (click)="next()">›</button>
+  </div>
+
+  <!-- Day names -->
+  <div class="cal-grid">
+    <div class="day-name" *ngFor="let d of dayNames">{{ d }}</div>
+
+    <!-- Cells -->
+    <div *ngFor="let c of cells"
+         class="cal-cell"
+         [class.other]="!c.cur"
+         [class.today]="c.today"
+         (click)="clickDay(c)">
+      <span class="cell-num">{{ c.day }}</span>
+      <div class="dot-row" *ngIf="c.cur && c.blocks.length">
+        <span *ngFor="let b of c.blocks.slice(0,3)"
+              class="dot" [ngClass]="'dot-' + b.type.toLowerCase()"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Day modal ── -->
+<div class="overlay" *ngIf="showDay" (click)="showDay = false">
+  <div class="day-modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <span class="modal-title">{{ dayLabel }}</span>
+      <button class="close-btn" (click)="showDay = false">✕</button>
+    </div>
+
+    <div class="error-bar" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+    <div class="loading" *ngIf="loadingDay">loading...</div>
+
+    <div class="slot-list" *ngIf="!loadingDay">
+      <div class="slot-row" *ngFor="let s of slots">
+
+        <span class="slot-time">{{ s.label }}</span>
+
+        <div class="slot-body">
+
+          <!-- Existing blocks -->
+          <div *ngFor="let b of blocksAt(s.minute)"
+               class="block-chip" [ngClass]="'chip-' + b.type.toLowerCase()">
+            <span class="chip-title">{{ b.title }}</span>
+            <span class="chip-time">{{ disp(b.startMinute) }}–{{ disp(b.endMinute) }}</span>
+            <button class="chip-dw" *ngIf="b.type === 'DEEP_WORK'"
+                    (click)="openDW(b, $event)">▶</button>
+            <button class="chip-del" (click)="deleteBlock(b, $event)">✕</button>
+          </div>
+
+          <!-- Empty: show + or type picker -->
+          <ng-container *ngIf="blocksAt(s.minute).length === 0">
+            <div class="slot-empty" *ngIf="activeSlot !== s.minute"
+                 (click)="activeSlot = s.minute">
+              <span class="plus">+</span>
+            </div>
+            <div class="type-picker" *ngIf="activeSlot === s.minute">
+              <button class="tp-btn tp-dw"   (click)="pickType(s.minute, 'DEEP_WORK')">Deep Work</button>
+              <button class="tp-btn tp-br"   (click)="pickType(s.minute, 'BREAK')">Break</button>
+              <button class="tp-btn tp-sc"   (click)="pickType(s.minute, 'SCHEDULE')">Schedule</button>
+              <button class="tp-btn tp-x"    (click)="activeSlot = null">✕</button>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div class="sched-page" *ngIf="isPremium">
+<!-- ── Deep work modal ── -->
+<div class="overlay" *ngIf="showDW" (click)="showDW = false">
+  <div class="day-modal dw-modal" (click)="$event.stopPropagation()">
 
-  <!-- ── Month calendar ── -->
-  <div class="cal-section">
-    <div class="cal-header">
-      <button class="cal-nav-btn" (click)="prevMonth()">‹</button>
-      <span class="cal-month-label">{{ monthLabel }}</span>
-      <button class="cal-nav-btn" (click)="nextMonth()">›</button>
-      <button class="cal-today-btn" (click)="goToday()">TODAY</button>
+    <div class="modal-header">
+      <span class="modal-title">{{ dwBlock?.title }}</span>
+      <button class="close-btn" (click)="showDW = false">✕</button>
     </div>
+    <div class="dw-time" *ngIf="dwBlock">{{ disp(dwBlock.startMinute) }} – {{ disp(dwBlock.endMinute) }}</div>
 
-    <div class="cal-grid">
-      <div class="cal-day-name" *ngFor="let d of dayNames">{{ d }}</div>
-      <div *ngFor="let day of calDays"
-           class="cal-cell"
-           [class.other-month]="!day.inMonth"
-           [class.today]="day.isToday"
-           [class.selected]="isSelected(day)"
-           (click)="selectDay(day)">
-        <span class="cal-num">{{ day.day }}</span>
-        <div class="cal-dots" *ngIf="day.inMonth && day.blocks.length">
-          <span *ngFor="let b of day.blocks.slice(0,3)"
-                class="cal-dot" [ngClass]="'dot-' + b.type.toLowerCase()"></span>
-        </div>
+    <div class="dw-section">
+      <div class="dw-label">POMODOROS</div>
+      <div class="pomo-row">
+        <button class="pomo-adj" (click)="dwPomodoros = dwPomodoros > 1 ? dwPomodoros - 1 : 1">−</button>
+        <span class="pomo-val">{{ dwPomodoros }}</span>
+        <button class="pomo-adj" (click)="dwPomodoros = dwPomodoros + 1">+</button>
       </div>
     </div>
+
+    <div class="dw-section">
+      <div class="dw-label">TECHNIQUE</div>
+      <div class="preset-row">
+        <button *ngFor="let p of presets; let i = index"
+                class="preset-btn" [class.active]="dwPreset === i"
+                (click)="dwPreset = i">{{ p.label }}</button>
+      </div>
+    </div>
+
+    <div class="dw-actions">
+      <button class="dw-cancel" (click)="showDW = false">CANCEL</button>
+      <button class="dw-start"  (click)="launchDW()">START →</button>
+    </div>
+
   </div>
-
-  <!-- ── Day schedule (scrolls in below) ── -->
-  <div class="day-section" *ngIf="selectedDay">
-
-    <div class="day-header">
-      <span class="day-label">{{ selectedDayLabel }}</span>
-    </div>
-
-    <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
-
-    <!-- Time slot rows -->
-    <div class="slot-row" *ngFor="let slot of timeSlots">
-
-      <span class="slot-label">{{ slot.label }}</span>
-
-      <div class="slot-content">
-
-        <!-- Existing blocks in this slot -->
-        <div *ngFor="let block of blocksInSlot(slot.minute)"
-             class="block-pill"
-             [ngClass]="'pill-' + block.type.toLowerCase()">
-          <div class="pill-inner">
-            <span class="pill-title">{{ block.title }}</span>
-            <span class="pill-time">{{ displayTime(block.startMinute) }}–{{ displayTime(block.endMinute) }}</span>
-          </div>
-          <div class="pill-actions">
-            <button class="pill-btn pill-btn-start" *ngIf="block.type === 'DEEP_WORK'"
-                    (click)="openDeepWork(block, $event)">▶</button>
-            <button class="pill-btn pill-btn-edit"  (click)="openEdit(block, $event)">✎</button>
-            <button class="pill-btn pill-btn-del"   (click)="deleteBlock(block, $event)">✕</button>
-          </div>
-        </div>
-
-        <!-- Empty slot: click to expand type picker -->
-        <div class="slot-empty"
-             *ngIf="blocksInSlot(slot.minute).length === 0"
-             (click)="toggleSlot(slot.minute)">
-          <span class="slot-plus">+</span>
-        </div>
-
-        <!-- Inline type picker -->
-        <div class="type-picker" *ngIf="activeSlot === slot.minute">
-          <span class="picker-chip chip-dw"   (click)="quickAdd(slot.minute, 'DEEP_WORK')">Deep Work</span>
-          <span class="picker-chip chip-br"   (click)="quickAdd(slot.minute, 'BREAK')">Break</span>
-          <span class="picker-chip chip-sc"   (click)="quickAdd(slot.minute, 'SCHEDULE')">Schedule</span>
-          <span class="picker-chip chip-cancel" (click)="activeSlot = null">✕</span>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Edit dialog ── -->
-  <div class="dialog-overlay" *ngIf="showEditDialog" (click)="showEditDialog = false">
-    <div class="dialog-card" (click)="$event.stopPropagation()">
-
-      <div class="dialog-hud-header">
-        <span class="dialog-logo">LOCKED IN</span>
-        <span class="dialog-sep">·</span>
-        <span class="dialog-tag">EDIT BLOCK</span>
-      </div>
-
-      <div class="dialog-field">
-        <div class="type-chips">
-          <span *ngFor="let t of blockTypes"
-                class="type-chip"
-                [ngClass]="'chip-' + t.value.toLowerCase()"
-                [class.active]="editForm.type === t.value"
-                (click)="editForm.type = t.value">{{ t.label }}</span>
-        </div>
-      </div>
-
-      <div class="dialog-field">
-        <input class="dialog-input" type="text" [(ngModel)]="editForm.title"
-               [placeholder]="labelFor(editForm.type)" maxlength="60">
-      </div>
-
-      <div class="dialog-field dialog-row">
-        <div class="dialog-col">
-          <label class="dialog-label">FROM</label>
-          <select class="dialog-select" [(ngModel)]="editForm.startMinute">
-            <option *ngFor="let o of minuteOptions()" [ngValue]="o.value">{{ o.label }}</option>
-          </select>
-        </div>
-        <div class="dialog-col">
-          <label class="dialog-label">TO</label>
-          <select class="dialog-select" [(ngModel)]="editForm.endMinute">
-            <option *ngFor="let o of minuteOptions()" [ngValue]="o.value">{{ o.label }}</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="dialog-actions">
-        <button class="btn-cancel" (click)="showEditDialog = false">CANCEL</button>
-        <button class="btn-save"   (click)="saveEdit()">SAVE</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Deep work dialog ── -->
-  <div class="dialog-overlay" *ngIf="showDeepWorkDialog" (click)="showDeepWorkDialog = false">
-    <div class="dialog-card" (click)="$event.stopPropagation()">
-
-      <div class="dialog-hud-header">
-        <span class="dialog-logo">LOCKED IN</span>
-        <span class="dialog-sep">·</span>
-        <span class="dialog-tag">DEEP WORK</span>
-      </div>
-
-      <div class="dw-block-title">{{ deepWorkBlock?.title }}</div>
-      <div class="dw-block-time" *ngIf="deepWorkBlock">
-        {{ displayTime(deepWorkBlock.startMinute) }} – {{ displayTime(deepWorkBlock.endMinute) }}
-      </div>
-
-      <div class="dialog-field">
-        <label class="dialog-label">POMODOROS</label>
-        <div class="pomo-count-row">
-          <button class="pomo-adj" (click)="deepWorkPomodoros = deepWorkPomodoros > 1 ? deepWorkPomodoros - 1 : 1">−</button>
-          <span class="pomo-count-val">{{ deepWorkPomodoros }}</span>
-          <button class="pomo-adj" (click)="deepWorkPomodoros = deepWorkPomodoros + 1">+</button>
-        </div>
-      </div>
-
-      <div class="dialog-field">
-        <label class="dialog-label">TECHNIQUE</label>
-        <div class="preset-chips-row">
-          <span *ngFor="let p of presets; let i = index"
-                class="preset-chip-dw"
-                [class.active]="deepWorkPreset === i"
-                (click)="deepWorkPreset = i">{{ p.label }}</span>
-        </div>
-      </div>
-
-      <div class="dialog-actions">
-        <button class="btn-cancel"   (click)="showDeepWorkDialog = false">CANCEL</button>
-        <button class="btn-start-dw" (click)="launchDeepWork()">START →</button>
-      </div>
-    </div>
-  </div>
-
 </div>
