@@ -172,5 +172,10 @@ export class ScheduleComponent implements OnInit {
   }
 
   disp(m: number) { return this.svc.minutesToDisplay(m); }
-  private fmt(d: Date) { return d.toISOString().split('T')[0]; }
+  private fmt(d: Date) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 }
