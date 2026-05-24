@@ -1,0 +1,150 @@
+<!-- Premium gate -->
+<div class="sched-gate" *ngIf="!isPremium">
+  <div class="gate-card">
+    <div class="gate-label">PREMIUM FEATURE</div>
+    <div class="gate-title">TIME BLOCKING</div>
+    <p class="gate-desc">Plan your day with deep work, break, and schedule blocks. Available on Premium.</p>
+  </div>
+</div>
+
+<!-- Main schedule view -->
+<div class="sched-wrap" *ngIf="isPremium">
+
+  <!-- Header -->
+  <div class="sched-header">
+    <div class="sched-title">SCHEDULE</div>
+    <div class="sched-nav">
+      <button class="nav-btn" (click)="prevDay()">‹</button>
+      <input class="date-input" type="date" [(ngModel)]="selectedDate" (change)="onDateChange()">
+      <button class="nav-btn" (click)="nextDay()">›</button>
+      <button class="today-btn" (click)="goToday()" *ngIf="!isToday()">TODAY</button>
+    </div>
+  </div>
+
+  <!-- Day grid -->
+  <div class="grid-wrap">
+
+    <!-- Hour labels + click zones -->
+    <div class="hour-row" *ngFor="let h of hours" (click)="onHourClick(h)">
+      <span class="hour-label">{{ h % 12 === 0 ? 12 : h % 12 }}{{ h < 12 ? 'am' : 'pm' }}</span>
+      <div class="hour-line"></div>
+    </div>
+
+    <!-- Blocks layer -->
+    <div class="blocks-layer">
+      <div *ngFor="let block of blocks"
+           class="time-block"
+           [ngClass]="'block-' + block.type.toLowerCase()"
+           [style.top.%]="blockTop(block)"
+           [style.height.%]="blockHeight(block)"
+           (click)="editBlock(block, $event)">
+
+        <div class="block-inner">
+          <span class="block-title">{{ block.title }}</span>
+          <span class="block-time">{{ displayTime(block.startMinute) }} – {{ displayTime(block.endMinute) }}</span>
+        </div>
+
+        <div class="block-actions">
+          <button class="block-btn-start" *ngIf="block.type === 'DEEP_WORK'"
+                  (click)="openDeepWork(block, $event)" title="Start deep work">▶</button>
+          <button class="block-btn-del" (click)="deleteBlock(block, $event)" title="Delete">✕</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Create/edit dialog -->
+  <div class="dialog-overlay" *ngIf="showDialog" (click)="closeDialog()">
+    <div class="dialog-card" (click)="$event.stopPropagation()">
+
+      <div class="dialog-hud-header">
+        <span class="dialog-logo">LOCKED IN</span>
+        <span class="dialog-sep">·</span>
+        <span class="dialog-tag">{{ editingId ? 'EDIT BLOCK' : 'NEW BLOCK' }}</span>
+      </div>
+
+      <!-- Type selector -->
+      <div class="dialog-field">
+        <div class="type-chips">
+          <span *ngFor="let t of blockTypes"
+                class="type-chip"
+                [ngClass]="'chip-' + t.value.toLowerCase()"
+                [class.active]="form.type === t.value"
+                (click)="form.type = t.value">{{ t.label }}</span>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="dialog-field">
+        <input class="dialog-input" type="text" [(ngModel)]="form.title"
+               [placeholder]="labelForType(form.type)" maxlength="60">
+      </div>
+
+      <!-- Time range -->
+      <div class="dialog-field dialog-row">
+        <div class="dialog-col">
+          <label class="dialog-label">FROM</label>
+          <select class="dialog-select" [(ngModel)]="form.startMinute">
+            <option *ngFor="let o of minuteOptions()" [value]="o.value">{{ o.label }}</option>
+          </select>
+        </div>
+        <div class="dialog-col">
+          <label class="dialog-label">TO</label>
+          <select class="dialog-select" [(ngModel)]="form.endMinute">
+            <option *ngFor="let o of minuteOptions()" [value]="o.value">{{ o.label }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="btn-cancel" (click)="closeDialog()">CANCEL</button>
+        <button class="btn-save" (click)="saveBlock()">SAVE</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Deep work launch dialog -->
+  <div class="dialog-overlay" *ngIf="showDeepWorkDialog" (click)="showDeepWorkDialog = false">
+    <div class="dialog-card dw-card" (click)="$event.stopPropagation()">
+
+      <div class="dialog-hud-header">
+        <span class="dialog-logo">LOCKED IN</span>
+        <span class="dialog-sep">·</span>
+        <span class="dialog-tag">DEEP WORK</span>
+      </div>
+
+      <div class="dw-block-title">{{ deepWorkBlock?.title }}</div>
+      <div class="dw-block-time" *ngIf="deepWorkBlock">
+        {{ displayTime(deepWorkBlock.startMinute) }} – {{ displayTime(deepWorkBlock.endMinute) }}
+      </div>
+
+      <div class="dialog-field">
+        <label class="dialog-label">POMODOROS</label>
+        <div class="pomo-count-row">
+          <button class="pomo-adj" (click)="deepWorkPomodoros = deepWorkPomodoros > 1 ? deepWorkPomodoros - 1 : 1">−</button>
+          <span class="pomo-count-val">{{ deepWorkPomodoros }}</span>
+          <button class="pomo-adj" (click)="deepWorkPomodoros = deepWorkPomodoros + 1">+</button>
+        </div>
+      </div>
+
+      <div class="dialog-field">
+        <label class="dialog-label">TECHNIQUE</label>
+        <div class="preset-chips-row">
+          <span *ngFor="let p of presets; let i = index"
+                class="preset-chip-dw"
+                [class.active]="deepWorkPreset === i"
+                (click)="deepWorkPreset = i">{{ p.label }}</span>
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="btn-cancel" (click)="showDeepWorkDialog = false">CANCEL</button>
+        <button class="btn-start-dw" (click)="launchDeepWork()">START →</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

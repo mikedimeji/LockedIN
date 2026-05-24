@@ -1,0 +1,490 @@
+/* ── Layout ── */
+.sched-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.gate-card {
+  text-align: center;
+  padding: 40px 48px;
+  background: rgba(8, 18, 34, 0.82);
+  border: 1px solid rgba(82, 113, 255, 0.18);
+  border-radius: 20px;
+  backdrop-filter: blur(18px);
+}
+
+.gate-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 12px;
+}
+
+.gate-title {
+  font-family: bitF1, sans-serif;
+  font-size: 24px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 12px;
+}
+
+.gate-desc {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  max-width: 280px;
+}
+
+/* ── Page wrap ── */
+.sched-wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Header ── */
+.sched-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.sched-title {
+  font-family: bitF1, sans-serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.4);
+}
+
+.sched-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 16px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  line-height: 1.4;
+}
+
+.nav-btn:hover {
+  border-color: rgba(82,113,255,0.4);
+  color: rgba(255,255,255,0.75);
+}
+
+.date-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 5px 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.date-input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+.today-btn {
+  background: none;
+  border: 1px solid rgba(82,113,255,0.35);
+  border-radius: 8px;
+  color: rgba(82,113,255,0.7);
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.today-btn:hover {
+  background: rgba(82,113,255,0.1);
+  color: rgba(82,113,255,1);
+}
+
+/* ── Day grid ── */
+.grid-wrap {
+  position: relative;
+  background: rgba(8, 18, 34, 0.6);
+  border: 1px solid rgba(82, 113, 255, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.hour-row {
+  display: flex;
+  align-items: flex-start;
+  height: 52px;
+  padding-top: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.hour-row:hover { background: rgba(82, 113, 255, 0.04); }
+
+.hour-label {
+  width: 52px;
+  text-align: right;
+  padding-right: 12px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.18);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.hour-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin-top: 5px;
+}
+
+/* ── Blocks overlay ── */
+.blocks-layer {
+  position: absolute;
+  top: 0; left: 52px; right: 0; bottom: 0;
+  pointer-events: none;
+}
+
+.time-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  transition: filter 0.15s ease;
+  overflow: hidden;
+  min-height: 28px;
+}
+
+.time-block:hover { filter: brightness(1.15); }
+
+.block-deep_work {
+  background: rgba(82, 113, 255, 0.18);
+  border: 1px solid rgba(82, 113, 255, 0.4);
+}
+
+.block-break {
+  background: rgba(72, 199, 142, 0.12);
+  border: 1px solid rgba(72, 199, 142, 0.35);
+}
+
+.block-schedule {
+  background: rgba(255, 180, 60, 0.12);
+  border: 1px solid rgba(255, 180, 60, 0.3);
+}
+
+.block-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.block-title {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.block-deep_work .block-title { color: rgba(130, 160, 255, 0.95); }
+.block-break     .block-title { color: rgba(72, 199, 142, 0.95); }
+.block-schedule  .block-title { color: rgba(255, 180, 60, 0.95); }
+
+.block-time {
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.28);
+}
+
+.block-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.time-block:hover .block-actions { opacity: 1; }
+
+.block-btn-start,
+.block-btn-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 9px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.block-btn-start { color: rgba(130, 160, 255, 0.8); }
+.block-btn-start:hover { background: rgba(82,113,255,0.2); }
+
+.block-btn-del { color: rgba(255,80,80,0.6); }
+.block-btn-del:hover { background: rgba(255,60,60,0.12); }
+
+/* ── Dialog shared ── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dialog-card {
+  width: min(360px, 92vw);
+  background: rgba(6, 6, 18, 0.96);
+  border: 1px solid rgba(82, 113, 255, 0.25);
+  border-radius: 18px;
+  overflow: hidden;
+  animation: slideUp 0.22s ease;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.dialog-hud-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.dialog-logo {
+  font-family: bitF1, sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(82, 113, 255, 0.7);
+}
+
+.dialog-sep { font-size: 11px; color: rgba(255,255,255,0.15); }
+
+.dialog-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.25);
+}
+
+.dialog-field {
+  padding: 14px 20px 0;
+}
+
+.dialog-label {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 8px;
+}
+
+.dialog-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.8);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease;
+}
+
+.dialog-input:focus { border-color: rgba(82,113,255,0.4); }
+.dialog-input::placeholder { color: rgba(255,255,255,0.18); }
+
+.dialog-row {
+  display: flex;
+  gap: 12px;
+}
+
+.dialog-col { flex: 1; }
+
+.dialog-select {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 10px;
+  padding: 18px 20px 20px;
+  margin-top: 4px;
+}
+
+.btn-cancel, .btn-save, .btn-start-dw {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btn-cancel {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.35);
+}
+
+.btn-cancel:hover { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.6); }
+
+.btn-save {
+  background: rgba(82,113,255,0.15);
+  border: 1px solid rgba(82,113,255,0.45);
+  color: rgba(255,255,255,0.9);
+}
+
+.btn-save:hover { background: rgba(82,113,255,0.28); box-shadow: 0 0 14px rgba(82,113,255,0.15); }
+
+.btn-start-dw {
+  background: rgba(82,113,255,0.2);
+  border: 1px solid rgba(82,113,255,0.55);
+  color: #fff;
+}
+
+.btn-start-dw:hover { background: rgba(82,113,255,0.35); box-shadow: 0 0 18px rgba(82,113,255,0.2); }
+
+/* ── Type chips ── */
+.type-chips {
+  display: flex;
+  gap: 8px;
+}
+
+.type-chip {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.type-chip.chip-deep_work.active  { border-color: rgba(82,113,255,0.6);  color: rgba(130,160,255,0.9); background: rgba(82,113,255,0.12); }
+.type-chip.chip-break.active      { border-color: rgba(72,199,142,0.5);  color: rgba(72,199,142,0.9);  background: rgba(72,199,142,0.1); }
+.type-chip.chip-schedule.active   { border-color: rgba(255,180,60,0.5);  color: rgba(255,180,60,0.9);  background: rgba(255,180,60,0.1); }
+.type-chip:not(.active):hover     { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.6); }
+
+/* ── Deep work dialog extras ── */
+.dw-card { }
+
+.dw-block-title {
+  padding: 16px 20px 2px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.85);
+}
+
+.dw-block-time {
+  padding: 0 20px 0;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 4px;
+}
+
+.pomo-count-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pomo-adj {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.pomo-adj:hover { background: rgba(82,113,255,0.15); border-color: rgba(82,113,255,0.4); }
+
+.pomo-count-val {
+  font-size: 28px;
+  color: rgba(255,255,255,0.9);
+  min-width: 28px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.preset-chips-row {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-chip-dw {
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.preset-chip-dw:hover  { border-color: rgba(82,113,255,0.4); color: rgba(255,255,255,0.6); }
+.preset-chip-dw.active { border-color: rgba(82,113,255,0.6); color: rgba(255,255,255,0.9); background: rgba(82,113,255,0.12); }

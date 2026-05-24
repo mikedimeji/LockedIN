@@ -68,12 +68,16 @@
 
 /* Session label */
 .timer-session-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: 'Courier New', monospace;
   font-size: 10px;
   letter-spacing: 3px;
   color: rgba(255, 255, 255, 0.25);
   text-transform: uppercase;
-  margin-bottom: 20px;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ── Time display (collapsed) ── */
@@ -640,6 +644,165 @@
   border-color: rgba(82, 113, 255, 0.8);
   color: #fff;
   box-shadow: 0 0 20px rgba(82, 113, 255, 0.2);
+}
+
+/* ── Header row (preset chips + session label) ── */
+.timer-header-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.preset-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.preset-spacer {
+  flex: 1;
+}
+
+.preset-chip {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: color 0.18s ease;
+  user-select: none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.preset-chip:hover {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.preset-chip.active {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Pomodoro set dots ── */
+.pomo-dots {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.pomo-dot {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.12);
+  transition: all 0.3s ease;
+}
+
+.pomo-dot.filled {
+  color: rgba(82, 113, 255, 0.7);
+}
+
+.pomo-dot.active {
+  color: rgba(82, 113, 255, 0.4);
+  animation: dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+/* ── Deep work progress indicator ── */
+.dw-progress {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.dw-progress-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(82, 113, 255, 0.6);
+}
+
+.dw-progress-sep {
+  font-size: 10px;
+  color: rgba(255,255,255,0.15);
+}
+
+.dw-progress-val {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ── Break screen ── */
+.break-header {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.break-type-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(72, 199, 142, 0.7);
+}
+
+.break-sep-dot {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.15);
+}
+
+.break-next-label {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.break-time .time-input {
+  color: rgba(72, 199, 142, 0.85);
+}
+
+.break-sep {
+  color: rgba(72, 199, 142, 0.4) !important;
+}
+
+.btn-skip-break {
+  background: rgba(72, 199, 142, 0.08);
+  border: 1px solid rgba(72, 199, 142, 0.3);
+  color: rgba(72, 199, 142, 0.7);
+  font-family: bitF1, sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 13px 36px;
+  border-radius: 28px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+
+.btn-skip-break:hover {
+  background: rgba(72, 199, 142, 0.15);
+  border-color: rgba(72, 199, 142, 0.55);
+  color: rgba(72, 199, 142, 1);
+  transform: translateY(-1px);
 }
 
 /* ── Subject tagger (premium) ── */

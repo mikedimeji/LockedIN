@@ -26,16 +26,38 @@ import { FormsModule } from '@angular/forms';
   ]
 })
 export class TimerComponent implements OnInit, OnDestroy {
+  // Presets: [label, work minutes, short break, long break]
+  readonly presets = [
+    { label: '25m', minutes: 25, shortBreak: 5,  longBreak: 30 },
+    { label: '45m', minutes: 45, shortBreak: 10, longBreak: 35 },
+    { label: '1h',  minutes: 60, shortBreak: 15, longBreak: 45 },
+  ] as const;
+  selectedPresetIndex: number = 0;
+
   minutes: number = 25;
   seconds: number = 0;
   hours: number = 0;
-  
+
+  // Break state
+  isBreakMode: boolean = false;
+  isLongBreak: boolean = false;
+  breakMinutes: number = 0;
+  breakSeconds: number = 0;
+  pomodoroSetPosition: number = 0; // 0–3; increments after each session, resets after long break
+  private pendingBreakMinutes: number = 0;
+  private breakIntervalId: any;
+
+  // Deep work mode (launched from schedule)
+  deepWorkMode: boolean = false;
+  deepWorkPomodorosRemaining: number = 0;
+  deepWorkTotal: number = 0;
+
   // Timer state tracking
   private intervalId: any;
   isRunning: boolean = false;
   isExpanded: boolean = false;
   timerOpacity: 0 | 1 | 2 = 0; // 0 = opaque, 1 = glass, 2 = ghost
-  
+
   // Gold and streak tracking
   initialMinutes: number = 25;
   pauseCount: number = 0;
@@ -108,8 +130,19 @@ export class TimerComponent implements OnInit, OnDestroy {
     // Handle route parameters
     const routeSub = this.route.queryParams.subscribe(params => {
       const duration = params['duration'];
-      if(duration) {
+      if (duration) {
         this.setDuration(+duration);
+        this.startTimer();
+      }
+
+      if (params['deepWork'] === 'true') {
+        const pomodoros = parseInt(params['pomodoros'] ?? '1', 10);
+        const preset    = parseInt(params['preset']    ?? '0', 10);
+        this.deepWorkMode = true;
+        this.deepWorkTotal = pomodoros;
+        this.deepWorkPomodorosRemaining = pomodoros;
+        this.selectedPresetIndex = preset < this.presets.length ? preset : 0;
+        this.setDuration(this.presets[this.selectedPresetIndex].minutes);
         this.startTimer();
       }
     });
@@ -129,9 +162,8 @@ export class TimerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
 
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
+    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.breakIntervalId) clearInterval(this.breakIntervalId);
 
     if (isPlatformBrowser(this.platformId)) {
       this.renderer.removeClass(document.body, 'timer-fullscreen-active');
@@ -193,6 +225,11 @@ export class TimerComponent implements OnInit, OnDestroy {
     // getHearts() updates the shared BehaviorSubject via tap — no local assignment needed
     const heartSub = this.heartService.getHearts().subscribe({ error: () => {} });
     this.subscriptions.push(heartSub);
+  }
+
+  selectPreset(index: number): void {
+    this.selectedPresetIndex = index;
+    this.setDuration(this.presets[index].minutes);
   }
 
   setDuration(durationInMinutes: number): void {
@@ -327,7 +364,6 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   dismissCompletion(): void {
-    // If the user tagged this session and it earned gold, write the subject to the backend now
     if (this.selectedSubject.trim() && this.goldEarned > 0) {
       this.goldStreakService.tagLatestSession(this.selectedSubject.trim())
         .pipe(catchError(() => of(null)))
@@ -335,23 +371,104 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
     this.showCompletionScreen = false;
     this.selectedSubject = '';
-    this.resetTimer();
+
+    if (this.pendingBreakMinutes > 0) {
+      this.startBreak(this.pendingBreakMinutes);
+      this.pendingBreakMinutes = 0;
+    } else {
+      this.resetTimer();
+    }
+  }
+
+  startBreak(minutes: number): void {
+    this.isBreakMode = true;
+    this.isExpanded = true;
+    this.breakMinutes = minutes;
+    this.breakSeconds = 0;
+    document.body.classList.add('timer-running');
+    this.acquireWakeLock();
+
+    if (isPlatformBrowser(this.platformId)) {
+      ['.pixel-clock-container', '.stats-display', '.profile-display', '.auth-buttons', '.retro-nav-container']
+        .forEach(sel => document.querySelectorAll(sel).forEach(el => (el as HTMLElement).style.display = 'none'));
+    }
+
+    this.breakIntervalId = setInterval(() => this.breakCountDown(), 1000);
+  }
+
+  private breakCountDown(): void {
+    this.breakSeconds--;
+    if (this.breakSeconds < 0) {
+      if (this.breakMinutes > 0) {
+        this.breakMinutes--;
+        this.breakSeconds = 59;
+      } else {
+        clearInterval(this.breakIntervalId);
+        this.completeAudio?.play().catch(() => {});
+        this.endBreak();
+      }
+    }
+  }
+
+  endBreak(): void {
+    this.isBreakMode = false;
+    clearInterval(this.breakIntervalId);
+
+    const preset = this.presets[this.selectedPresetIndex];
+    this.hours = 0;
+    this.minutes = preset.minutes;
+    this.seconds = 0;
+    this.initialMinutes = preset.minutes;
+    this.timerStartTime = null;
+    this.timerEndTime = null;
+    this.pauseStartTime = null;
+    this.pauseCount = 0;
+    this.totalPauseTime = 0;
+    this.goldEarned = 0;
+    this.streakUpdated = false;
+    this.completedPomodoros = 0;
+    this.pausedMidPomodoro = false;
+
+    if (this.deepWorkMode && this.deepWorkPomodorosRemaining > 0) {
+      // Auto-start next deep work session without collapsing
+      this.startTimer();
+    } else {
+      this.isExpanded = false;
+      document.body.classList.remove('timer-running');
+      this.releaseWakeLock();
+      if (isPlatformBrowser(this.platformId)) {
+        ['.pixel-clock-container', '.stats-display', '.profile-display', '.auth-buttons', '.retro-nav-container']
+          .forEach(sel => document.querySelectorAll(sel).forEach(el => (el as HTMLElement).style.display = ''));
+      }
+    }
+  }
+
+  skipBreak(): void {
+    clearInterval(this.breakIntervalId);
+    this.endBreak();
   }
 
   resetTimer(): void {
     this.isRunning = false;
     this.isExpanded = false;
     this.showCompletionScreen = false;
+    this.isBreakMode = false;
+    this.pendingBreakMinutes = 0;
+    this.pomodoroSetPosition = 0;
+    this.deepWorkMode = false;
+    this.deepWorkPomodorosRemaining = 0;
+    this.deepWorkTotal = 0;
     document.body.classList.remove('timer-running');
     this.releaseWakeLock();
 
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-    
+    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.breakIntervalId) clearInterval(this.breakIntervalId);
+
+    const preset = this.presets[this.selectedPresetIndex];
     this.hours = 0;
-    this.minutes = 25;
+    this.minutes = preset.minutes;
     this.seconds = 0;
+    this.initialMinutes = preset.minutes;
     
     if (isPlatformBrowser(this.platformId)) {
       const elementsToShow = [
@@ -423,8 +540,22 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   private handleTimerCompletion(): void {
-    if (!this.timerStartTime || !this.timerEndTime) {
-      return;
+    if (!this.timerStartTime || !this.timerEndTime) return;
+
+    // Advance the pomodoro set position and calculate break
+    this.pomodoroSetPosition++;
+    const preset = this.presets[this.selectedPresetIndex];
+    this.isLongBreak = this.pomodoroSetPosition >= 4;
+    this.pendingBreakMinutes = this.isLongBreak ? preset.longBreak : preset.shortBreak;
+    if (this.pomodoroSetPosition >= 4) this.pomodoroSetPosition = 0;
+
+    // Deep work: decrement counter; no break after the final session
+    if (this.deepWorkMode) {
+      this.deepWorkPomodorosRemaining--;
+      if (this.deepWorkPomodorosRemaining <= 0) {
+        this.pendingBreakMinutes = 0;
+        this.deepWorkMode = false;
+      }
     }
 
     if (isPlatformBrowser(this.platformId)) {

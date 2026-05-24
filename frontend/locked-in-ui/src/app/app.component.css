@@ -1681,3 +1681,21 @@ body.timer-fullscreen-active .hero {
 
 
 
+
+/* ── Schedule nav SVG icon ── */
+.nav-svg-icon {
+  width: 18px;
+  height: 18px;
+  color: rgba(255,255,255,0.55);
+  transition: all 0.22s ease;
+}
+
+.retro-nav .nav-item:hover .nav-svg-icon {
+  color: rgba(255,255,255,1);
+  transform: translateY(-2px) scale(1.08);
+  filter: drop-shadow(0 0 6px rgba(82, 113, 255, 0.4));
+}
+
+.retro-nav .nav-item.active .nav-svg-icon {
+  color: rgba(255,255,255,0.95);
+}

@@ -13,7 +13,16 @@
     <button class="timer-opacity-btn" (click)="cycleOpacity()" [title]="timerOpacity === 0 ? 'Make transparent' : timerOpacity === 1 ? 'Go ghost' : 'Make opaque'">
       {{ timerOpacity === 0 ? '◐' : timerOpacity === 1 ? '○' : '●' }}
     </button>
-    <div class="timer-session-label">FOCUS SESSION</div>
+    <div class="timer-header-row">
+      <div class="preset-selector" *ngIf="!isRunning && !pauseStartTime; else headerSpacer">
+        <span *ngFor="let p of presets; let i = index"
+              class="preset-chip"
+              [class.active]="selectedPresetIndex === i"
+              (click)="selectPreset(i)">{{ p.label }}</span>
+      </div>
+      <ng-template #headerSpacer><div class="preset-spacer"></div></ng-template>
+      <div class="timer-session-label">FOCUS SESSION</div>
+    </div>
 
     <div class="time-display" (click)="handleTimeClick()">
       <input type="text" [value]="formatTime(hours)"   (input)="handleInputChange($event, 'hours')"   [disabled]="isRunning" class="time-input">
@@ -28,11 +37,27 @@
     </div>
   </ng-container>
 
-  <!-- ── Expanded fullscreen ── -->
-  <ng-container *ngIf="isExpanded">
+  <!-- ── Expanded fullscreen (work) ── -->
+  <ng-container *ngIf="isExpanded && !isBreakMode">
     <button class="timer-opacity-btn" (click)="cycleOpacity()" [title]="timerOpacity === 0 ? 'Make transparent' : timerOpacity === 1 ? 'Go ghost' : 'Make opaque'">
       {{ timerOpacity === 0 ? '◐' : timerOpacity === 1 ? '○' : '●' }}
     </button>
+
+    <!-- Deep work progress -->
+    <div class="dw-progress" *ngIf="deepWorkMode">
+      <span class="dw-progress-label">DEEP WORK</span>
+      <span class="dw-progress-sep">·</span>
+      <span class="dw-progress-val">{{ deepWorkTotal - deepWorkPomodorosRemaining + 1 }} / {{ deepWorkTotal }}</span>
+    </div>
+
+    <!-- Pomodoro set dots (standard mode) -->
+    <div class="pomo-dots" *ngIf="!deepWorkMode">
+      <span *ngFor="let n of [1,2,3,4]"
+            class="pomo-dot"
+            [class.filled]="n <= pomodoroSetPosition"
+            [class.active]="n === pomodoroSetPosition + 1">●</span>
+    </div>
+
     <div class="time-display expanded-time" (click)="handleTimeClick()">
       <input type="text" [value]="formatTime(hours)"   (input)="handleInputChange($event, 'hours')"   [disabled]="isRunning" class="time-input">
       <span class="t-sep">:</span>
@@ -44,6 +69,25 @@
     <div class="expanded-controls">
       <button class="btn-pause" (click)="pauseTimer()">{{ isRunning ? 'PAUSE' : 'RESUME' }}</button>
       <button class="btn-reset" (click)="openConfirmDialog()">END</button>
+    </div>
+  </ng-container>
+
+  <!-- ── Expanded fullscreen (break) ── -->
+  <ng-container *ngIf="isExpanded && isBreakMode">
+    <div class="break-header">
+      <span class="break-type-label">{{ isLongBreak ? 'LONG BREAK' : 'SHORT BREAK' }}</span>
+      <span class="break-sep-dot">·</span>
+      <span class="break-next-label">SESSION {{ pomodoroSetPosition + 1 }} UP NEXT</span>
+    </div>
+
+    <div class="time-display expanded-time break-time">
+      <span class="time-input">{{ formatTime(breakMinutes) }}</span>
+      <span class="t-sep break-sep">:</span>
+      <span class="time-input">{{ formatTime(breakSeconds) }}</span>
+    </div>
+
+    <div class="expanded-controls">
+      <button class="btn-skip-break" (click)="skipBreak()">SKIP BREAK →</button>
     </div>
   </ng-container>
 
