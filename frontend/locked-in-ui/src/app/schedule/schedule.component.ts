@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf, NgClass, DatePipe } from '@angular/common';
+import { NgFor, NgIf, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -7,54 +7,69 @@ import { catchError, of } from 'rxjs';
 import { ScheduleService, TimeBlock } from './schedule.service';
 import { PremiumService } from '../premium.service';
 
-const GRID_START = 6 * 60;  // 6:00am in minutes
-const GRID_END   = 24 * 60; // midnight
-const GRID_SPAN  = GRID_END - GRID_START;
+interface CalendarDay {
+  dateStr: string;      // yyyy-MM-dd
+  day: number;
+  inMonth: boolean;
+  isToday: boolean;
+  blocks: TimeBlock[];
+}
 
 interface BlockForm {
   title: string;
   type: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE';
   startMinute: number;
   endMinute: number;
-  pomodoroCount: number;
 }
+
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December'];
+const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 
 @Component({
   selector: 'app-schedule',
   standalone: true,
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.css'],
-  imports: [NgFor, NgIf, NgClass, FormsModule, DatePipe],
+  imports: [NgFor, NgIf, NgClass, FormsModule],
 })
 export class ScheduleComponent implements OnInit {
 
   isPremium = false;
-  selectedDate: string = this.todayStr();
-  blocks: TimeBlock[] = [];
-  loading = false;
+
+  // Calendar state
+  viewMode: 'month' | 'day' = 'month';
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth(); // 0-indexed
+  calDays: CalendarDay[] = [];
+  dayNames = DAY_NAMES;
+
+  // Day view
+  selectedDateStr = '';
+  selectedDateBlocks: TimeBlock[] = [];
+  loadingDay = false;
 
   // Create/edit dialog
   showDialog = false;
   editingId: number | null = null;
-  form: BlockForm = this.emptyForm(GRID_START);
+  form: BlockForm = this.emptyForm();
 
   // Deep work launch dialog
   showDeepWorkDialog = false;
   deepWorkBlock: TimeBlock | null = null;
   deepWorkPomodoros = 2;
-  deepWorkPreset = 0; // index into presets
+  deepWorkPreset = 0;
+
   readonly presets = [
     { label: '25m', minutes: 25 },
     { label: '45m', minutes: 45 },
     { label: '1h',  minutes: 60 },
   ];
 
-  readonly hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6–23
-
   readonly blockTypes: { value: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE'; label: string }[] = [
     { value: 'DEEP_WORK', label: 'Deep Work' },
-    { value: 'BREAK',     label: 'Break' },
-    { value: 'SCHEDULE',  label: 'Schedule' },
+    { value: 'BREAK',     label: 'Break'     },
+    { value: 'SCHEDULE',  label: 'Schedule'  },
   ];
 
   constructor(
@@ -65,112 +80,180 @@ export class ScheduleComponent implements OnInit {
 
   ngOnInit(): void {
     this.premiumService.getStatus().subscribe({
-      next: s => { this.isPremium = s.isPremium; if (this.isPremium) this.loadBlocks(); },
+      next: s => { this.isPremium = s.isPremium; if (this.isPremium) this.buildCalendar(); },
       error: () => {},
     });
   }
 
-  loadBlocks(): void {
-    this.loading = true;
-    this.scheduleService.getBlocks(this.selectedDate).pipe(catchError(() => of([]))).subscribe(blocks => {
-      this.blocks = blocks;
-      this.loading = false;
-    });
+  // ── Month navigation ──────────────────────────────────────────────────────
+
+  get monthLabel(): string { return `${MONTH_NAMES[this.calMonth]} ${this.calYear}`; }
+
+  prevMonth(): void {
+    if (this.calMonth === 0) { this.calMonth = 11; this.calYear--; }
+    else this.calMonth--;
+    this.buildCalendar();
   }
 
-  onDateChange(): void {
-    this.loadBlocks();
-  }
-
-  prevDay(): void {
-    const d = new Date(this.selectedDate);
-    d.setDate(d.getDate() - 1);
-    this.selectedDate = this.formatDate(d);
-    this.loadBlocks();
-  }
-
-  nextDay(): void {
-    const d = new Date(this.selectedDate);
-    d.setDate(d.getDate() + 1);
-    this.selectedDate = this.formatDate(d);
-    this.loadBlocks();
+  nextMonth(): void {
+    if (this.calMonth === 11) { this.calMonth = 0; this.calYear++; }
+    else this.calMonth++;
+    this.buildCalendar();
   }
 
   goToday(): void {
-    this.selectedDate = this.todayStr();
-    this.loadBlocks();
+    const now = new Date();
+    this.calYear = now.getFullYear();
+    this.calMonth = now.getMonth();
+    this.buildCalendar();
   }
 
-  // ── Grid interaction ──────────────────────────────────────────────────────
+  buildCalendar(): void {
+    const firstDay = new Date(this.calYear, this.calMonth, 1);
+    const lastDay  = new Date(this.calYear, this.calMonth + 1, 0);
 
-  onHourClick(hour: number): void {
-    const startMinute = hour * 60;
-    this.form = this.emptyForm(startMinute);
+    // Monday-first: 0=Mon … 6=Sun
+    let startOffset = (firstDay.getDay() + 6) % 7;
+    const days: CalendarDay[] = [];
+
+    // Pad from previous month
+    for (let i = startOffset - 1; i >= 0; i--) {
+      const d = new Date(this.calYear, this.calMonth, -i);
+      days.push({ dateStr: this.fmt(d), day: d.getDate(), inMonth: false, isToday: false, blocks: [] });
+    }
+
+    const todayStr = this.fmt(new Date());
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(this.calYear, this.calMonth, d);
+      const dateStr = this.fmt(date);
+      days.push({ dateStr, day: d, inMonth: true, isToday: dateStr === todayStr, blocks: [] });
+    }
+
+    // Pad to complete last row
+    const remaining = (7 - (days.length % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) {
+      const d = new Date(this.calYear, this.calMonth + 1, i);
+      days.push({ dateStr: this.fmt(d), day: d.getDate(), inMonth: false, isToday: false, blocks: [] });
+    }
+
+    this.calDays = days;
+    this.loadMonthBlocks();
+  }
+
+  private loadMonthBlocks(): void {
+    // Load blocks for each day in the visible month concurrently
+    const monthDays = this.calDays.filter(d => d.inMonth);
+    monthDays.forEach(day => {
+      this.scheduleService.getBlocks(day.dateStr).pipe(catchError(() => of([]))).subscribe(blocks => {
+        day.blocks = blocks;
+      });
+    });
+  }
+
+  // ── Day view ──────────────────────────────────────────────────────────────
+
+  selectDay(day: CalendarDay): void {
+    this.selectedDateStr = day.dateStr;
+    this.viewMode = 'day';
+    this.loadDayBlocks();
+  }
+
+  backToMonth(): void {
+    this.viewMode = 'month';
+    this.buildCalendar();
+  }
+
+  loadDayBlocks(): void {
+    this.loadingDay = true;
+    this.scheduleService.getBlocks(this.selectedDateStr).pipe(catchError(() => of([]))).subscribe(blocks => {
+      this.selectedDateBlocks = blocks.sort((a, b) => a.startMinute - b.startMinute);
+      this.loadingDay = false;
+    });
+  }
+
+  get selectedDateLabel(): string {
+    const d = new Date(this.selectedDateStr + 'T00:00:00');
+    return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  prevDay(): void {
+    const d = new Date(this.selectedDateStr + 'T00:00:00');
+    d.setDate(d.getDate() - 1);
+    this.selectedDateStr = this.fmt(d);
+    this.loadDayBlocks();
+  }
+
+  nextDay(): void {
+    const d = new Date(this.selectedDateStr + 'T00:00:00');
+    d.setDate(d.getDate() + 1);
+    this.selectedDateStr = this.fmt(d);
+    this.loadDayBlocks();
+  }
+
+  // ── Block CRUD ────────────────────────────────────────────────────────────
+
+  openCreate(): void {
+    this.form = this.emptyForm();
     this.editingId = null;
     this.showDialog = true;
   }
 
-  editBlock(block: TimeBlock, event: MouseEvent): void {
-    event.stopPropagation();
-    this.form = {
-      title: block.title,
-      type: block.type,
-      startMinute: block.startMinute,
-      endMinute: block.endMinute,
-      pomodoroCount: 2,
-    };
+  openEdit(block: TimeBlock, e: MouseEvent): void {
+    e.stopPropagation();
+    this.form = { title: block.title, type: block.type, startMinute: block.startMinute, endMinute: block.endMinute };
     this.editingId = block.id ?? null;
     this.showDialog = true;
   }
 
-  deleteBlock(block: TimeBlock, event: MouseEvent): void {
-    event.stopPropagation();
+  deleteBlock(block: TimeBlock, e: MouseEvent): void {
+    e.stopPropagation();
     if (block.id == null) return;
     this.scheduleService.deleteBlock(block.id).pipe(catchError(() => of(null))).subscribe(() => {
-      this.blocks = this.blocks.filter(b => b.id !== block.id);
+      this.selectedDateBlocks = this.selectedDateBlocks.filter(b => b.id !== block.id);
     });
   }
 
   saveBlock(): void {
-    if (this.form.endMinute <= this.form.startMinute) {
-      this.form.endMinute = this.form.startMinute + 60;
-    }
+    if (this.form.endMinute <= this.form.startMinute) this.form.endMinute = this.form.startMinute + 60;
 
     const payload: Omit<TimeBlock, 'id'> = {
-      date: this.selectedDate,
-      startMinute: this.form.startMinute,
-      endMinute: this.form.endMinute,
-      type: this.form.type,
-      title: this.form.title.trim() || this.labelForType(this.form.type),
+      date: this.selectedDateStr,
+      startMinute: Number(this.form.startMinute),
+      endMinute:   Number(this.form.endMinute),
+      type:  this.form.type,
+      title: this.form.title.trim() || this.labelFor(this.form.type),
     };
 
     if (this.editingId != null) {
-      this.scheduleService.updateBlock(this.editingId, payload).pipe(catchError(() => of(null))).subscribe(updated => {
-        if (updated) {
-          this.blocks = this.blocks.map(b => b.id === this.editingId ? updated : b);
-        }
-        this.closeDialog();
-      });
+      this.scheduleService.updateBlock(this.editingId, payload)
+        .pipe(catchError(() => of(null)))
+        .subscribe(updated => {
+          if (updated) this.selectedDateBlocks = this.selectedDateBlocks
+            .map(b => b.id === this.editingId ? updated : b)
+            .sort((a, b) => a.startMinute - b.startMinute);
+          this.closeDialog();
+        });
     } else {
-      this.scheduleService.createBlock(payload).pipe(catchError(() => of(null))).subscribe(created => {
-        if (created) this.blocks = [...this.blocks, created];
-        this.closeDialog();
-      });
+      this.scheduleService.createBlock(payload)
+        .pipe(catchError(err => { console.error('Create block failed:', err); return of(null); }))
+        .subscribe(created => {
+          if (created) {
+            this.selectedDateBlocks = [...this.selectedDateBlocks, created]
+              .sort((a, b) => a.startMinute - b.startMinute);
+          }
+          this.closeDialog();
+        });
     }
   }
 
-  closeDialog(): void {
-    this.showDialog = false;
-    this.editingId = null;
-  }
+  closeDialog(): void { this.showDialog = false; this.editingId = null; }
 
-  // ── Deep work launch ──────────────────────────────────────────────────────
+  // ── Deep work ─────────────────────────────────────────────────────────────
 
-  openDeepWork(block: TimeBlock, event: MouseEvent): void {
-    event.stopPropagation();
+  openDeepWork(block: TimeBlock, e: MouseEvent): void {
+    e.stopPropagation();
     this.deepWorkBlock = block;
-    const durationMins = block.endMinute - block.startMinute;
-    this.deepWorkPomodoros = Math.max(1, Math.floor(durationMins / 25));
+    this.deepWorkPomodoros = Math.max(1, Math.floor((block.endMinute - block.startMinute) / 25));
     this.deepWorkPreset = 0;
     this.showDeepWorkDialog = true;
   }
@@ -178,53 +261,25 @@ export class ScheduleComponent implements OnInit {
   launchDeepWork(): void {
     this.showDeepWorkDialog = false;
     this.router.navigate(['/timer'], {
-      queryParams: {
-        deepWork: 'true',
-        pomodoros: this.deepWorkPomodoros,
-        preset: this.deepWorkPreset,
-      },
+      queryParams: { deepWork: 'true', pomodoros: this.deepWorkPomodoros, preset: this.deepWorkPreset },
     });
   }
 
-  // ── Block layout helpers ──────────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
-  blockTop(block: TimeBlock): number {
-    return ((block.startMinute - GRID_START) / GRID_SPAN) * 100;
-  }
-
-  blockHeight(block: TimeBlock): number {
-    return ((block.endMinute - block.startMinute) / GRID_SPAN) * 100;
-  }
-
-  labelForType(type: string): string {
+  labelFor(type: string): string {
     return type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule';
   }
 
+  displayTime(min: number): string { return this.scheduleService.minutesToDisplay(min); }
+
   minuteOptions(): { value: number; label: string }[] {
     const opts = [];
-    for (let m = GRID_START; m < GRID_END; m += 15) {
+    for (let m = 0; m < 24 * 60; m += 15)
       opts.push({ value: m, label: this.scheduleService.minutesToDisplay(m) });
-    }
     return opts;
   }
 
-  displayTime(minutes: number): string {
-    return this.scheduleService.minutesToDisplay(minutes);
-  }
-
-  isToday(): boolean {
-    return this.selectedDate === this.todayStr();
-  }
-
-  private todayStr(): string {
-    return this.formatDate(new Date());
-  }
-
-  private formatDate(d: Date): string {
-    return d.toISOString().split('T')[0];
-  }
-
-  private emptyForm(startMinute: number): BlockForm {
-    return { title: '', type: 'DEEP_WORK', startMinute, endMinute: startMinute + 60, pomodoroCount: 2 };
-  }
+  private fmt(d: Date): string { return d.toISOString().split('T')[0]; }
+  private emptyForm(): BlockForm { return { title: '', type: 'DEEP_WORK', startMinute: 9 * 60, endMinute: 11 * 60 }; }
 }
