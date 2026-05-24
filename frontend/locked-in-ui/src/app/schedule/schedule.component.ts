@@ -3,28 +3,36 @@ import { NgFor, NgIf, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { ScheduleService, TimeBlock } from './schedule.service';
 import { PremiumService } from '../premium.service';
 
 interface CalendarDay {
-  dateStr: string;      // yyyy-MM-dd
+  dateStr: string;
   day: number;
   inMonth: boolean;
   isToday: boolean;
   blocks: TimeBlock[];
 }
 
-interface BlockForm {
-  title: string;
-  type: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE';
-  startMinute: number;
-  endMinute: number;
+interface TimeSlot {
+  minute: number; // minutes from midnight (e.g. 420 = 7am)
+  label: string;  // e.g. "7am"
 }
 
 const MONTH_NAMES = ['January','February','March','April','May','June',
                      'July','August','September','October','November','December'];
 const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// 7am–11pm in 60-min slots
+const TIME_SLOTS: TimeSlot[] = Array.from({ length: 17 }, (_, i) => {
+  const m = (i + 7) * 60;
+  const h = i + 7;
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const display = h > 12 ? h - 12 : h;
+  return { minute: m, label: `${display}${ampm}` };
+});
 
 @Component({
   selector: 'app-schedule',
@@ -34,27 +42,29 @@ const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   imports: [NgFor, NgIf, NgClass, FormsModule],
 })
 export class ScheduleComponent implements OnInit {
-
   isPremium = false;
+  errorMsg = '';
 
-  // Calendar state
-  viewMode: 'month' | 'day' = 'month';
+  // Calendar
   calYear  = new Date().getFullYear();
-  calMonth = new Date().getMonth(); // 0-indexed
+  calMonth = new Date().getMonth();
   calDays: CalendarDay[] = [];
   dayNames = DAY_NAMES;
+  get monthLabel() { return `${MONTH_NAMES[this.calMonth]} ${this.calYear}`; }
 
-  // Day view
-  selectedDateStr = '';
-  selectedDateBlocks: TimeBlock[] = [];
-  loadingDay = false;
+  // Selected day
+  selectedDay: CalendarDay | null = null;
+  timeSlots = TIME_SLOTS;
 
-  // Create/edit dialog
-  showDialog = false;
-  editingId: number | null = null;
-  form: BlockForm = this.emptyForm();
+  // Inline type picker
+  activeSlot: number | null = null; // minute value of the open slot
 
-  // Deep work launch dialog
+  // Edit dialog
+  showEditDialog = false;
+  editingBlock: TimeBlock | null = null;
+  editForm = { title: '', type: 'DEEP_WORK' as 'DEEP_WORK'|'BREAK'|'SCHEDULE', startMinute: 0, endMinute: 60 };
+
+  // Deep work dialog
   showDeepWorkDialog = false;
   deepWorkBlock: TimeBlock | null = null;
   deepWorkPomodoros = 2;
@@ -66,7 +76,7 @@ export class ScheduleComponent implements OnInit {
     { label: '1h',  minutes: 60 },
   ];
 
-  readonly blockTypes: { value: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE'; label: string }[] = [
+  readonly blockTypes: { value: 'DEEP_WORK'|'BREAK'|'SCHEDULE'; label: string }[] = [
     { value: 'DEEP_WORK', label: 'Deep Work' },
     { value: 'BREAK',     label: 'Break'     },
     { value: 'SCHEDULE',  label: 'Schedule'  },
@@ -80,14 +90,21 @@ export class ScheduleComponent implements OnInit {
 
   ngOnInit(): void {
     this.premiumService.getStatus().subscribe({
-      next: s => { this.isPremium = s.isPremium; if (this.isPremium) this.buildCalendar(); },
+      next: s => {
+        this.isPremium = s.isPremium;
+        if (this.isPremium) {
+          this.buildCalendar();
+          // Auto-select today
+          const todayStr = this.fmt(new Date());
+          const today = this.calDays.find(d => d.dateStr === todayStr) ?? null;
+          if (today) this.selectDay(today);
+        }
+      },
       error: () => {},
     });
   }
 
-  // ── Month navigation ──────────────────────────────────────────────────────
-
-  get monthLabel(): string { return `${MONTH_NAMES[this.calMonth]} ${this.calYear}`; }
+  // ── Calendar ──────────────────────────────────────────────────────────────
 
   prevMonth(): void {
     if (this.calMonth === 0) { this.calMonth = 11; this.calYear--; }
@@ -106,147 +123,137 @@ export class ScheduleComponent implements OnInit {
     this.calYear = now.getFullYear();
     this.calMonth = now.getMonth();
     this.buildCalendar();
+    const todayStr = this.fmt(now);
+    const today = this.calDays.find(d => d.dateStr === todayStr) ?? null;
+    if (today) this.selectDay(today);
   }
 
   buildCalendar(): void {
     const firstDay = new Date(this.calYear, this.calMonth, 1);
     const lastDay  = new Date(this.calYear, this.calMonth + 1, 0);
-
-    // Monday-first: 0=Mon … 6=Sun
     let startOffset = (firstDay.getDay() + 6) % 7;
     const days: CalendarDay[] = [];
+    const todayStr = this.fmt(new Date());
 
-    // Pad from previous month
     for (let i = startOffset - 1; i >= 0; i--) {
       const d = new Date(this.calYear, this.calMonth, -i);
       days.push({ dateStr: this.fmt(d), day: d.getDate(), inMonth: false, isToday: false, blocks: [] });
     }
-
-    const todayStr = this.fmt(new Date());
-    for (let d = 1; d <= lastDay.getDate(); d++) {
-      const date = new Date(this.calYear, this.calMonth, d);
-      const dateStr = this.fmt(date);
-      days.push({ dateStr, day: d, inMonth: true, isToday: dateStr === todayStr, blocks: [] });
+    for (let n = 1; n <= lastDay.getDate(); n++) {
+      const d   = new Date(this.calYear, this.calMonth, n);
+      const str = this.fmt(d);
+      days.push({ dateStr: str, day: n, inMonth: true, isToday: str === todayStr, blocks: [] });
     }
-
-    // Pad to complete last row
-    const remaining = (7 - (days.length % 7)) % 7;
-    for (let i = 1; i <= remaining; i++) {
+    const rem = (7 - (days.length % 7)) % 7;
+    for (let i = 1; i <= rem; i++) {
       const d = new Date(this.calYear, this.calMonth + 1, i);
       days.push({ dateStr: this.fmt(d), day: d.getDate(), inMonth: false, isToday: false, blocks: [] });
     }
-
     this.calDays = days;
     this.loadMonthBlocks();
   }
 
   private loadMonthBlocks(): void {
-    // Load blocks for each day in the visible month concurrently
-    const monthDays = this.calDays.filter(d => d.inMonth);
-    monthDays.forEach(day => {
-      this.scheduleService.getBlocks(day.dateStr).pipe(catchError(() => of([]))).subscribe(blocks => {
-        day.blocks = blocks;
-      });
+    this.calDays.filter(d => d.inMonth).forEach(day => {
+      this.scheduleService.getBlocks(day.dateStr)
+        .pipe(catchError(() => of([])))
+        .subscribe(blocks => { day.blocks = blocks; });
     });
   }
-
-  // ── Day view ──────────────────────────────────────────────────────────────
 
   selectDay(day: CalendarDay): void {
-    this.selectedDateStr = day.dateStr;
-    this.viewMode = 'day';
-    this.loadDayBlocks();
+    if (!day.inMonth) return;
+    this.selectedDay = day;
+    this.activeSlot = null;
+    this.scheduleService.getBlocks(day.dateStr)
+      .pipe(catchError(() => of([])))
+      .subscribe(blocks => {
+        day.blocks = blocks.sort((a, b) => a.startMinute - b.startMinute);
+      });
   }
 
-  backToMonth(): void {
-    this.viewMode = 'month';
-    this.buildCalendar();
+  isSelected(day: CalendarDay): boolean {
+    return this.selectedDay?.dateStr === day.dateStr;
   }
 
-  loadDayBlocks(): void {
-    this.loadingDay = true;
-    this.scheduleService.getBlocks(this.selectedDateStr).pipe(catchError(() => of([]))).subscribe(blocks => {
-      this.selectedDateBlocks = blocks.sort((a, b) => a.startMinute - b.startMinute);
-      this.loadingDay = false;
-    });
+  // ── Time slots ────────────────────────────────────────────────────────────
+
+  blocksInSlot(slotMinute: number): TimeBlock[] {
+    if (!this.selectedDay) return [];
+    return this.selectedDay.blocks.filter(
+      b => b.startMinute >= slotMinute && b.startMinute < slotMinute + 60
+    );
   }
 
-  get selectedDateLabel(): string {
-    const d = new Date(this.selectedDateStr + 'T00:00:00');
-    return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+  toggleSlot(slotMinute: number): void {
+    this.activeSlot = this.activeSlot === slotMinute ? null : slotMinute;
   }
 
-  prevDay(): void {
-    const d = new Date(this.selectedDateStr + 'T00:00:00');
-    d.setDate(d.getDate() - 1);
-    this.selectedDateStr = this.fmt(d);
-    this.loadDayBlocks();
+  quickAdd(slotMinute: number, type: 'DEEP_WORK'|'BREAK'|'SCHEDULE'): void {
+    if (!this.selectedDay) return;
+    this.activeSlot = null;
+    this.errorMsg = '';
+
+    const payload: Omit<TimeBlock, 'id'> = {
+      date:        this.selectedDay.dateStr,
+      startMinute: slotMinute,
+      endMinute:   slotMinute + 60,
+      type,
+      title: type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule',
+    };
+
+    this.scheduleService.createBlock(payload)
+      .pipe(catchError((err: HttpErrorResponse) => {
+        this.errorMsg = `Failed to add block (${err.status})`;
+        return of(null);
+      }))
+      .subscribe(created => {
+        if (created && this.selectedDay) {
+          this.selectedDay.blocks = [...this.selectedDay.blocks, created]
+            .sort((a, b) => a.startMinute - b.startMinute);
+        }
+      });
   }
 
-  nextDay(): void {
-    const d = new Date(this.selectedDateStr + 'T00:00:00');
-    d.setDate(d.getDate() + 1);
-    this.selectedDateStr = this.fmt(d);
-    this.loadDayBlocks();
-  }
-
-  // ── Block CRUD ────────────────────────────────────────────────────────────
-
-  openCreate(): void {
-    this.form = this.emptyForm();
-    this.editingId = null;
-    this.showDialog = true;
-  }
+  // ── Edit dialog ───────────────────────────────────────────────────────────
 
   openEdit(block: TimeBlock, e: MouseEvent): void {
     e.stopPropagation();
-    this.form = { title: block.title, type: block.type, startMinute: block.startMinute, endMinute: block.endMinute };
-    this.editingId = block.id ?? null;
-    this.showDialog = true;
+    this.editingBlock = block;
+    this.editForm = { title: block.title, type: block.type, startMinute: block.startMinute, endMinute: block.endMinute };
+    this.showEditDialog = true;
+  }
+
+  saveEdit(): void {
+    if (!this.editingBlock?.id || !this.selectedDay) return;
+    const payload = { ...this.selectedDay && { date: this.selectedDay.dateStr }, ...this.editForm };
+    this.scheduleService.updateBlock(this.editingBlock.id, {
+      date: this.selectedDay.dateStr,
+      startMinute: Number(this.editForm.startMinute),
+      endMinute:   Number(this.editForm.endMinute),
+      type:  this.editForm.type,
+      title: this.editForm.title.trim() || this.labelFor(this.editForm.type),
+    }).pipe(catchError(() => of(null))).subscribe(updated => {
+      if (updated && this.selectedDay) {
+        this.selectedDay.blocks = this.selectedDay.blocks
+          .map(b => b.id === updated.id ? updated : b)
+          .sort((a, b) => a.startMinute - b.startMinute);
+      }
+      this.showEditDialog = false;
+      this.editingBlock = null;
+    });
   }
 
   deleteBlock(block: TimeBlock, e: MouseEvent): void {
     e.stopPropagation();
-    if (block.id == null) return;
-    this.scheduleService.deleteBlock(block.id).pipe(catchError(() => of(null))).subscribe(() => {
-      this.selectedDateBlocks = this.selectedDateBlocks.filter(b => b.id !== block.id);
-    });
+    if (!block.id || !this.selectedDay) return;
+    this.scheduleService.deleteBlock(block.id)
+      .pipe(catchError(() => of(null)))
+      .subscribe(() => {
+        if (this.selectedDay)
+          this.selectedDay.blocks = this.selectedDay.blocks.filter(b => b.id !== block.id);
+      });
   }
-
-  saveBlock(): void {
-    if (this.form.endMinute <= this.form.startMinute) this.form.endMinute = this.form.startMinute + 60;
-
-    const payload: Omit<TimeBlock, 'id'> = {
-      date: this.selectedDateStr,
-      startMinute: Number(this.form.startMinute),
-      endMinute:   Number(this.form.endMinute),
-      type:  this.form.type,
-      title: this.form.title.trim() || this.labelFor(this.form.type),
-    };
-
-    if (this.editingId != null) {
-      this.scheduleService.updateBlock(this.editingId, payload)
-        .pipe(catchError(() => of(null)))
-        .subscribe(updated => {
-          if (updated) this.selectedDateBlocks = this.selectedDateBlocks
-            .map(b => b.id === this.editingId ? updated : b)
-            .sort((a, b) => a.startMinute - b.startMinute);
-          this.closeDialog();
-        });
-    } else {
-      this.scheduleService.createBlock(payload)
-        .pipe(catchError(err => { console.error('Create block failed:', err); return of(null); }))
-        .subscribe(created => {
-          if (created) {
-            this.selectedDateBlocks = [...this.selectedDateBlocks, created]
-              .sort((a, b) => a.startMinute - b.startMinute);
-          }
-          this.closeDialog();
-        });
-    }
-  }
-
-  closeDialog(): void { this.showDialog = false; this.editingId = null; }
 
   // ── Deep work ─────────────────────────────────────────────────────────────
 
@@ -271,15 +278,20 @@ export class ScheduleComponent implements OnInit {
     return type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule';
   }
 
-  displayTime(min: number): string { return this.scheduleService.minutesToDisplay(min); }
+  displayTime(m: number): string { return this.scheduleService.minutesToDisplay(m); }
 
-  minuteOptions(): { value: number; label: string }[] {
+  minuteOptions() {
     const opts = [];
     for (let m = 0; m < 24 * 60; m += 15)
       opts.push({ value: m, label: this.scheduleService.minutesToDisplay(m) });
     return opts;
   }
 
+  get selectedDayLabel(): string {
+    if (!this.selectedDay) return '';
+    const d = new Date(this.selectedDay.dateStr + 'T00:00:00');
+    return `${d.getDate()} ${MONTH_NAMES[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+  }
+
   private fmt(d: Date): string { return d.toISOString().split('T')[0]; }
-  private emptyForm(): BlockForm { return { title: '', type: 'DEEP_WORK', startMinute: 9 * 60, endMinute: 11 * 60 }; }
 }
