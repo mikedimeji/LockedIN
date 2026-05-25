@@ -13,18 +13,20 @@
     <h2>Login</h2>
     
     <form>
-      <input type="text" 
-             id="email" 
-             [(ngModel)]="email" 
-             name="email" 
-             placeholder="Email" 
+      <input type="text"
+             id="email"
+             [(ngModel)]="email"
+             name="email"
+             placeholder="Email"
+             (ngModelChange)="clearError()"
              required>
-      
-      <input type="password" 
-             id="password" 
-             [(ngModel)]="password" 
-             name="password" 
-             placeholder="Password" 
+
+      <input type="password"
+             id="password"
+             [(ngModel)]="password"
+             name="password"
+             placeholder="Password"
+             (ngModelChange)="clearError()"
              required>
       
       <input type="submit" 

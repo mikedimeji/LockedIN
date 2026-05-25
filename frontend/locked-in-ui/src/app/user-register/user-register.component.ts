@@ -84,19 +84,17 @@ export class UserRegisterComponent {
         }
       },
       (error: any) => {
-          console.error("Registration error:", error);
           this.isLoading = false;
           this.invalidRegister = true;
-          
-          // Use backend message if available
-          if (error.error?.message) {
-            this.errorMessage = error.error.message;
-          } else if (error.status === 409) {
-            this.errorMessage = "Email or username already taken";
+
+          if (error.status === 409) {
+            this.errorMessage = "That email or username is already taken.";
           } else if (error.status === 0) {
-            this.errorMessage = "Unable to connect to server";
+            this.errorMessage = "Something went wrong. Please try again.";
+          } else if (error.error?.message) {
+            this.errorMessage = error.error.message;
           } else {
-            this.errorMessage = "An error occurred. Please try again later";
+            this.errorMessage = "Something went wrong. Please try again.";
           }
         }
     );
@@ -106,9 +104,10 @@ export class UserRegisterComponent {
     this.router.navigateByUrl('/');
   }
 
-  onBackdropClick(event: MouseEvent): void {
-  // Navigate to timer when clicking the dark background
-  this.router.navigate(['/timer']);
-}
+  clearError() { this.invalidRegister = false; }
+
+  onBackdropClick(_event: MouseEvent): void {
+    this.router.navigate(['/timer']);
+  }
 }
 

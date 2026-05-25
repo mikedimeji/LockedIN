@@ -116,28 +116,29 @@ export class UserLoginComponent {
           }
         },
         error: (error) => {
-            console.error("Error occurred during login:", error);
-            this.isLoading = false; 
+            this.isLoading = false;
             this.invalidLogin = true;
-            
-            // Use backend message if available
-            if (error.error?.message) {
-              this.errorMessage = error.error.message;
-            } else if (error.status === 401) {
-              this.errorMessage = "Invalid email or password";
+
+            if (error.status === 401 || error.status === 403) {
+              this.errorMessage = "Incorrect email or password.";
+            } else if (error.status === 404) {
+              this.errorMessage = "No account found with that email.";
             } else if (error.status === 0) {
-              this.errorMessage = "Unable to connect to server";
+              this.errorMessage = "Something went wrong. Please try again.";
+            } else if (error.error?.message) {
+              this.errorMessage = error.error.message;
             } else {
-              this.errorMessage = "An error occurred while connecting to the server";
+              this.errorMessage = "Something went wrong. Please try again.";
             }
           }
       });
   }
 
-  onBackdropClick(event: MouseEvent): void {
-  // Navigate to timer when clicking the dark background
-  this.router.navigate(['/timer']);
-}
+  clearError() { this.invalidLogin = false; }
+
+  onBackdropClick(_event: MouseEvent): void {
+    this.router.navigate(['/timer']);
+  }
 }
 
 
