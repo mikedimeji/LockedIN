@@ -618,6 +618,103 @@
   background: rgba(82, 113, 255, 0.14);
 }
 
+/* ── Google Calendar bar (calendar card) ── */
+.gcal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px 2px;
+  margin-bottom: 14px;
+  border-top: 1px solid rgba(82, 113, 255, 0.08);
+}
+.gcal-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.gcal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  transition: background 0.3s ease;
+}
+.gcal-dot.gcal-dot-on {
+  background: rgba(72, 199, 142, 0.9);
+  box-shadow: 0 0 6px rgba(72, 199, 142, 0.5);
+}
+.gcal-bar-label {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.3);
+}
+.gcal-bar-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(82, 113, 255, 0.35);
+  background: rgba(82, 113, 255, 0.08);
+  color: rgba(130, 160, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.gcal-bar-btn:hover {
+  background: rgba(82, 113, 255, 0.2);
+  border-color: rgba(82, 113, 255, 0.6);
+  color: #a0b4ff;
+}
+.gcal-bar-btn.gcal-bar-btn-off {
+  border-color: rgba(255, 80, 80, 0.2);
+  background: none;
+  color: rgba(255, 80, 80, 0.4);
+}
+.gcal-bar-btn.gcal-bar-btn-off:hover {
+  border-color: rgba(255, 80, 80, 0.5);
+  color: rgba(255, 80, 80, 0.8);
+  background: rgba(255, 80, 80, 0.06);
+}
+
+/* ── Google Calendar events in day modal ── */
+.gcal-day-section {
+  margin: 0 0 4px;
+  border-bottom: 1px solid rgba(82, 113, 255, 0.08);
+  padding: 10px 20px 10px;
+  flex-shrink: 0;
+}
+.gcal-day-label {
+  font-size: 7px;
+  letter-spacing: 2.5px;
+  color: rgba(82, 113, 255, 0.45);
+  margin-bottom: 8px;
+}
+.gcal-event-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.gcal-event-row:last-child { border-bottom: none; }
+.gcal-event-time {
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  color: rgba(82, 113, 255, 0.55);
+  white-space: nowrap;
+  min-width: 80px;
+}
+.gcal-event-title {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.72);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ── Actions ── */
 .dw-actions {
   display: flex;

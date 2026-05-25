@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ScheduleService, TimeBlock } from './schedule.service';
 import { PremiumService } from '../premium.service';
+import { GoogleCalendarService, GCalEvent } from './google-calendar.service';
 
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
@@ -65,10 +66,17 @@ export class ScheduleComponent implements OnInit {
   dwPreset     = 0;
   readonly presets = [{ label: '25m' }, { label: '45m' }, { label: '1h' }];
 
+  // Google Calendar
+  gcalConnected = false;
+  gcalEvents:   GCalEvent[] = [];
+  gcalLoading  = false;
+
   constructor(
     private svc: ScheduleService,
     private premSvc: PremiumService,
     private router: Router,
+    private route: ActivatedRoute,
+    private gcalSvc: GoogleCalendarService,
   ) {}
 
   ngOnInit() {
@@ -76,6 +84,20 @@ export class ScheduleComponent implements OnInit {
       next: s => { this.isPremium = s.isPremium; if (this.isPremium) this.build(); },
       error: () => {},
     });
+
+    // Handle redirect back from Google OAuth
+    this.route.queryParams.subscribe(params => {
+      if (params['gcal'] === 'connected') {
+        this.gcalConnected = true;
+        this.router.navigate([], { replaceUrl: true, queryParams: {} });
+      }
+      if (params['gcal'] === 'error') {
+        this.errorMsg = 'Google Calendar connection failed. Please try again.';
+        this.router.navigate([], { replaceUrl: true, queryParams: {} });
+      }
+    });
+
+    this.gcalSvc.getStatus().subscribe(s => { this.gcalConnected = s.connected; });
   }
 
   // ── Calendar ──────────────────────────────────────────────────────────────
@@ -129,6 +151,16 @@ export class ScheduleComponent implements OnInit {
       this.dayBlocks  = b.sort((a, b) => a.startMinute - b.startMinute);
       this.loadingDay = false;
     });
+
+    if (this.gcalConnected) {
+      this.gcalLoading = true;
+      this.gcalSvc.getEvents(cell.date).subscribe(e => {
+        this.gcalEvents  = e;
+        this.gcalLoading = false;
+      });
+    } else {
+      this.gcalEvents = [];
+    }
   }
 
   // ── Day modal ─────────────────────────────────────────────────────────────
@@ -228,6 +260,19 @@ export class ScheduleComponent implements OnInit {
     this.showDW = false;
     this.router.navigate(['/timer'], {
       queryParams: { deepWork: 'true', pomodoros: this.dwPomodoros, preset: this.dwPreset },
+    });
+  }
+
+  // ── Google Calendar ───────────────────────────────────────────────────────
+
+  connectGCal() {
+    this.gcalSvc.getAuthUrl().subscribe(r => { window.location.href = r.url; });
+  }
+
+  disconnectGCal() {
+    this.gcalSvc.disconnect().subscribe(() => {
+      this.gcalConnected = false;
+      this.gcalEvents = [];
     });
   }
 

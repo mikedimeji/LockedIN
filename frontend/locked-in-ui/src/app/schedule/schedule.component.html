@@ -15,6 +15,16 @@
     <button class="nav-btn" (click)="next()">›</button>
   </div>
 
+  <!-- Google Calendar connect row -->
+  <div class="gcal-bar">
+    <div class="gcal-bar-left">
+      <span class="gcal-dot" [class.gcal-dot-on]="gcalConnected"></span>
+      <span class="gcal-bar-label">{{ gcalConnected ? 'Google Calendar synced' : 'Google Calendar' }}</span>
+    </div>
+    <button class="gcal-bar-btn" *ngIf="!gcalConnected" (click)="connectGCal()">CONNECT</button>
+    <button class="gcal-bar-btn gcal-bar-btn-off" *ngIf="gcalConnected" (click)="disconnectGCal()">DISCONNECT</button>
+  </div>
+
   <!-- Day names -->
   <div class="cal-grid">
     <div class="day-name" *ngFor="let d of dayNames">{{ d }}</div>
@@ -50,6 +60,15 @@
     <div class="error-bar" *ngIf="errorMsg">{{ errorMsg }}</div>
 
     <div class="loading" *ngIf="loadingDay">loading...</div>
+
+    <!-- Google Calendar events for this day -->
+    <div class="gcal-day-section" *ngIf="!loadingDay && gcalEvents.length > 0">
+      <div class="gcal-day-label">GOOGLE CALENDAR</div>
+      <div class="gcal-event-row" *ngFor="let e of gcalEvents">
+        <span class="gcal-event-time">{{ e.allDay ? 'all day' : disp(e.startMinute) + ' – ' + disp(e.endMinute) }}</span>
+        <span class="gcal-event-title">{{ e.title }}</span>
+      </div>
+    </div>
 
     <div class="slot-list" *ngIf="!loadingDay">
       <div class="slot-row"
