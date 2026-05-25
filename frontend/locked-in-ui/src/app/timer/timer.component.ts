@@ -380,6 +380,12 @@ export class TimerComponent implements OnInit, OnDestroy {
     }
   }
 
+  private scheduleAutoAdvance(): void {
+    if (this.pendingBreakMinutes > 0 && !this.deepWorkMode) {
+      setTimeout(() => { if (this.showCompletionScreen) this.dismissCompletion(); }, 3000);
+    }
+  }
+
   startBreak(minutes: number): void {
     this.isBreakMode = true;
     this.isExpanded = true;
@@ -429,10 +435,16 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.completedPomodoros = 0;
     this.pausedMidPomodoro = false;
 
+    const wasLongBreak = this.isLongBreak;
+    this.isLongBreak = false;
+
     if (this.deepWorkMode && this.deepWorkPomodorosRemaining > 0) {
-      // Auto-start next deep work session without collapsing
+      this.startTimer();
+    } else if (!wasLongBreak) {
+      // Short break ended → auto-start next session in the cycle
       this.startTimer();
     } else {
+      // Long break ended (full 4-session cycle complete) → collapse
       this.isExpanded = false;
       document.body.classList.remove('timer-running');
       this.releaseWakeLock();
@@ -615,12 +627,14 @@ export class TimerComponent implements OnInit, OnDestroy {
             }
             this.completeAudio?.play().catch(() => {});
             this.showCompletionScreen = true;
+            this.scheduleAutoAdvance();
           }
         });
       this.subscriptions.push(rewardSub);
     } else {
       this.goldEarned = 0;
       this.showCompletionScreen = true;
+      this.scheduleAutoAdvance();
     }
 
     this.completedPomodoros = 0;

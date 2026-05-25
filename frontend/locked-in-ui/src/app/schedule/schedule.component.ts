@@ -10,11 +10,25 @@ import { PremiumService } from '../premium.service';
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
 
-// 7am – 10pm
-const SLOTS = Array.from({ length: 16 }, (_, i) => {
-  const h = i + 7;
-  return { minute: h * 60, label: h > 12 ? `${h - 12}pm` : h === 12 ? '12pm' : `${h}am` };
+// 7am – 10pm in 30-min increments
+const SLOTS = Array.from({ length: 31 }, (_, i) => {
+  const total = 7 * 60 + i * 30;
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  const ampm = h >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const label = m === 0 ? `${h12}${ampm}` : `${h12}:${String(m).padStart(2, '0')}${ampm}`;
+  return { minute: total, label };
 });
+
+const DURATIONS = [
+  { label: '30m', mins: 30 },
+  { label: '1h',  mins: 60 },
+  { label: '1.5h',mins: 90 },
+  { label: '2h',  mins: 120 },
+  { label: '3h',  mins: 180 },
+  { label: '4h',  mins: 240 },
+];
 
 @Component({
   selector: 'app-schedule',
@@ -32,15 +46,17 @@ export class ScheduleComponent implements OnInit {
   month = new Date().getMonth();
   cells: { date: string; day: number; cur: boolean; today: boolean; blocks: TimeBlock[] }[] = [];
   readonly dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  readonly slots    = SLOTS;
+  readonly slots     = SLOTS;
+  readonly durations = DURATIONS;
 
   // Day modal
-  showDay   = false;
-  dayDate   = '';
+  showDay        = false;
+  dayDate        = '';
   dayBlocks: TimeBlock[] = [];
-  activeSlot: number | null = null;  // slot being picked
-  loadingDay = false;
-  nowMinute = 0;  // current hour-slot minute, updated when modal opens
+  activeSlot: number | null = null;
+  activeDuration = 60;   // minutes for the block being created
+  loadingDay     = false;
+  nowMinute      = 0;
 
   // Deep work launch modal
   showDW       = false;
@@ -123,15 +139,22 @@ export class ScheduleComponent implements OnInit {
   }
 
   blocksAt(minute: number) {
-    return this.dayBlocks.filter(b => b.startMinute >= minute && b.startMinute < minute + 60);
+    return this.dayBlocks.filter(b => b.startMinute >= minute && b.startMinute < minute + 30);
+  }
+
+  cancelSlot() {
+    this.activeSlot    = null;
+    this.activeDuration = 60;
   }
 
   pickType(minute: number, type: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE') {
-    this.activeSlot = null;
-    this.errorMsg   = '';
+    const duration = this.activeDuration;
+    this.activeSlot     = null;
+    this.activeDuration = 60;
+    this.errorMsg       = '';
     const label = type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule';
     const payload: Omit<TimeBlock, 'id'> = {
-      date: this.dayDate, startMinute: minute, endMinute: minute + 60, type, title: label,
+      date: this.dayDate, startMinute: minute, endMinute: minute + duration, type, title: label,
     };
     this.svc.createBlock(payload)
       .pipe(catchError((e: HttpErrorResponse) => {
@@ -162,8 +185,12 @@ export class ScheduleComponent implements OnInit {
 
   openDW(block: TimeBlock, e: MouseEvent) {
     e.stopPropagation();
+    const dur = block.endMinute - block.startMinute;
+    // 25m work + 5m break per session; last session has no trailing break
+    // n sessions fit when 25n + 5(n-1) <= dur → 30n - 5 <= dur → n <= (dur+5)/30
+    const pomos = Math.max(1, Math.floor((dur + 5) / 30));
     this.dwBlock     = block;
-    this.dwPomodoros = Math.max(1, Math.floor((block.endMinute - block.startMinute) / 25));
+    this.dwPomodoros = pomos;
     this.dwPreset    = 0;
     this.showDW      = true;
   }

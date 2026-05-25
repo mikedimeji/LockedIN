@@ -74,10 +74,17 @@
               <span class="plus">+</span>
             </div>
             <div class="type-picker" *ngIf="activeSlot === s.minute">
-              <button class="tp-btn tp-dw"   (click)="pickType(s.minute, 'DEEP_WORK')">Deep Work</button>
-              <button class="tp-btn tp-br"   (click)="pickType(s.minute, 'BREAK')">Break</button>
-              <button class="tp-btn tp-sc"   (click)="pickType(s.minute, 'SCHEDULE')">Schedule</button>
-              <button class="tp-btn tp-x"    (click)="activeSlot = null">✕</button>
+              <div class="dur-row">
+                <button *ngFor="let d of durations"
+                        class="dur-btn" [class.active]="activeDuration === d.mins"
+                        (click)="activeDuration = d.mins">{{ d.label }}</button>
+              </div>
+              <div class="type-row">
+                <button class="tp-btn tp-dw" (click)="pickType(s.minute, 'DEEP_WORK')">Deep Work</button>
+                <button class="tp-btn tp-br" (click)="pickType(s.minute, 'BREAK')">Break</button>
+                <button class="tp-btn tp-sc" (click)="pickType(s.minute, 'SCHEDULE')">Schedule</button>
+                <button class="tp-btn tp-x"  (click)="cancelSlot()">✕</button>
+              </div>
             </div>
           </ng-container>
 
