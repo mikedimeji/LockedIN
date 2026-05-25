@@ -41,7 +41,10 @@
 
     <div class="modal-header">
       <span class="modal-title">{{ dayLabel }}</span>
-      <button class="close-btn" (click)="showDay = false">✕</button>
+      <div class="header-actions">
+        <button class="start-day-btn" *ngIf="!loadingDay && dayBlocks.length > 0" (click)="startDay()">▶ START DAY</button>
+        <button class="close-btn" (click)="showDay = false">✕</button>
+      </div>
     </div>
 
     <div class="error-bar" *ngIf="errorMsg">{{ errorMsg }}</div>
@@ -60,8 +63,11 @@
           <!-- Existing blocks -->
           <div *ngFor="let b of blocksAt(s.minute)"
                class="block-chip" [ngClass]="'chip-' + b.type.toLowerCase()">
-            <span class="chip-title">{{ b.title }}</span>
-            <span class="chip-time">{{ disp(b.startMinute) }}–{{ disp(b.endMinute) }}</span>
+            <span class="chip-badge">{{ b.type === 'DEEP_WORK' ? 'DW' : b.type === 'BREAK' ? 'BR' : 'SC' }}</span>
+            <div class="chip-body">
+              <span class="chip-title">{{ b.title }}</span>
+              <span class="chip-time">{{ disp(b.startMinute) }}–{{ disp(b.endMinute) }}</span>
+            </div>
             <button class="chip-dw" *ngIf="b.type === 'DEEP_WORK'"
                     (click)="openDW(b, $event)">▶</button>
             <button class="chip-del" (click)="deleteBlock(b, $event)">✕</button>

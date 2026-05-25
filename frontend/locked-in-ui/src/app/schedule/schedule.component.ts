@@ -171,6 +171,23 @@ export class ScheduleComponent implements OnInit {
       });
   }
 
+  startDay() {
+    const sorted = [...this.dayBlocks].sort((a, b) => a.startMinute - b.startMinute);
+    if (!sorted.length) return;
+    const now = new Date();
+    const currentMin = this.dayDate === this.fmt(now) ? now.getHours() * 60 + now.getMinutes() : 0;
+    const idx = sorted.findIndex(b => b.endMinute > currentMin);
+    const playlist = sorted.slice(idx >= 0 ? idx : 0);
+    sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(playlist.slice(1)));
+    const first = playlist[0];
+    this.showDay = false;
+    if (first.type === 'DEEP_WORK') {
+      this.openDW(first, new MouseEvent('click'));
+    } else {
+      this.router.navigate(['/timer'], { queryParams: { duration: first.endMinute - first.startMinute } });
+    }
+  }
+
   deleteBlock(block: TimeBlock, e: MouseEvent) {
     e.stopPropagation();
     if (!block.id) return;

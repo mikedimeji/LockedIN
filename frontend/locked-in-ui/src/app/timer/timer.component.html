@@ -123,6 +123,20 @@
     </div>
   </div>
 
+  <!-- ── Day playlist: up next ── -->
+  <div class="next-block-overlay" *ngIf="nextDayBlock">
+    <div class="next-block-card">
+      <div class="nb-label">UP NEXT</div>
+      <div class="nb-title">{{ nextDayBlock.title }}</div>
+      <div class="nb-dur">{{ nextDayBlock.endMinute - nextDayBlock.startMinute }}m block</div>
+      <div class="nb-countdown">auto-starting in {{ nextDayCountdown }}s</div>
+      <div class="nb-actions">
+        <button class="nb-skip" (click)="skipNextDayBlock()">SKIP</button>
+        <button class="nb-start" (click)="launchNextDayBlock()">START NOW →</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Session completion screen ── -->
   <div class="completion-overlay" *ngIf="showCompletionScreen">
     <div class="completion-card">

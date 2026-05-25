@@ -98,6 +98,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   selectedSubject: string = '';
   readonly subjectPresets = ['Maths', 'Science', 'History', 'English', 'Coding', 'Other'];
   
+  // Day playlist (Start Day flow from schedule)
+  nextDayBlock: { type: string; title: string; startMinute: number; endMinute: number } | null = null;
+  nextDayCountdown = 0;
+  private nextDayTimerId: any = null;
+
   private audio: HTMLAudioElement | null = null;
   private completeAudio: HTMLAudioElement | null = null;
   private subscriptions: Subscription[] = [];
@@ -164,6 +169,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     if (this.intervalId) clearInterval(this.intervalId);
     if (this.breakIntervalId) clearInterval(this.breakIntervalId);
+    if (this.nextDayTimerId) clearInterval(this.nextDayTimerId);
 
     if (isPlatformBrowser(this.platformId)) {
       this.renderer.removeClass(document.body, 'timer-fullscreen-active');
@@ -377,6 +383,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.pendingBreakMinutes = 0;
     } else {
       this.resetTimer();
+      this.checkDayPlaylist();
     }
   }
 
@@ -384,6 +391,52 @@ export class TimerComponent implements OnInit, OnDestroy {
     if (this.pendingBreakMinutes > 0 && !this.deepWorkMode) {
       setTimeout(() => { if (this.showCompletionScreen) this.dismissCompletion(); }, 3000);
     }
+  }
+
+  // ── Day playlist (Start Day flow) ────────────────────────────────────────
+
+  private checkDayPlaylist(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const raw = sessionStorage.getItem('lockedin_day_playlist');
+    if (!raw) return;
+    try {
+      const playlist = JSON.parse(raw) as { type: string; title: string; startMinute: number; endMinute: number }[];
+      if (!playlist.length) { sessionStorage.removeItem('lockedin_day_playlist'); return; }
+      const [next, ...rest] = playlist;
+      sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(rest));
+      this.nextDayBlock = next;
+      this.nextDayCountdown = 8;
+      this.nextDayTimerId = setInterval(() => {
+        this.nextDayCountdown--;
+        if (this.nextDayCountdown <= 0) { clearInterval(this.nextDayTimerId); this.launchNextDayBlock(); }
+      }, 1000);
+    } catch { sessionStorage.removeItem('lockedin_day_playlist'); }
+  }
+
+  launchNextDayBlock(): void {
+    clearInterval(this.nextDayTimerId);
+    const block = this.nextDayBlock;
+    this.nextDayBlock = null;
+    if (!block) return;
+    if (block.type === 'DEEP_WORK') {
+      const dur = block.endMinute - block.startMinute;
+      const pomos = Math.max(1, Math.floor((dur + 5) / 30));
+      this.deepWorkMode = true;
+      this.deepWorkTotal = pomos;
+      this.deepWorkPomodorosRemaining = pomos;
+      this.selectedPresetIndex = 0;
+      this.setDuration(this.presets[0].minutes);
+      this.startTimer();
+    } else {
+      this.setDuration(block.endMinute - block.startMinute);
+      this.startTimer();
+    }
+  }
+
+  skipNextDayBlock(): void {
+    clearInterval(this.nextDayTimerId);
+    this.nextDayBlock = null;
+    sessionStorage.removeItem('lockedin_day_playlist');
   }
 
   startBreak(minutes: number): void {

@@ -876,3 +876,87 @@
 .comp-subject-input:focus {
   border-color: rgba(82, 113, 255, 0.4);
 }
+
+/* ── Day playlist: up next ── */
+.next-block-overlay {
+  position: fixed;
+  bottom: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1500;
+  pointer-events: none;
+}
+.next-block-card {
+  pointer-events: all;
+  background: rgba(6, 10, 22, 0.96);
+  border: 1px solid rgba(82, 113, 255, 0.3);
+  border-radius: 16px;
+  padding: 16px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 220px;
+  box-shadow: 0 8px 32px rgba(82, 113, 255, 0.18), 0 0 0 1px rgba(255,255,255,0.03);
+  animation: slideUp 0.22s ease;
+  font-family: 'Courier New', monospace;
+}
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.nb-label {
+  font-size: 7px;
+  letter-spacing: 2.5px;
+  color: rgba(82, 113, 255, 0.6);
+  margin-bottom: 2px;
+}
+.nb-title {
+  font-family: bitF1, sans-serif;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.88);
+}
+.nb-dur {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.28);
+}
+.nb-countdown {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: rgba(82, 113, 255, 0.5);
+  margin-top: 2px;
+}
+.nb-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.nb-skip {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.28);
+  background: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.nb-skip:hover { border-color: rgba(255, 60, 60, 0.3); color: rgba(255, 80, 80, 0.7); }
+.nb-start {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #4060ff, #5271ff);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 12px rgba(82, 113, 255, 0.35);
+}
+.nb-start:hover { background: linear-gradient(135deg, #526cff, #6b82ff); }
