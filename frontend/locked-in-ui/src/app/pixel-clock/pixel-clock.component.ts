@@ -12,7 +12,7 @@ export class PixelClockComponent implements OnInit, OnDestroy {
   currentTime: Date = new Date();
   formattedTime: any = {};
   is24Hour: boolean = false;
-  isMinimized: boolean = false;
+  isMinimized: boolean = true;
   
   currentDay: string = '';
   currentMonth: string = '';

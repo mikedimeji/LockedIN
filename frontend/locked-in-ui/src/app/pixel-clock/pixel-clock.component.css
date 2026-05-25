@@ -1,6 +1,6 @@
 .pixel-clock-container {
   position: fixed;
-  top: 10px;
+  top: 8px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 999;
@@ -11,33 +11,34 @@
   align-items: center;
 }
 
-/* ── Minimised pill ── */
+/* ── Minimised pill (default state) ── */
 .clock-pill {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(8, 18, 34, 0.82);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(82, 113, 255, 0.22);
+  gap: 4px;
+  background: rgba(8, 18, 34, 0.72);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(82, 113, 255, 0.18);
   border-radius: 20px;
-  padding: 5px 14px;
+  padding: 3px 10px;
   font-family: bitF1, sans-serif;
-  font-size: 13px;
+  font-size: 10px;
   letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 255, 255, 0.55);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
 }
 
 .clock-pill:hover {
-  border-color: rgba(82, 113, 255, 0.5);
-  color: white;
+  border-color: rgba(82, 113, 255, 0.45);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(8, 18, 34, 0.88);
 }
 
 .pill-ampm {
-  font-size: 9px;
-  color: rgba(82, 113, 255, 0.7);
+  font-size: 7px;
+  color: rgba(82, 113, 255, 0.6);
   letter-spacing: 1px;
 }
 
