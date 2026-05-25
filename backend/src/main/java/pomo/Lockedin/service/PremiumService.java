@@ -23,10 +23,15 @@ public class PremiumService {
     private String adminUsernames;
 
     public boolean isPremium(String email) {
-        if (isAdminUser(email)) return true;
+        boolean admin = isAdminUser(email);
+        log.info("[isPremium] email={} isAdmin={}", email, admin);
+        if (admin) return true;
         Long userId = userService.getUserIdByEmail(email);
+        log.info("[isPremium] userId={}", userId);
         if (userId == null) return false;
-        return subscriptionService.isSubscriptionActive(userId);
+        boolean active = subscriptionService.isSubscriptionActive(userId);
+        log.info("[isPremium] isSubscriptionActive={}", active);
+        return active;
     }
 
     public PremiumStatusDTO getStatus(String email) {
