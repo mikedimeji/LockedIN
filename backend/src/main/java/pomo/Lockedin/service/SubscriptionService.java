@@ -51,6 +51,7 @@ public class SubscriptionService {
                 SessionCreateParams.builder()
                         .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                         .setCustomerEmail(email)
+                        .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                         .addLineItem(SessionCreateParams.LineItem.builder()
                                 .setPrice(priceId)
                                 .setQuantity(1L)
