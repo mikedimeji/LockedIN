@@ -15,16 +15,24 @@
 .card {
   pointer-events: all;
   width: min(520px, 100%);
-  background: rgba(8, 18, 34, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(82, 113, 255, 0.22);
+  /* Dark gradient over the atmospheric background image.
+     Top is lighter so the image bleeds through more at the eye level;
+     bottom is heavier so the calendar grid stays crisp. */
+  background:
+    linear-gradient(170deg,
+      rgba(4, 8, 22, 0.76) 0%,
+      rgba(6, 12, 28, 0.84) 45%,
+      rgba(8, 14, 32, 0.92) 100%),
+    url('/assets/images/calender/calender1.webp') center / cover no-repeat;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 1px solid rgba(82, 113, 255, 0.28);
   border-radius: 24px;
   padding: 28px 24px;
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 24px 64px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* ── Premium gate ── */
