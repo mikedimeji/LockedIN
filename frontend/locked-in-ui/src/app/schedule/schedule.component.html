@@ -106,7 +106,15 @@
     <div class="dw-time" *ngIf="dwBlock">{{ disp(dwBlock.startMinute) }} – {{ disp(dwBlock.endMinute) }}</div>
 
     <div class="dw-section">
-      <div class="dw-label">POMODOROS</div>
+      <div class="dw-label">SESSIONS</div>
+      <div class="pomo-opts">
+        <button *ngFor="let o of dwOptions"
+                class="pomo-opt" [class.active]="dwPomodoros === o.sessions"
+                (click)="dwPomodoros = o.sessions">
+          <span class="pomo-opt-n">{{ o.sessions }}</span>
+          <span class="pomo-opt-sub">{{ o.minutes }}m</span>
+        </button>
+      </div>
       <div class="pomo-row">
         <button class="pomo-adj" (click)="dwPomodoros = dwPomodoros > 1 ? dwPomodoros - 1 : 1">−</button>
         <span class="pomo-val">{{ dwPomodoros }}</span>

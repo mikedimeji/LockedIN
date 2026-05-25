@@ -450,6 +450,48 @@
   margin-bottom: 10px;
 }
 
+/* ── Session preset buttons ── */
+.pomo-opts {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.pomo-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: none;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.pomo-opt:hover {
+  border-color: rgba(245, 200, 66, 0.35);
+  background: rgba(245, 200, 66, 0.05);
+}
+.pomo-opt.active {
+  border-color: rgba(245, 200, 66, 0.6);
+  background: rgba(245, 200, 66, 0.09);
+}
+.pomo-opt-n {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1;
+}
+.pomo-opt.active .pomo-opt-n { color: #f5c842; }
+.pomo-opt-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.22);
+}
+.pomo-opt.active .pomo-opt-sub { color: rgba(245, 200, 66, 0.55); }
+
 .pomo-row {
   display: flex;
   align-items: center;
@@ -472,10 +514,11 @@
 }
 .pomo-adj:hover { background: rgba(245, 200, 66, 0.1); border-color: rgba(245, 200, 66, 0.4); }
 .pomo-val {
-  font-size: 28px;
-  color: rgba(255, 255, 255, 0.88);
-  min-width: 28px;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.55);
+  min-width: 24px;
   text-align: center;
+  letter-spacing: 1px;
 }
 
 .preset-row {

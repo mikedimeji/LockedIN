@@ -186,13 +186,25 @@ export class ScheduleComponent implements OnInit {
   openDW(block: TimeBlock, e: MouseEvent) {
     e.stopPropagation();
     const dur = block.endMinute - block.startMinute;
-    // 25m work + 5m break per session; last session has no trailing break
-    // n sessions fit when 25n + 5(n-1) <= dur → 30n - 5 <= dur → n <= (dur+5)/30
-    const pomos = Math.max(1, Math.floor((dur + 5) / 30));
+    const maxPomos = Math.max(1, Math.floor((dur + 5) / 30));
     this.dwBlock     = block;
-    this.dwPomodoros = pomos;
+    this.dwPomodoros = maxPomos;
     this.dwPreset    = 0;
     this.showDW      = true;
+  }
+
+  // Returns 2–4 session-count options that fit within the block, capped at max 4
+  get dwOptions(): { sessions: number; minutes: number }[] {
+    if (!this.dwBlock) return [];
+    const dur = this.dwBlock.endMinute - this.dwBlock.startMinute;
+    const maxPomos = Math.max(1, Math.floor((dur + 5) / 30));
+    const opts: { sessions: number; minutes: number }[] = [];
+    const lo = Math.max(1, maxPomos - 2);
+    for (let n = lo; n <= Math.min(maxPomos, 8); n++) {
+      // total time = 25n + 5(n-1) = 30n - 5
+      opts.push({ sessions: n, minutes: 30 * n - 5 });
+    }
+    return opts;
   }
 
   launchDW() {
