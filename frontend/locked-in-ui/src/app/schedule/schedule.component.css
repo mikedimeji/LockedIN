@@ -184,17 +184,18 @@
 
 /* ── Day modal ── */
 .day-modal {
-  width: min(580px, 96vw);
-  max-height: 72vh;
-  background: rgba(6, 10, 22, 0.97);
-  border: 1px solid rgba(82, 113, 255, 0.22);
-  border-radius: 20px;
+  width: min(600px, 96vw);
+  max-height: 82vh;
+  background: rgba(5, 8, 20, 0.98);
+  border: 1px solid rgba(82, 113, 255, 0.25);
+  border-radius: 22px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow:
-    0 28px 72px rgba(0, 0, 0, 0.7),
-    0 0 40px rgba(82, 113, 255, 0.08);
+    0 32px 80px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 0 48px rgba(82, 113, 255, 0.1);
   animation: slideUp 0.22s ease;
 }
 @keyframes slideUp {
@@ -276,38 +277,47 @@
 .slot-list {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0 12px;
+  padding: 0 0 16px;
 }
 .slot-list::-webkit-scrollbar { width: 3px; }
 .slot-list::-webkit-scrollbar-track { background: transparent; }
-.slot-list::-webkit-scrollbar-thumb { background: rgba(82, 113, 255, 0.25); border-radius: 2px; }
+.slot-list::-webkit-scrollbar-thumb { background: rgba(82, 113, 255, 0.3); border-radius: 2px; }
 
 .slot-row {
   display: flex;
   align-items: flex-start;
   gap: 0;
-  height: 48px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  height: 52px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   transition: background 0.15s ease;
   overflow: visible;
 }
-/* Current time slot: subtle blue tint; today keeps gold accent on the time label */
+/* Stronger divider on every hour (even-indexed 0, 2, 4 … = :00 slots) */
+.slot-row.hour-boundary {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
 .slot-row.current-slot {
-  background: rgba(82, 113, 255, 0.05);
+  background: rgba(82, 113, 255, 0.07);
 }
 .slot-row.current-slot .slot-time {
   color: #a0b4ff;
+  font-weight: 700;
 }
 
 .slot-time {
-  width: 48px;
+  width: 52px;
   flex-shrink: 0;
-  padding-top: 14px;
+  padding-top: 16px;
   padding-right: 12px;
   font-size: 9px;
   letter-spacing: 0.5px;
-  color: rgba(82, 113, 255, 0.38);
+  color: rgba(255, 255, 255, 0.45);
   text-align: right;
+}
+/* Half-hour labels slightly dimmer */
+.slot-row.half-hour .slot-time {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 8px;
 }
 
 .slot-body {

@@ -61,7 +61,7 @@ export class ScheduleComponent implements OnInit {
   loadingDay      = false;
   nowMinute       = 0;
 
-  readonly SLOT_HEIGHT    = 48;
+  readonly SLOT_HEIGHT    = 52;
   readonly FIRST_SLOT_MIN = 5 * 60;
 
   // Deep work launch modal
