@@ -61,11 +61,10 @@
 
     <div class="loading" *ngIf="loadingDay">loading...</div>
 
-    <!-- Google Calendar events for this day -->
-    <div class="gcal-day-section" *ngIf="!loadingDay && gcalEvents.length > 0">
-      <div class="gcal-day-label">GOOGLE CALENDAR</div>
-      <div class="gcal-event-row" *ngFor="let e of gcalEvents">
-        <span class="gcal-event-time">{{ e.allDay ? 'all day' : disp(e.startMinute) + ' – ' + disp(e.endMinute) }}</span>
+    <!-- All-day Google Calendar events -->
+    <div class="gcal-day-section" *ngIf="!loadingDay && allDayGcalEvents.length > 0">
+      <div class="gcal-day-label">ALL DAY</div>
+      <div class="gcal-event-row" *ngFor="let e of allDayGcalEvents">
         <span class="gcal-event-title">{{ e.title }}</span>
       </div>
     </div>
@@ -80,6 +79,17 @@
         <span class="slot-time">{{ s.label }}</span>
 
         <div class="slot-body">
+
+          <!-- GCal events at this slot -->
+          <div *ngFor="let e of gcalEventsAt(s.minute)"
+               class="block-chip chip-gcal"
+               [style.height.px]="gcalBlockHeight(e)">
+            <span class="chip-badge">GC</span>
+            <div class="chip-body">
+              <span class="chip-title">{{ e.title }}</span>
+              <span class="chip-time">{{ disp(e.startMinute) }}–{{ disp(e.endMinute) }}</span>
+            </div>
+          </div>
 
           <!-- Blocks starting at this slot (absolute, span by height) -->
           <div *ngFor="let b of blocksAt(s.minute)"

@@ -102,7 +102,13 @@ export class ScheduleComponent implements OnInit {
       }
     });
 
-    this.gcalSvc.getStatus().subscribe(s => { this.gcalConnected = s.connected; });
+    this.gcalSvc.getStatus().subscribe(s => {
+      this.gcalConnected = s.connected;
+      // Handle race condition: day already open when status resolves
+      if (s.connected && this.showDay && this.gcalEvents.length === 0) {
+        this.gcalSvc.getEvents(this.dayDate).subscribe(e => this.gcalEvents = e);
+      }
+    });
   }
 
   // ── Calendar ──────────────────────────────────────────────────────────────
@@ -178,6 +184,16 @@ export class ScheduleComponent implements OnInit {
   blocksAt(minute: number) {
     return this.dayBlocks.filter(b => b.startMinute >= minute && b.startMinute < minute + 30);
   }
+
+  gcalEventsAt(minute: number) {
+    return this.gcalEvents.filter(e => !e.allDay && e.startMinute >= minute && e.startMinute < minute + 30);
+  }
+
+  gcalBlockHeight(e: GCalEvent): number {
+    return Math.max((e.endMinute - e.startMinute) / 30 * this.SLOT_HEIGHT - 4, 28);
+  }
+
+  get allDayGcalEvents() { return this.gcalEvents.filter(e => e.allDay); }
 
   cancelSlot() {
     this.activeSlot     = null;
