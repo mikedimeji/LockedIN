@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgFor, NgIf, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,9 +12,9 @@ import { GoogleCalendarService, GCalEvent } from './google-calendar.service';
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
 
-// 7am – 10pm in 30-min increments
-const SLOTS = Array.from({ length: 31 }, (_, i) => {
-  const total = 7 * 60 + i * 30;
+// 5am – midnight in 30-min increments (38 slots)
+const SLOTS = Array.from({ length: 38 }, (_, i) => {
+  const total = 5 * 60 + i * 30;
   const h = Math.floor(total / 60);
   const m = total % 60;
   const ampm = h >= 12 ? 'pm' : 'am';
@@ -36,7 +37,7 @@ const DURATIONS = [
   standalone: true,
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.css'],
-  imports: [NgFor, NgIf, NgClass],
+  imports: [NgFor, NgIf, NgClass, FormsModule],
 })
 export class ScheduleComponent implements OnInit {
   isPremium = false;
@@ -51,13 +52,17 @@ export class ScheduleComponent implements OnInit {
   readonly durations = DURATIONS;
 
   // Day modal
-  showDay        = false;
-  dayDate        = '';
+  showDay         = false;
+  dayDate         = '';
   dayBlocks: TimeBlock[] = [];
   activeSlot: number | null = null;
-  activeDuration = 60;   // minutes for the block being created
-  loadingDay     = false;
-  nowMinute      = 0;
+  activeDuration  = 60;
+  activeBlockName = '';
+  loadingDay      = false;
+  nowMinute       = 0;
+
+  readonly SLOT_HEIGHT    = 48;
+  readonly FIRST_SLOT_MIN = 5 * 60;
 
   // Deep work launch modal
   showDW       = false;
@@ -175,16 +180,27 @@ export class ScheduleComponent implements OnInit {
   }
 
   cancelSlot() {
-    this.activeSlot    = null;
+    this.activeSlot     = null;
     this.activeDuration = 60;
+    this.activeBlockName = '';
+  }
+
+  blockHeight(b: TimeBlock): number {
+    return Math.max((b.endMinute - b.startMinute) / 30 * this.SLOT_HEIGHT - 4, 28);
+  }
+
+  isSlotOccupied(minute: number): boolean {
+    return this.dayBlocks.some(b => b.startMinute <= minute && minute < b.endMinute);
   }
 
   pickType(minute: number, type: 'DEEP_WORK' | 'BREAK' | 'SCHEDULE') {
     const duration = this.activeDuration;
-    this.activeSlot     = null;
-    this.activeDuration = 60;
-    this.errorMsg       = '';
-    const label = type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule';
+    const label = this.activeBlockName.trim() ||
+      (type === 'DEEP_WORK' ? 'Deep Work' : type === 'BREAK' ? 'Break' : 'Schedule');
+    this.activeSlot      = null;
+    this.activeDuration  = 60;
+    this.activeBlockName = '';
+    this.errorMsg        = '';
     const payload: Omit<TimeBlock, 'id'> = {
       date: this.dayDate, startMinute: minute, endMinute: minute + duration, type, title: label,
     };
