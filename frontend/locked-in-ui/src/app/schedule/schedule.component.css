@@ -20,10 +20,10 @@
      bottom is heavier so the calendar grid stays crisp. */
   background:
     linear-gradient(170deg,
-      rgba(4, 8, 22, 0.76) 0%,
-      rgba(6, 12, 28, 0.84) 45%,
-      rgba(8, 14, 32, 0.92) 100%),
-    url('/assets/images/calender/calender1.webp') center / cover no-repeat;
+      rgba(4, 8, 22, 0.78) 0%,
+      rgba(6, 12, 28, 0.86) 45%,
+      rgba(8, 14, 32, 0.93) 100%),
+    url('/assets/images/calender/schedule1.jpg') center / cover no-repeat;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border: 1px solid rgba(82, 113, 255, 0.28);
@@ -87,9 +87,9 @@
 
 .month-label {
   font-family: bitF1, sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 2.5px;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255,255,255,0.9);
 }
 
 /* ── Calendar grid ── */
@@ -101,9 +101,9 @@
 
 .day-name {
   text-align: center;
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: 1.5px;
-  color: rgba(82, 113, 255, 0.5);
+  color: rgba(130, 160, 255, 0.6);
   padding-bottom: 8px;
   text-transform: uppercase;
 }
@@ -117,13 +117,14 @@
   align-items: center;
   gap: 3px;
   cursor: pointer;
-  transition: all 0.18s ease;
-  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(82, 113, 255, 0.06);
   background: rgba(255, 255, 255, 0.02);
 }
 .cal-cell:hover {
   background: rgba(82, 113, 255, 0.09);
   border-color: rgba(82, 113, 255, 0.28);
+  box-shadow: 0 0 12px rgba(82, 113, 255, 0.15);
 }
 .cal-cell.other {
   background: transparent;
@@ -134,10 +135,11 @@
 .cal-cell.today {
   border-color: rgba(245, 200, 66, 0.5);
   background: rgba(245, 200, 66, 0.07);
+  box-shadow: 0 0 14px rgba(245, 200, 66, 0.18), inset 0 0 8px rgba(245, 200, 66, 0.06);
 }
 
 .cell-num {
-  font-size: 10px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.55);
   line-height: 1;
 }
@@ -236,8 +238,8 @@
 }
 .modal-title {
   font-family: bitF1, sans-serif;
-  font-size: 12px;
-  letter-spacing: 2.5px;
+  font-size: 14px;
+  letter-spacing: 3px;
   color: rgba(255, 255, 255, 0.82);
 }
 .close-btn {
@@ -443,6 +445,8 @@
 
 /* ── Empty slot ── */
 .slot-empty {
+  position: relative;
+  z-index: 5;
   height: 34px;
   border-radius: 8px;
   display: flex;
@@ -481,10 +485,14 @@
 
 /* ── Type picker ── */
 .type-picker {
+  position: relative;
+  z-index: 30;
+  background: rgba(5, 8, 20, 0.96);
+  border-radius: 10px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding: 4px 0 2px;
   animation: pickerPop 0.15s ease;
 }
 .dur-row, .type-row {
@@ -811,3 +819,20 @@
   background: linear-gradient(135deg, #526cff, #6b82ff);
   box-shadow: 0 4px 28px rgba(82, 113, 255, 0.55);
 }
+
+/* ── Help button ── */
+.help-btn {
+  background: none;
+  border: 1px solid rgba(82, 113, 255, 0.2);
+  border-radius: 50%;
+  color: rgba(130, 160, 255, 0.5);
+  font-size: 11px;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.help-btn:hover { border-color: rgba(82, 113, 255, 0.5); color: #a0b4ff; }

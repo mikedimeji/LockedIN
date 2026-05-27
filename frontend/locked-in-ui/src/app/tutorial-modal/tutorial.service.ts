@@ -25,7 +25,8 @@ export class TutorialService {
         stats: false,
         spotify: false,
         profile: false,
-        settings: false
+        settings: false,
+        'schedule': false
       };
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(initialState));
     }
@@ -171,6 +172,23 @@ export class TutorialService {
           title: 'App Settings',
           description: 'Customize your experience with various settings and preferences.',
           image: 'assets/tutorial/settings-overview.png'
+        }
+      ],
+      schedule: [
+        {
+          title: 'Your Day, Mapped Out',
+          description: 'Click any day on the calendar to open it. Add deep work blocks, breaks, and schedule slots to plan your day in detail.',
+          image: 'assets/images/tutorial/caltut.png'
+        },
+        {
+          title: 'Time Blocking',
+          description: 'Tap + on any time slot, name your block, choose a duration and type. Deep work blocks launch directly into the Pomodoro timer.',
+          image: 'assets/images/tutorial/caltut2.png'
+        },
+        {
+          title: 'Sync Google Calendar',
+          description: 'Hit CONNECT on the calendar page to link Google Calendar. Your existing events appear automatically in the time grid so you can plan around them.',
+          image: 'assets/images/tutorial/caltut3.png'
         }
       ]
     };

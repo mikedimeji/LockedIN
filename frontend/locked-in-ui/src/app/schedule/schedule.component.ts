@@ -8,6 +8,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ScheduleService, TimeBlock } from './schedule.service';
 import { PremiumService } from '../premium.service';
 import { GoogleCalendarService, GCalEvent } from './google-calendar.service';
+import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
+import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
+import { AuthService } from '../auth.service';
 
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
@@ -37,7 +40,7 @@ const DURATIONS = [
   standalone: true,
   templateUrl: './schedule.component.html',
   styleUrls: ['./schedule.component.css'],
-  imports: [NgFor, NgIf, NgClass, FormsModule],
+  imports: [NgFor, NgIf, NgClass, FormsModule, TutorialModalComponent],
 })
 export class ScheduleComponent implements OnInit {
   isPremium = false;
@@ -76,12 +79,18 @@ export class ScheduleComponent implements OnInit {
   gcalEvents:   GCalEvent[] = [];
   gcalLoading  = false;
 
+  // Tutorial
+  showTutorial = false;
+  tutorialSteps: TutorialStep[] = [];
+
   constructor(
     private svc: ScheduleService,
     private premSvc: PremiumService,
     private router: Router,
     private route: ActivatedRoute,
     private gcalSvc: GoogleCalendarService,
+    private tutorialService: TutorialService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit() {
@@ -109,6 +118,21 @@ export class ScheduleComponent implements OnInit {
         this.gcalSvc.getEvents(this.dayDate).subscribe(e => this.gcalEvents = e);
       }
     });
+
+    if (this.authService.isLoggedIn() && !this.tutorialService.hasSeenTutorial('schedule')) {
+      this.tutorialSteps = this.tutorialService.getTutorialSteps('schedule');
+      this.showTutorial = true;
+    }
+  }
+
+  onTutorialComplete(dontShow: boolean): void {
+    if (dontShow) this.tutorialService.markTutorialAsSeen('schedule');
+    this.showTutorial = false;
+  }
+  onTutorialSkip(): void { this.showTutorial = false; }
+  openTutorial(): void {
+    this.tutorialSteps = this.tutorialService.getTutorialSteps('schedule');
+    this.showTutorial = true;
   }
 
   // ── Calendar ──────────────────────────────────────────────────────────────
