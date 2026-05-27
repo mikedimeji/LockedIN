@@ -98,6 +98,11 @@ export class TimerComponent implements OnInit, OnDestroy {
   selectedSubject: string = '';
   readonly subjectPresets = ['Maths', 'Science', 'History', 'English', 'Coding', 'Other'];
   
+  // Achievement unlock popup
+  newlyUnlockedAchievements: string[] = [];
+  showAchievementPopup = false;
+  private achievementDismissTimer: any = null;
+
   // Day playlist (Start Day flow from schedule)
   nextDayBlock: { type: string; title: string; startMinute: number; endMinute: number } | null = null;
   nextDayCountdown = 0;
@@ -677,6 +682,9 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.currentStreak = response.currentStreak;
               this.longestStreak = response.longestStreak;
               this.streakUpdated = true;
+              if (response.newAchievements?.length) {
+                this.showAchievementUnlocks(response.newAchievements);
+              }
             }
             this.completeAudio?.play().catch(() => {});
             this.showCompletionScreen = true;
@@ -740,6 +748,18 @@ export class TimerComponent implements OnInit, OnDestroy {
   
   cycleOpacity(): void {
     this.timerOpacity = ((this.timerOpacity + 1) % 3) as 0 | 1 | 2;
+  }
+
+  showAchievementUnlocks(names: string[]): void {
+    this.newlyUnlockedAchievements = names;
+    this.showAchievementPopup = true;
+    clearTimeout(this.achievementDismissTimer);
+    this.achievementDismissTimer = setTimeout(() => this.dismissAchievementPopup(), 5000);
+  }
+
+  dismissAchievementPopup(): void {
+    this.showAchievementPopup = false;
+    this.newlyUnlockedAchievements = [];
   }
 
   handleTimeClick(): void {

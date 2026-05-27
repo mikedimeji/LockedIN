@@ -91,6 +91,18 @@
     </div>
   </ng-container>
 
+  <!-- ── Achievement unlock popup ── -->
+  <div class="achievement-popup" *ngIf="showAchievementPopup" (click)="dismissAchievementPopup()">
+    <div class="ach-inner">
+      <div class="ach-badge">★</div>
+      <div class="ach-content">
+        <div class="ach-label">ACHIEVEMENT UNLOCKED</div>
+        <div class="ach-name" *ngFor="let a of newlyUnlockedAchievements">{{ a }}</div>
+      </div>
+      <button class="ach-close" (click)="dismissAchievementPopup()">✕</button>
+    </div>
+  </div>
+
   <!-- ── Heart break warning ── -->
   <div class="heart-warning-overlay" *ngIf="showHeartWarning">
     <div class="heart-warning-dialog">

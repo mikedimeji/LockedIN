@@ -261,7 +261,10 @@ export class ScheduleComponent implements OnInit {
 
   startDay() {
     const sorted = [...this.dayBlocks].sort((a, b) => a.startMinute - b.startMinute);
-    if (!sorted.length) return;
+    if (!sorted.length) {
+      this.errorMsg = 'No blocks scheduled yet. Add some blocks to start your day.';
+      return;
+    }
     const now = new Date();
     const currentMin = this.dayDate === this.fmt(now) ? now.getHours() * 60 + now.getMinutes() : 0;
     const idx = sorted.findIndex(b => b.endMinute > currentMin);
@@ -320,6 +323,15 @@ export class ScheduleComponent implements OnInit {
   }
 
   // ── Google Calendar ───────────────────────────────────────────────────────
+
+  refreshGCal() {
+    if (!this.gcalConnected || !this.dayDate) return;
+    this.gcalLoading = true;
+    this.gcalSvc.getEvents(this.dayDate).subscribe(e => {
+      this.gcalEvents = e;
+      this.gcalLoading = false;
+    });
+  }
 
   connectGCal() {
     this.gcalSvc.getAuthUrl().subscribe(r => { window.location.href = r.url; });

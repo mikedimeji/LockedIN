@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pomo.Lockedin.dto.TimeBlockDTO;
 import pomo.Lockedin.entities.User;
+import pomo.Lockedin.service.AchievementService;
 import pomo.Lockedin.service.PremiumService;
 import pomo.Lockedin.service.TimeBlockService;
 
@@ -20,6 +21,7 @@ public class ScheduleController {
 
     private final TimeBlockService timeBlockService;
     private final PremiumService premiumService;
+    private final AchievementService achievementService;
 
     private String requirePremium() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -40,7 +42,9 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.CREATED)
     public TimeBlockDTO createBlock(@RequestBody TimeBlockDTO block) {
         String email = requirePremium();
-        return timeBlockService.createBlock(email, block);
+        TimeBlockDTO created = timeBlockService.createBlock(email, block);
+        achievementService.checkScheduleBlockAchievements(email);
+        return created;
     }
 
     @PutMapping("/block/{id}")

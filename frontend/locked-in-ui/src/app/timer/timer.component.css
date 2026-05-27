@@ -960,3 +960,72 @@
   box-shadow: 0 2px 12px rgba(82, 113, 255, 0.35);
 }
 .nb-start:hover { background: linear-gradient(135deg, #526cff, #6b82ff); }
+
+
+/* ── Achievement unlock popup ── */
+.achievement-popup {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4000;
+  cursor: pointer;
+  animation: ach-slide-down 0.3s ease;
+}
+
+.ach-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(8, 18, 34, 0.95);
+  border: 1px solid rgba(255, 195, 0, 0.4);
+  border-radius: 14px;
+  padding: 12px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,195,0,0.08);
+  backdrop-filter: blur(12px);
+  min-width: 240px;
+  max-width: 360px;
+}
+
+.ach-badge {
+  font-size: 22px;
+  color: #ffc300;
+  text-shadow: 0 0 12px rgba(255, 195, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.ach-content {
+  flex: 1;
+}
+
+.ach-label {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255, 195, 0, 0.7);
+  margin-bottom: 3px;
+}
+
+.ach-name {
+  font-family: bitF1, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ach-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+.ach-close:hover { color: rgba(255,255,255,0.6); }
+
+@keyframes ach-slide-down {
+  from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

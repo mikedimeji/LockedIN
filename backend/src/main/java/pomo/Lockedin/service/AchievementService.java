@@ -70,73 +70,131 @@ public class AchievementService {
         {"weekend_warrior",  "Weekend Warrior",  "Completed a session on a weekend",      "SPECIAL", 10},
     };
 
-    // ─── Public entry point ────────────────────────────────────────────────────
+    // Schedule / time-blocking achievements
+    private static final Object[][] SCHEDULE_ACHIEVEMENTS = {
+        {"first_time_block",   "Planner",           "Created your first time block",                 "SCHEDULE", 10},
+        {"day_architect",      "Day Architect",      "Planned 5 or more blocks in a single day",      "SCHEDULE", 20},
+        {"schedule_warrior",   "Schedule Warrior",   "Planned blocks across 7 different days",         "SCHEDULE", 30},
+        {"gcal_connected",     "Synced",             "Linked Google Calendar to your schedule",        "SCHEDULE", 15},
+    };
 
-    public void checkAndGrantAchievements(String userEmail) {
+    // ─── Public entry points ───────────────────────────────────────────────────
+
+    public List<String> checkAndGrantAchievements(String userEmail) {
         Long userId = userService.getUserIdByEmail(userEmail);
         if (userId == null) {
             log.warn("Achievement check skipped — user not found: {}", userEmail);
-            return;
+            return List.of();
         }
+        List<String> newlyUnlocked = new java.util.ArrayList<>();
         try {
-            checkSessionAchievements(userId);
-            checkStreakAchievements(userId);
-            checkGoldAchievements(userId);
-            checkHoursAchievements(userId);
-            checkDailyAchievements(userId);
-            checkSpecialAchievements(userId);
+            newlyUnlocked.addAll(checkSessionAchievements(userId));
+            newlyUnlocked.addAll(checkStreakAchievements(userId));
+            newlyUnlocked.addAll(checkGoldAchievements(userId));
+            newlyUnlocked.addAll(checkHoursAchievements(userId));
+            newlyUnlocked.addAll(checkDailyAchievements(userId));
+            newlyUnlocked.addAll(checkSpecialAchievements(userId));
         } catch (Exception e) {
             log.error("Achievement check failed for user {}: {}", userId, e.getMessage());
+        }
+        return newlyUnlocked;
+    }
+
+    public List<String> checkScheduleBlockAchievements(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return List.of();
+        List<String> newlyUnlocked = new java.util.ArrayList<>();
+        try {
+            int totalBlocks = queryInt("SELECT COUNT(*) FROM time_blocks WHERE user_id = ?", userId);
+            int daysWithBlocks = queryInt(
+                "SELECT COUNT(DISTINCT date) FROM time_blocks WHERE user_id = ?", userId);
+            int maxBlocksOneDay = queryInt(
+                "SELECT COALESCE(MAX(cnt),0) FROM (SELECT COUNT(*) cnt FROM time_blocks WHERE user_id = ? GROUP BY date) t", userId);
+
+            for (Object[] def : SCHEDULE_ACHIEVEMENTS) {
+                String key = (String) def[0];
+                boolean earned = switch (key) {
+                    case "first_time_block"  -> totalBlocks >= 1;
+                    case "day_architect"     -> maxBlocksOneDay >= 5;
+                    case "schedule_warrior"  -> daysWithBlocks >= 7;
+                    default -> false;
+                };
+                if (earned && grant(userId, def)) newlyUnlocked.add((String) def[1]);
+            }
+        } catch (Exception e) {
+            log.error("Schedule achievement check failed for user {}: {}", userId, e.getMessage());
+        }
+        return newlyUnlocked;
+    }
+
+    public void checkGCalAchievement(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return;
+        for (Object[] def : SCHEDULE_ACHIEVEMENTS) {
+            if ("gcal_connected".equals(def[0])) {
+                grant(userId, def);
+                break;
+            }
         }
     }
 
     // ─── Category checkers ────────────────────────────────────────────────────
 
-    private void checkSessionAchievements(Long userId) {
+    private List<String> checkSessionAchievements(Long userId) {
         int total = queryInt(
             "SELECT COALESCE(SUM(pomodoros_completed), 0) FROM pomodoro_sessions WHERE user_id = ?", userId);
+        List<String> unlocked = new java.util.ArrayList<>();
         for (Object[] def : SESSION_MILESTONES) {
-            if (total >= (int) def[0]) grant(userId, def);
+            if (total >= (int) def[0] && grant(userId, def)) unlocked.add((String) def[1]);
         }
+        return unlocked;
     }
 
-    private void checkStreakAchievements(Long userId) {
+    private List<String> checkStreakAchievements(Long userId) {
         int streak = queryInt(
             "SELECT COALESCE(current_streak, 0) FROM userstats WHERE user_id = ?", userId);
+        List<String> unlocked = new java.util.ArrayList<>();
         for (Object[] def : STREAK_MILESTONES) {
-            if (streak >= (int) def[0]) grant(userId, def);
+            if (streak >= (int) def[0] && grant(userId, def)) unlocked.add((String) def[1]);
         }
+        return unlocked;
     }
 
-    private void checkGoldAchievements(Long userId) {
+    private List<String> checkGoldAchievements(Long userId) {
         int totalEarned = queryInt(
             "SELECT COALESCE(SUM(amount), 0) FROM gold_transactions WHERE user_id = ? AND transaction_type = 'EARN'", userId);
+        List<String> unlocked = new java.util.ArrayList<>();
         for (Object[] def : GOLD_MILESTONES) {
-            if (totalEarned >= (int) def[0]) grant(userId, def);
+            if (totalEarned >= (int) def[0] && grant(userId, def)) unlocked.add((String) def[1]);
         }
+        return unlocked;
     }
 
-    private void checkHoursAchievements(Long userId) {
+    private List<String> checkHoursAchievements(Long userId) {
         int totalMinutes = queryInt(
             "SELECT COALESCE(SUM(duration_minutes), 0) FROM pomodoro_sessions WHERE user_id = ?", userId);
         double hours = totalMinutes / 60.0;
+        List<String> unlocked = new java.util.ArrayList<>();
         for (Object[] def : HOURS_MILESTONES) {
-            if (hours >= (int) def[0]) grant(userId, def);
+            if (hours >= (int) def[0] && grant(userId, def)) unlocked.add((String) def[1]);
         }
+        return unlocked;
     }
 
-    private void checkDailyAchievements(Long userId) {
+    private List<String> checkDailyAchievements(Long userId) {
         int todaySessions = queryInt(
             "SELECT COALESCE(SUM(pomodoros_completed), 0) FROM pomodoro_sessions WHERE user_id = ? AND DATE(start_time) = CURDATE()", userId);
+        List<String> unlocked = new java.util.ArrayList<>();
         for (Object[] def : DAILY_MILESTONES) {
-            if (todaySessions >= (int) def[0]) grant(userId, def);
+            if (todaySessions >= (int) def[0] && grant(userId, def)) unlocked.add((String) def[1]);
         }
+        return unlocked;
     }
 
-    private void checkSpecialAchievements(Long userId) {
+    private List<String> checkSpecialAchievements(Long userId) {
         int currentHour = java.time.LocalTime.now().getHour();
         int dayOfWeek   = java.time.LocalDate.now().getDayOfWeek().getValue(); // 1=Mon, 7=Sun
-
+        List<String> unlocked = new java.util.ArrayList<>();
         for (Object[] def : SPECIAL_ACHIEVEMENTS) {
             String key = (String) def[0];
             boolean earned = switch (key) {
@@ -145,23 +203,24 @@ public class AchievementService {
                 case "weekend_warrior" -> dayOfWeek >= 6;
                 default -> false;
             };
-            if (earned) grant(userId, def);
+            if (earned && grant(userId, def)) unlocked.add((String) def[1]);
         }
+        return unlocked;
     }
 
     // ─── Grant helper ─────────────────────────────────────────────────────────
 
-    private void grant(Long userId, Object[] def) {
+    /** Returns true if the achievement was newly granted, false if already owned. */
+    private boolean grant(Long userId, Object[] def) {
         String name        = (String) def[1];
         String description = (String) def[2];
         String type        = (String) def[3];
         int    goldReward  = (int)    def[4];
 
-        // Idempotent: skip if user already has this achievement
         Integer existing = jdbcTemplate.queryForObject(
             "SELECT COUNT(*) FROM achievements WHERE user_id = ? AND name = ?",
             Integer.class, userId, name);
-        if (existing != null && existing > 0) return;
+        if (existing != null && existing > 0) return false;
 
         jdbcTemplate.update(
             "INSERT INTO achievements (user_id, name, description, achieved_date, achievement_type, gold_reward) " +
@@ -178,6 +237,7 @@ public class AchievementService {
         }
 
         log.info("Achievement unlocked: '{}' for user {} (+{} gold)", name, userId, goldReward);
+        return true;
     }
 
     // ─── Utility ──────────────────────────────────────────────────────────────

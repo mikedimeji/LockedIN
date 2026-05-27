@@ -73,7 +73,7 @@ public class GoldController {
     }
 
     /**
-     * Response class for pomodoro completion that includes gold and streak info
+     * Response class for pomodoro completion that includes gold, streak, and newly unlocked achievements.
      */
     @Data
     @AllArgsConstructor
@@ -83,6 +83,7 @@ public class GoldController {
         private int currentGold;
         private int currentStreak;
         private int longestStreak;
+        private java.util.List<String> newAchievements;
     }
 
     /**
@@ -99,7 +100,7 @@ public class GoldController {
             int currentStreak = streakService.getCurrentStreak(userEmail);
             int longestStreak = streakService.getLongestStreak(userEmail);
 
-            achievementService.checkAndGrantAchievements(userEmail);
+            java.util.List<String> newAchievements = achievementService.checkAndGrantAchievements(userEmail);
 
             statsService.saveSession(
                     userEmail,
@@ -115,6 +116,7 @@ public class GoldController {
                     .currentGold(newBalance)
                     .currentStreak(currentStreak)
                     .longestStreak(longestStreak)
+                    .newAchievements(newAchievements)
                     .build();
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

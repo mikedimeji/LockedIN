@@ -59,8 +59,9 @@ public class GoogleCalendarService {
                 .build().toUriString();
     }
 
+    /** Returns the email of the user who connected, so the caller can trigger achievements. */
     @SuppressWarnings("unchecked")
-    public void handleCallback(String code, String state) {
+    public String handleCallback(String code, String state) {
         PendingAuth auth = pending.remove(state);
         if (auth == null || auth.expiresAt() < System.currentTimeMillis()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired OAuth state");
@@ -91,6 +92,7 @@ public class GoogleCalendarService {
         Long userId = userService.getUserIdByEmail(auth.email());
         tokenDao.save(userId, accessToken, refreshToken, expiresAt);
         log.info("Google Calendar connected for user {}", auth.email());
+        return auth.email();
     }
 
     // ── Status / disconnect ───────────────────────────────────────────────────

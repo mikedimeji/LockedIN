@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pomo.Lockedin.dto.GoogleCalendarEventDTO;
 import pomo.Lockedin.entities.User;
+import pomo.Lockedin.service.AchievementService;
 import pomo.Lockedin.service.GoogleCalendarService;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class GoogleCalendarController {
 
     private final GoogleCalendarService googleCalendarService;
+    private final AchievementService achievementService;
 
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
@@ -43,7 +45,8 @@ public class GoogleCalendarController {
                          @RequestParam String state,
                          HttpServletResponse response) throws IOException {
         try {
-            googleCalendarService.handleCallback(code, state);
+            String userEmail = googleCalendarService.handleCallback(code, state);
+            achievementService.checkGCalAchievement(userEmail);
             response.sendRedirect(frontendUrl + "/schedule?gcal=connected");
         } catch (Exception e) {
             log.error("Google Calendar callback error: {}", e.getMessage());
