@@ -188,7 +188,7 @@ export class TutorialService {
         {
           title: 'Sync Google Calendar',
           description: 'Hit CONNECT on the calendar page to link Google Calendar. Your existing events appear automatically in the time grid so you can plan around them.',
-          image: 'assets/images/tutorial/caltut3.png'
+          image: 'assets/images/tutorial/caltut-fin.png'
         }
       ]
     };
