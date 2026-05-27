@@ -31,10 +31,7 @@
       <span class="gcal-bar-label">{{ gcalConnected ? 'Google Calendar synced' : 'Google Calendar' }}</span>
     </div>
     <button class="gcal-bar-btn" *ngIf="!gcalConnected" (click)="connectGCal()">CONNECT</button>
-    <ng-container *ngIf="gcalConnected">
-      <button class="gcal-bar-btn gcal-refresh-btn" *ngIf="showDay" (click)="refreshGCal()">↻</button>
-      <button class="gcal-bar-btn gcal-bar-btn-off" (click)="disconnectGCal()">DISCONNECT</button>
-    </ng-container>
+    <button class="gcal-bar-btn gcal-bar-btn-off" *ngIf="gcalConnected" (click)="disconnectGCal()">DISCONNECT</button>
   </div>
 
   <!-- Day names -->
@@ -64,7 +61,8 @@
     <div class="modal-header">
       <span class="modal-title">{{ dayLabel }}</span>
       <div class="header-actions">
-        <button class="start-day-btn" *ngIf="!loadingDay && dayBlocks.length > 0" (click)="startDay()">▶ START DAY</button>
+        <button class="gcal-modal-refresh" *ngIf="gcalConnected && !loadingDay" (click)="refreshGCal()" title="Refresh Google Calendar">↻</button>
+        <button class="start-day-btn" *ngIf="!loadingDay" (click)="startDay()">▶ START DAY</button>
         <button class="close-btn" (click)="showDay = false">✕</button>
       </div>
     </div>
