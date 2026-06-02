@@ -1,9 +1,16 @@
 import { Injectable } from '@angular/core';
 
+export interface TutorialBullet {
+  color: string;
+  label: string;
+  text: string;
+}
+
 export interface TutorialStep {
   title: string;
   description: string;
   image?: string;
+  bullets?: TutorialBullet[];
 }
 
 @Injectable({
@@ -187,7 +194,12 @@ export class TutorialService {
         },
         {
           title: 'Block Types',
-          description: 'DW (blue) = Deep Work: launches Pomodoro sessions and earns gold.\nBR (green) = Break: starts a rest timer, no gold.\nSC (yellow) = Schedule: lecture, meeting or appointment — earns gold based on time.\nTap any block to cycle its type.'
+          description: 'Tap any block to cycle between types.',
+          bullets: [
+            { color: 'rgba(82,113,255,0.9)',   label: 'DW',  text: 'Deep Work — launches Pomodoro sessions, earns gold' },
+            { color: 'rgba(72,199,142,0.9)',    label: 'BR',  text: 'Break — rest timer, no gold earned' },
+            { color: 'rgba(245,200,66,0.9)',    label: 'SC',  text: 'Schedule — lecture or meeting, earns gold by time' },
+          ]
         },
         {
           title: 'Starting Your Day',

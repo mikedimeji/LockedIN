@@ -141,6 +141,35 @@
   margin: 0;
 }
 
+/* ── Bullets ── */
+.tut-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.tut-bullet {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tut-bullet-badge {
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.tut-bullet-text {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
 /* ── Image ── */
 .tut-image-wrap {
   margin-top: 18px;

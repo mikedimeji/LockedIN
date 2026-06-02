@@ -28,6 +28,13 @@
       <div class="tut-title">{{ currentStepData.title }}</div>
       <p class="tut-desc">{{ currentStepData.description }}</p>
 
+      <div *ngIf="currentStepData.bullets" class="tut-bullets">
+        <div *ngFor="let b of currentStepData.bullets" class="tut-bullet">
+          <span class="tut-bullet-badge" [style.background]="b.color" [style.color]="'#fff'">{{ b.label }}</span>
+          <span class="tut-bullet-text">{{ b.text }}</span>
+        </div>
+      </div>
+
       <div *ngIf="currentStepData.image" class="tut-image-wrap">
         <img [src]="currentStepData.image" [alt]="currentStepData.title" class="tut-image">
       </div>
