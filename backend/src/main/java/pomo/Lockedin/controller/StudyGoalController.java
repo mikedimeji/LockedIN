@@ -35,10 +35,22 @@ public class StudyGoalController {
         return studyGoalService.getGoals(email);
     }
 
+    private void validateGoal(StudyGoalDTO dto) {
+        if (dto.getSubject() == null || dto.getSubject().isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subject is required");
+        if (dto.getSubject().length() > 100)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Subject must be 100 characters or fewer");
+        if (dto.getWeeklyHoursTarget() == null || dto.getWeeklyHoursTarget() <= 0)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weekly hours target must be greater than 0");
+        if (dto.getWeeklyHoursTarget() > 168)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Weekly hours target cannot exceed 168 (hours in a week)");
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public StudyGoalDTO createGoal(@RequestBody StudyGoalDTO dto) {
         String email = requirePremium();
+        validateGoal(dto);
         return studyGoalService.createOrUpdateGoal(email, dto);
     }
 
@@ -46,6 +58,7 @@ public class StudyGoalController {
     @ResponseStatus(HttpStatus.OK)
     public StudyGoalDTO updateGoal(@PathVariable Long id, @RequestBody StudyGoalDTO dto) {
         String email = requirePremium();
+        validateGoal(dto);
         dto.setId(id);
         return studyGoalService.createOrUpdateGoal(email, dto);
     }

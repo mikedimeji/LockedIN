@@ -2,12 +2,16 @@ package pomo.Lockedin.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import pomo.Lockedin.dao.RevisionTopicDao;
 import pomo.Lockedin.entities.RevisionTopic;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +28,19 @@ public class RevisionTopicImpl implements RevisionTopicDao {
 
     @Override
     public void createRevisionTopic(RevisionTopic revisionTopic) {
-        String sql = "INSERT INTO revisiontopic (revision_topic_id, user_id, title, description, pomodoro_number) VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql,revisionTopic.getRevisionTopicId(), revisionTopic.getUserId(), revisionTopic.getTitle(), revisionTopic.getDescription(), revisionTopic.getPomodoroNumber());
-
+        String sql = "INSERT INTO revisiontopic (user_id, title, description, pomodoro_number) VALUES (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(conn -> {
+            PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, revisionTopic.getUserId());
+            ps.setString(2, revisionTopic.getTitle());
+            ps.setString(3, revisionTopic.getDescription() != null ? revisionTopic.getDescription() : "");
+            ps.setInt(4, revisionTopic.getPomodoroNumber());
+            return ps;
+        }, keyHolder);
+        if (keyHolder.getKey() != null) {
+            revisionTopic.setRevisionTopicId(keyHolder.getKey().longValue());
+        }
     }
 
     @Override
@@ -37,9 +51,9 @@ public class RevisionTopicImpl implements RevisionTopicDao {
     }
 
     @Override
-    public void deleteRevisionTopic(Long id) {
-        String sql = "DELETE FROM revisiontopic WHERE revision_topic_id = ?";
-        jdbcTemplate.update(sql, id);
+    public void deleteRevisionTopic(Long id, Long userId) {
+        String sql = "DELETE FROM revisiontopic WHERE revision_topic_id = ? AND user_id = ?";
+        jdbcTemplate.update(sql, id, userId);
     }
 
     @Override

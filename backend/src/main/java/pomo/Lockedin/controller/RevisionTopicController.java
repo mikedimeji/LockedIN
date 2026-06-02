@@ -54,6 +54,15 @@ public class RevisionTopicController {
             throw new RuntimeException("User not found for email: " + userEmail);
         }
 
+        if (revisionTopicDTO.getTitle() == null || revisionTopicDTO.getTitle().isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title is required");
+        if (revisionTopicDTO.getTitle().length() > 255)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be 255 characters or fewer");
+        if (revisionTopicDTO.getPomodoroNumber() == null || revisionTopicDTO.getPomodoroNumber() < 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pomodoro count must be at least 1");
+        if (revisionTopicDTO.getPomodoroNumber() > 20)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pomodoro count cannot exceed 20");
+
         revisionTopicDTO.setUserId(userId);
 
         if (!premiumService.isPremium(userEmail)) {
@@ -70,7 +79,10 @@ public class RevisionTopicController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRevisionTopic(@PathVariable Long id) {
-        revisionTopicService.deleteRevisionTopicById(id);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userService.getUserIdByEmail(user.getEmail());
+        if (userId == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        revisionTopicService.deleteRevisionTopicById(id, userId);
     }
 
 }

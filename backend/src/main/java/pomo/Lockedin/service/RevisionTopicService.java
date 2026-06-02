@@ -30,13 +30,10 @@ public class RevisionTopicService {
         //return List of all DTO'S through mapper conversion
 
         Optional<List<RevisionTopic>> res = revisionTopicRepo.getAllRevisionTopicsForUser(UserId);
-        if (res.isPresent()){
-            return res.get().stream()
+        return res.map(list -> list.stream()
                     .map(rtoMapper::mapFrom)
-                    .collect(Collectors.toList());
-        } else {
-            throw new RuntimeException("No Revision Topics Found For User Id: " + UserId);
-        }
+                    .collect(Collectors.toList()))
+                .orElse(List.of());
     }
 
     public RevisionTopicDTO createRevisionTopic(RevisionTopicDTO revisionTopicDTO) {
@@ -47,8 +44,8 @@ public class RevisionTopicService {
         return rtoMapper.mapFrom(revisionTopic);
     }
 
-    public void deleteRevisionTopicById(Long id) {
-        revisionTopicRepo.deleteRevisionTopic(id);
+    public void deleteRevisionTopicById(Long id, Long userId) {
+        revisionTopicRepo.deleteRevisionTopic(id, userId);
     }
 
     public int countTopicsByUserId(Long userId) {

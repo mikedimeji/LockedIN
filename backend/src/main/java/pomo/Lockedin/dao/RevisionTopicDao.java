@@ -10,7 +10,7 @@ public interface RevisionTopicDao{
 
     Optional<List<RevisionTopic>> getAllRevisionTopicsForUser(Long userId);
 
-    void deleteRevisionTopic(Long id);
+    void deleteRevisionTopic(Long id, Long userId);
 
     int countByUserId(Long userId);
 }

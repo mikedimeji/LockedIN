@@ -48,7 +48,6 @@ export class PlannerComponent implements OnInit {
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.audio = new Audio('/assets/sounds/click.mp3');
-      console.log('Audio object initialized:', this.audio);
     }
   }
 
@@ -91,8 +90,7 @@ export class PlannerComponent implements OnInit {
     const token = this.getAuthToken();
 
     if (!token) {
-      console.log("User is not authenticated.");
-      this.router.navigateByUrl('/login'); 
+      this.router.navigateByUrl('/login');
       return;
     }
 
@@ -106,19 +104,12 @@ export class PlannerComponent implements OnInit {
         { headers }
       )
       .subscribe(
-        (response) => {
-          console.log('Received topics:', response);
-          this.topics = response;
-        },
-        (error) => {
-          console.error('Error fetching revision topics:', error);
-          this.showStatus('Failed to load topics.', 'error');
-        }
+        (response) => { this.topics = response; },
+        (_error) => { this.showStatus('Failed to load topics.', 'error'); }
       );
   }
 
   createTopic(): void {
-    console.log("Creating topic");
     if (this.audio) {
       this.audio.play().catch(err => console.error('Error playing audio:', err));
     }
@@ -156,18 +147,14 @@ export class PlannerComponent implements OnInit {
           this.newTopic = { title: '', description: '', pomodoroNumber: 1 };
           this.toggleForm();
           this.showStatus('Topic created successfully!');
-
           if (this.topics.length === 1) {
-            setTimeout(() => {
-              this.toggleScreen('down');
-            }, 1000);
+            setTimeout(() => { this.toggleScreen('down'); }, 1000);
           }
         },
         (error) => {
           if (error.status === 402) {
             this.premiumModal.open();
           } else {
-            console.error('Error creating revision topic:', error);
             this.showStatus('Failed to create topic.', 'error');
           }
         }
@@ -192,14 +179,8 @@ export class PlannerComponent implements OnInit {
 
   deleteTopic(revisionTopicId: number): void {
     this.confirmingDelete = false;
-    
-    console.log('Topics:', this.topics);
-    console.log('Current topic index:', this.currentTopicIndex);
-    console.log('Current topic:', this.topics[this.currentTopicIndex]);
-    console.log('Deleting topic with id:', revisionTopicId);
 
     if (!revisionTopicId) {
-      console.error('Topic ID is undefined');
       this.topicToDelete = null;
       return;
     }
@@ -228,8 +209,7 @@ export class PlannerComponent implements OnInit {
           this.showStatus('Topic deleted.');
           this.topicToDelete = null;
         },
-        (error) => {
-          console.error('Error deleting revision topic:', error);
+        (_error) => {
           this.showStatus('Failed to delete topic.', 'error');
           this.topicToDelete = null;
         }
@@ -240,10 +220,10 @@ export class PlannerComponent implements OnInit {
     if (this.currentTopicIndex < this.topics.length - 1) {
       this.currentTopicIndex++;
       if (this.audio) {
-        this.audio.play().catch(err => console.error('Error playing audio:', err));
+        this.audio.play().catch(() => {});
       }
     } else {
-      alert("No more topics available.");
+      this.showStatus('No more topics.', 'error');
     }
   }
 
@@ -251,16 +231,15 @@ export class PlannerComponent implements OnInit {
     if (this.currentTopicIndex > 0) {
       this.currentTopicIndex--;
       if (this.audio) {
-        this.audio.play().catch(err => console.error('Error playing audio:', err));
+        this.audio.play().catch(() => {});
       }
     } else {
-      alert("No previous topics.");
+      this.showStatus('Already at the first topic.', 'error');
     }
   }
 
   startTimer(pomodoroNumber: number): void {
     const durationInMinutes = pomodoroNumber * 25;
-    console.log(`Starting timer for ${durationInMinutes} minutes.`);
     if (this.audio) {
       this.audio.play().catch(err => console.error('Error playing audio:', err));
     }
