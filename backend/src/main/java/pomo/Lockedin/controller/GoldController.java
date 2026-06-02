@@ -39,16 +39,17 @@ public class GoldController {
     }
 
     /**
-     * Add gold to the user's account (for testing/admin purposes)
+     * Add gold — admin only. Blocked for regular users to prevent economy exploits.
      */
     @PostMapping("/add")
     @ResponseStatus(HttpStatus.OK)
     public GoldBalanceDTO addGold(@RequestBody GoldOperationDTO goldOperation) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String userEmail = user.getEmail();
-
+        if (user.getRole() != pomo.Lockedin.entities.Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin only");
+        }
         try {
-            int newBalance = goldService.addGold(userEmail, goldOperation.getAmount());
+            int newBalance = goldService.addGold(user.getEmail(), goldOperation.getAmount());
             return new GoldBalanceDTO(newBalance);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -95,8 +96,14 @@ public class GoldController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userEmail = user.getEmail();
 
+        // Cap values so clients can't farm unlimited gold or inflate stats
+        int pomodoros = Math.max(0, Math.min(pomodoroCompletion.getPomodorosCompleted(), 20));
+        int duration  = Math.max(0, Math.min(pomodoroCompletion.getDurationMinutes(), 720)); // max 12h
+        pomodoroCompletion.setPomodorosCompleted(pomodoros);
+        pomodoroCompletion.setDurationMinutes(duration);
+
         try {
-            int newBalance = goldService.awardGoldForPomodoros(userEmail, pomodoroCompletion.getPomodorosCompleted());
+            int newBalance = goldService.awardGoldForPomodoros(userEmail, pomodoros);
             int currentStreak = streakService.getCurrentStreak(userEmail);
             int longestStreak = streakService.getLongestStreak(userEmail);
 

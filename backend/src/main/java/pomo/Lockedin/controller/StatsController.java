@@ -211,7 +211,9 @@ public class StatsController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String subject = body.get("subject");
         if (subject != null && !subject.isBlank()) {
-            statsService.tagLatestSession(user.getEmail(), subject.trim());
+            String trimmed = subject.trim();
+            if (trimmed.length() > 100) trimmed = trimmed.substring(0, 100);
+            statsService.tagLatestSession(user.getEmail(), trimmed);
         }
     }
 
