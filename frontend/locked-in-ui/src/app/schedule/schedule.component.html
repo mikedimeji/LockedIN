@@ -132,6 +132,7 @@
               <input class="block-name-input"
                      [(ngModel)]="activeBlockName"
                      placeholder="Name this block..."
+                     maxlength="100"
                      (click)="$event.stopPropagation()">
               <div class="dur-row">
                 <button *ngFor="let d of durations"

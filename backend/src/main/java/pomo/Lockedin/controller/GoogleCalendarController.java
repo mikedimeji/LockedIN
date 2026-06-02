@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -68,7 +66,10 @@ public class GoogleCalendarController {
             @RequestParam(defaultValue = "UTC") String timezone) {
         ZoneId zone;
         try { zone = ZoneId.of(timezone); } catch (Exception e) { zone = ZoneId.of("UTC"); }
-        return googleCalendarService.getEventsForDate(email(), LocalDate.parse(date), zone);
+        LocalDate localDate;
+        try { localDate = LocalDate.parse(date); }
+        catch (Exception e) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date"); }
+        return googleCalendarService.getEventsForDate(email(), localDate, zone);
     }
 
     @DeleteMapping("/disconnect")

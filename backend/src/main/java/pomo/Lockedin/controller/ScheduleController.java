@@ -33,6 +33,8 @@ public class ScheduleController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startMinute must be before endMinute");
         if (block.getType() == null || !VALID_TYPES.contains(block.getType()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid block type");
+        if (block.getTitle() != null && block.getTitle().length() > 100)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title must be 100 characters or fewer");
     }
 
     private String requirePremium() {
@@ -47,7 +49,8 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.OK)
     public List<TimeBlockDTO> getBlocks(@PathVariable String date) {
         String email = requirePremium();
-        return timeBlockService.getBlocksForDate(email, LocalDate.parse(date));
+        try { return timeBlockService.getBlocksForDate(email, LocalDate.parse(date)); }
+        catch (Exception e) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date"); }
     }
 
     @GetMapping("/month")
@@ -55,6 +58,8 @@ public class ScheduleController {
     public java.util.Map<String, List<TimeBlockDTO>> getMonthBlocks(
             @RequestParam int year, @RequestParam int month) {
         String email = requirePremium();
+        if (month < 1 || month > 12)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Month must be 1–12");
         return timeBlockService.getBlocksForMonth(email, year, month);
     }
 
