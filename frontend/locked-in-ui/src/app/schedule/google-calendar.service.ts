@@ -31,7 +31,8 @@ export class GoogleCalendarService {
   }
 
   getEvents(date: string): Observable<GCalEvent[]> {
-    return this.http.get<GCalEvent[]>(`${this.api}/events?date=${date}`)
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return this.http.get<GCalEvent[]>(`${this.api}/events?date=${date}&timezone=${encodeURIComponent(tz)}`)
       .pipe(catchError(() => of([])));
   }
 

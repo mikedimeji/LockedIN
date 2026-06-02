@@ -90,6 +90,15 @@ public class GoogleCalendarService {
         long   expiresAt    = System.currentTimeMillis() + expiresIn * 1000L;
 
         Long userId = userService.getUserIdByEmail(auth.email());
+
+        // Google only returns a refresh_token on first authorisation.
+        // If reconnecting, preserve the existing one rather than overwriting with null.
+        if (refreshToken == null) {
+            refreshToken = tokenDao.find(userId)
+                    .map(GoogleCalendarToken::refreshToken)
+                    .orElse(null);
+        }
+
         tokenDao.save(userId, accessToken, refreshToken, expiresAt);
         log.info("Google Calendar connected for user {}", auth.email());
         return auth.email();
@@ -110,7 +119,7 @@ public class GoogleCalendarService {
     // ── Fetch events ──────────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
-    public List<GoogleCalendarEventDTO> getEventsForDate(String email, LocalDate date) {
+    public List<GoogleCalendarEventDTO> getEventsForDate(String email, LocalDate date, ZoneId zone) {
         Long userId = userService.getUserIdByEmail(email);
         if (userId == null) return List.of();
 
@@ -121,8 +130,6 @@ public class GoogleCalendarService {
         if (token.expiresAt() < System.currentTimeMillis() + 60_000) {
             token = refreshToken(userId, token);
         }
-
-        ZoneId zone = ZoneId.systemDefault();
         String timeMin = date.atStartOfDay(zone).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         String timeMax = date.plusDays(1).atStartOfDay(zone).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 

@@ -44,7 +44,15 @@ const DURATIONS = [
 })
 export class ScheduleComponent implements OnInit {
   isPremium = false;
-  errorMsg  = '';
+  private _errorMsg = '';
+  private _errorTimer: any;
+
+  get errorMsg(): string { return this._errorMsg; }
+  set errorMsg(val: string) {
+    this._errorMsg = val;
+    clearTimeout(this._errorTimer);
+    if (val) this._errorTimer = setTimeout(() => { this._errorMsg = ''; }, 4000);
+  }
 
   // Calendar
   year  = new Date().getFullYear();
@@ -172,10 +180,12 @@ export class ScheduleComponent implements OnInit {
     }
     this.cells = arr;
 
-    // Load dots for current month
-    arr.filter(c => c.cur).forEach(c => {
-      this.svc.getBlocks(c.date).pipe(catchError(() => of([]))).subscribe(b => c.blocks = b);
-    });
+    // Load dots for the whole month in one request
+    this.svc.getMonthBlocks(this.year, this.month)
+      .pipe(catchError(() => of({} as { [date: string]: TimeBlock[] })))
+      .subscribe(map => {
+        arr.filter(c => c.cur).forEach(c => { c.blocks = map[c.date] ?? []; });
+      });
   }
 
   clickDay(cell: typeof this.cells[0]) {

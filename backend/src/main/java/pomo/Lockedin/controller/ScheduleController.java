@@ -13,6 +13,7 @@ import pomo.Lockedin.service.TimeBlockService;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/schedule")
@@ -22,6 +23,17 @@ public class ScheduleController {
     private final TimeBlockService timeBlockService;
     private final PremiumService premiumService;
     private final AchievementService achievementService;
+
+    private static final Set<String> VALID_TYPES = Set.of("DEEP_WORK", "BREAK", "SCHEDULE");
+
+    private void validateBlock(TimeBlockDTO block) {
+        if (block.getStartMinute() < 0 || block.getEndMinute() > 24 * 60)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Block time out of range (0–1440)");
+        if (block.getStartMinute() >= block.getEndMinute())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startMinute must be before endMinute");
+        if (block.getType() == null || !VALID_TYPES.contains(block.getType()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid block type");
+    }
 
     private String requirePremium() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -38,10 +50,19 @@ public class ScheduleController {
         return timeBlockService.getBlocksForDate(email, LocalDate.parse(date));
     }
 
+    @GetMapping("/month")
+    @ResponseStatus(HttpStatus.OK)
+    public java.util.Map<String, List<TimeBlockDTO>> getMonthBlocks(
+            @RequestParam int year, @RequestParam int month) {
+        String email = requirePremium();
+        return timeBlockService.getBlocksForMonth(email, year, month);
+    }
+
     @PostMapping("/block")
     @ResponseStatus(HttpStatus.CREATED)
     public TimeBlockDTO createBlock(@RequestBody TimeBlockDTO block) {
         String email = requirePremium();
+        validateBlock(block);
         TimeBlockDTO created = timeBlockService.createBlock(email, block);
         achievementService.checkScheduleBlockAchievements(email);
         return created;
@@ -51,6 +72,7 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.OK)
     public TimeBlockDTO updateBlock(@PathVariable Long id, @RequestBody TimeBlockDTO block) {
         String email = requirePremium();
+        validateBlock(block);
         block.setId(id);
         return timeBlockService.updateBlock(email, id, block)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -60,6 +82,7 @@ public class ScheduleController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBlock(@PathVariable Long id) {
         String email = requirePremium();
-        timeBlockService.deleteBlock(email, id);
+        boolean deleted = timeBlockService.deleteBlock(email, id);
+        if (!deleted) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Block not found");
     }
 }

@@ -6,8 +6,11 @@ import pomo.Lockedin.dao.TimeBlockDao;
 import pomo.Lockedin.dto.TimeBlockDTO;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +41,14 @@ public class TimeBlockService {
         Long userId = userService.getUserIdByEmail(email);
         if (userId == null) return false;
         return timeBlockDao.deleteBlock(userId, blockId);
+    }
+
+    public Map<String, List<TimeBlockDTO>> getBlocksForMonth(String email, int year, int month) {
+        Long userId = userService.getUserIdByEmail(email);
+        if (userId == null) return Map.of();
+        LocalDate from = YearMonth.of(year, month).atDay(1);
+        LocalDate to   = YearMonth.of(year, month).atEndOfMonth();
+        List<TimeBlockDTO> all = timeBlockDao.getBlocksForRange(userId, from, to);
+        return all.stream().collect(Collectors.groupingBy(b -> b.getDate().toString()));
     }
 }

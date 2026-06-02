@@ -22,6 +22,10 @@ export class ScheduleService {
     return this.http.get<TimeBlock[]>(`${this.api}/${date}`);
   }
 
+  getMonthBlocks(year: number, month: number): Observable<{ [date: string]: TimeBlock[] }> {
+    return this.http.get<{ [date: string]: TimeBlock[] }>(`${this.api}/month?year=${year}&month=${month + 1}`);
+  }
+
   createBlock(block: Omit<TimeBlock, 'id'>): Observable<TimeBlock> {
     return this.http.post<TimeBlock>(`${this.api}/block`, block);
   }

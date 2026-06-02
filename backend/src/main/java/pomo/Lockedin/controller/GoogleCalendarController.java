@@ -14,6 +14,9 @@ import pomo.Lockedin.service.GoogleCalendarService;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -60,8 +63,12 @@ public class GoogleCalendarController {
     }
 
     @GetMapping("/events")
-    public List<GoogleCalendarEventDTO> events(@RequestParam String date) {
-        return googleCalendarService.getEventsForDate(email(), LocalDate.parse(date));
+    public List<GoogleCalendarEventDTO> events(
+            @RequestParam String date,
+            @RequestParam(defaultValue = "UTC") String timezone) {
+        ZoneId zone;
+        try { zone = ZoneId.of(timezone); } catch (Exception e) { zone = ZoneId.of("UTC"); }
+        return googleCalendarService.getEventsForDate(email(), LocalDate.parse(date), zone);
     }
 
     @DeleteMapping("/disconnect")

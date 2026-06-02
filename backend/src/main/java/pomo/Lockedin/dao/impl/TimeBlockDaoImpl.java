@@ -45,6 +45,19 @@ public class TimeBlockDaoImpl implements TimeBlockDao {
     }
 
     @Override
+    public List<TimeBlockDTO> getBlocksForRange(Long userId, LocalDate from, LocalDate to) {
+        try {
+            String sql = "SELECT id, block_date, start_minute, end_minute, type, title " +
+                         "FROM time_blocks WHERE user_id = ? AND block_date BETWEEN ? AND ? ORDER BY block_date, start_minute";
+            return jdbcTemplate.query(sql, ROW_MAPPER, userId,
+                    java.sql.Date.valueOf(from), java.sql.Date.valueOf(to));
+        } catch (Exception e) {
+            log.error("Error fetching time blocks for range {}-{}: {}", from, to, e.getMessage());
+            return List.of();
+        }
+    }
+
+    @Override
     public TimeBlockDTO createBlock(Long userId, TimeBlockDTO block) {
         String sql = "INSERT INTO time_blocks (user_id, block_date, start_minute, end_minute, type, title) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
