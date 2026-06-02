@@ -75,9 +75,9 @@
   <!-- ── Expanded fullscreen (break) ── -->
   <ng-container *ngIf="isExpanded && isBreakMode">
     <div class="break-header">
-      <span class="break-type-label">{{ isLongBreak ? 'LONG BREAK' : 'SHORT BREAK' }}</span>
-      <span class="break-sep-dot">·</span>
-      <span class="break-next-label">SESSION {{ pomodoroSetPosition + 1 }} UP NEXT</span>
+      <span class="break-type-label">{{ isScheduleBreak ? 'BREAK' : isLongBreak ? 'LONG BREAK' : 'SHORT BREAK' }}</span>
+      <span class="break-sep-dot" *ngIf="!isScheduleBreak && !isInScheduleMode()">·</span>
+      <span class="break-next-label" *ngIf="!isScheduleBreak && !isInScheduleMode()">SESSION {{ pomodoroSetPosition + 1 }} UP NEXT</span>
     </div>
 
     <div class="time-display expanded-time break-time">

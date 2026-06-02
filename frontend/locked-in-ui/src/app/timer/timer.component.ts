@@ -514,31 +514,27 @@ export class TimerComponent implements OnInit, OnDestroy {
       // Mid-deep-work break: keep going with next pomodoro
       this.startTimer();
     } else if (!wasLongBreak) {
-      // Short break after a non-DW session (e.g. SCHEDULE block, or standalone pomodoro)
-      // If there are playlist items waiting, advance to them instead of restarting
-      if (this.hasPlaylistItems()) {
+      // Short break — if started from schedule, advance playlist (even if empty = day done)
+      // If standalone pomodoro with no schedule, restart the next session
+      if (this.isInScheduleMode()) {
         this.collapseTimer();
         this.checkDayPlaylist();
       } else {
         this.startTimer();
       }
     } else {
-      // Long break (4-pomodoro cycle complete) → check playlist, or just collapse
+      // Long break (4-pomodoro cycle complete) → collapse; advance playlist if in schedule mode
       this.collapseTimer();
-      if (this.hasPlaylistItems()) {
+      if (this.isInScheduleMode()) {
         this.checkDayPlaylist();
       }
     }
   }
 
-  private hasPlaylistItems(): boolean {
+  /** Returns true if the session was started from the schedule (key exists, even if empty). */
+  isInScheduleMode(): boolean {
     if (!isPlatformBrowser(this.platformId)) return false;
-    try {
-      const raw = sessionStorage.getItem('lockedin_day_playlist');
-      if (!raw) return false;
-      const playlist = JSON.parse(raw);
-      return Array.isArray(playlist) && playlist.length > 0;
-    } catch { return false; }
+    return sessionStorage.getItem('lockedin_day_playlist') !== null;
   }
 
   private collapseTimer(): void {
