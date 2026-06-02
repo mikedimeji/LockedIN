@@ -260,15 +260,30 @@ export class ScheduleComponent implements OnInit {
   }
 
   startDay() {
-    const sorted = [...this.dayBlocks].sort((a, b) => a.startMinute - b.startMinute);
-    if (!sorted.length) {
-      this.errorMsg = 'No blocks scheduled yet. Add some blocks to start your day.';
-      return;
-    }
     const now = new Date();
     const currentMin = this.dayDate === this.fmt(now) ? now.getHours() * 60 + now.getMinutes() : 0;
-    const idx = sorted.findIndex(b => b.endMinute > currentMin);
-    const playlist = sorted.slice(idx >= 0 ? idx : 0);
+
+    // Merge user blocks + non-allDay GCal events into one playlist
+    const gcalAsBlocks: TimeBlock[] = this.gcalEvents
+      .filter(e => !e.allDay)
+      .map(e => ({ date: this.dayDate, startMinute: e.startMinute, endMinute: e.endMinute, type: 'SCHEDULE' as const, title: e.title }));
+
+    const combined = [...this.dayBlocks, ...gcalAsBlocks]
+      .sort((a, b) => a.startMinute - b.startMinute);
+
+    if (!combined.length) {
+      this.errorMsg = 'No blocks scheduled. Add blocks or sync Google Calendar first.';
+      return;
+    }
+
+    const idx = combined.findIndex(b => b.endMinute > currentMin);
+    const playlist = combined.slice(idx >= 0 ? idx : 0);
+
+    if (!playlist.length) {
+      this.errorMsg = 'All blocks for today have already passed.';
+      return;
+    }
+
     sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(playlist.slice(1)));
     const first = playlist[0];
     this.showDay = false;
@@ -277,6 +292,40 @@ export class ScheduleComponent implements OnInit {
     } else {
       this.router.navigate(['/timer'], { queryParams: { duration: first.endMinute - first.startMinute } });
     }
+  }
+
+  launchBlock(block: TimeBlock, e: MouseEvent) {
+    e.stopPropagation();
+    this.showDay = false;
+    if (block.type === 'DEEP_WORK') {
+      this.openDW(block, e);
+      this.showDay = true; // keep modal open behind DW modal
+    } else {
+      this.router.navigate(['/timer'], { queryParams: { duration: block.endMinute - block.startMinute } });
+    }
+  }
+
+  launchGCalBlock(evt: GCalEvent, e: MouseEvent) {
+    e.stopPropagation();
+    this.showDay = false;
+    this.router.navigate(['/timer'], { queryParams: { duration: evt.endMinute - evt.startMinute } });
+  }
+
+  cycleBlockType(block: TimeBlock, e: MouseEvent) {
+    e.stopPropagation();
+    if (!block.id) return;
+    const order: TimeBlock['type'][] = ['DEEP_WORK', 'BREAK', 'SCHEDULE'];
+    const nextType = order[(order.indexOf(block.type) + 1) % order.length];
+    const updated = { ...block, type: nextType };
+    this.svc.updateBlock(block.id, updated)
+      .pipe(catchError(() => of(null)))
+      .subscribe(saved => {
+        if (saved) {
+          this.dayBlocks = this.dayBlocks.map(b => b.id === block.id ? saved : b);
+          const cell = this.cells.find(c => c.date === this.dayDate);
+          if (cell) cell.blocks = cell.blocks.map(b => b.id === block.id ? saved : b);
+        }
+      });
   }
 
   deleteBlock(block: TimeBlock, e: MouseEvent) {

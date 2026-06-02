@@ -351,7 +351,10 @@
   border: 1px solid transparent;
   gap: 8px;
   overflow: hidden;
+  cursor: pointer;
+  transition: filter 0.15s ease;
 }
+.block-chip:hover { filter: brightness(1.15); }
 .chip-deep_work {
   background: rgba(82, 113, 255, 0.13);
   border-color: rgba(82, 113, 255, 0.28);
@@ -378,7 +381,7 @@
   border: 1px solid rgba(66, 133, 244, 0.38);
 }
 
-/* type badge */
+/* type badge — tappable to cycle type */
 .chip-badge {
   font-family: 'Courier New', monospace;
   font-size: 7px;
@@ -387,7 +390,10 @@
   padding: 3px 6px;
   border-radius: 5px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
+.chip-badge:hover { opacity: 0.7; }
 .chip-deep_work .chip-badge {
   background: rgba(82, 113, 255, 0.22);
   color: #a0b4ff;
@@ -422,18 +428,6 @@
   color: rgba(255, 255, 255, 0.28);
   white-space: nowrap;
 }
-.chip-dw {
-  background: rgba(82, 113, 255, 0.1);
-  border: 1px solid rgba(82, 113, 255, 0.35);
-  border-radius: 6px;
-  color: rgba(130, 160, 255, 0.8);
-  font-size: 9px;
-  padding: 3px 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-}
-.chip-dw:hover { background: rgba(82, 113, 255, 0.22); color: #a0b4ff; border-color: rgba(82,113,255,0.6); }
 
 .chip-del {
   background: none;
