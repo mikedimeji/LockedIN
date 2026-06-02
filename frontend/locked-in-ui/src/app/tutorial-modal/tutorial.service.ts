@@ -165,20 +165,17 @@ export class TutorialService {
       profile: [
         {
           title: 'Your Profile',
-          description: 'Customize your profile with different avatars and track your overall progress.',
-          image: 'assets/tutorial/profile-overview.png'
+          description: 'Customize your profile with different avatars and track your overall progress.'
         },
         {
           title: 'Unlock Avatars',
-          description: 'Use gold coins to unlock new profile pictures and express yourself!',
-          image: 'assets/tutorial/profile-avatars.png'
+          description: 'Use gold coins to unlock new profile pictures and express yourself!'
         }
       ],
       settings: [
         {
           title: 'App Settings',
-          description: 'Customize your experience with various settings and preferences.',
-          image: 'assets/tutorial/settings-overview.png'
+          description: 'Customize your experience with various settings and preferences.'
         }
       ],
       schedule: [
@@ -203,13 +200,11 @@ export class TutorialService {
         },
         {
           title: 'Starting Your Day',
-          description: 'Tap ▶ START DAY to run through your blocks in order. The app works out how much time is left in the current block and adjusts the timer automatically. Confirm each block before it starts.',
-          image: 'assets/images/tutorial/caltut.png'
+          description: 'Tap ▶ START DAY to run through your blocks in order. The app works out how much time is left in the current block and adjusts the timer automatically. Confirm each block before it starts.'
         },
         {
           title: 'Launching Individual Blocks',
-          description: 'Tap the ▶ button on any block to start just that one. Future blocks (not yet started) are locked — you can only launch a block once its start time has passed.',
-          image: 'assets/images/tutorial/caltut2.png'
+          description: 'Tap the ▶ button on any block to start just that one. Future blocks (not yet started) are locked — you can only launch a block once its start time has passed.'
         },
         {
           title: 'Sync Google Calendar',
