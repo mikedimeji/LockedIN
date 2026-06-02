@@ -578,6 +578,7 @@
 }
 
 /* ── Start-day confirmation modal ── */
+.confirm-overlay { z-index: 2100; } /* above day modal (2000) and DW modal */
 .confirm-modal {
   width: min(380px, 100%);
   padding-bottom: 4px;

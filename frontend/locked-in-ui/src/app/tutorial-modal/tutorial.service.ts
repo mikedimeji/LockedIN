@@ -177,17 +177,31 @@ export class TutorialService {
       schedule: [
         {
           title: 'Your Day, Mapped Out',
-          description: 'Click any day on the calendar to open it. Add deep work blocks, breaks, and schedule slots to plan your day in detail.',
+          description: 'Click any day on the calendar to open it. Inside you\'ll see a time grid from 5am to midnight. This is where you plan your day using blocks.',
           image: 'assets/images/tutorial/caltut.png'
         },
         {
-          title: 'Time Blocking',
-          description: 'Tap + on any time slot, name your block, choose a duration and type. Deep work blocks launch directly into the Pomodoro timer.',
+          title: 'Adding a Block',
+          description: 'Tap the + on any time slot to open the block creator. Give it a name, pick a duration (30m to 4h), then choose the type: Deep Work, Break, or Schedule.',
+          image: 'assets/images/tutorial/caltut2.png'
+        },
+        {
+          title: 'Block Types',
+          description: 'DW (blue) = Deep Work: launches Pomodoro sessions and earns gold.\nBR (green) = Break: starts a rest timer, no gold.\nSC (yellow) = Schedule: lecture, meeting or appointment — earns gold based on time.\nTap any block to cycle its type.'
+        },
+        {
+          title: 'Starting Your Day',
+          description: 'Tap ▶ START DAY to run through your blocks in order. The app works out how much time is left in the current block and adjusts the timer automatically. Confirm each block before it starts.',
+          image: 'assets/images/tutorial/caltut.png'
+        },
+        {
+          title: 'Launching Individual Blocks',
+          description: 'Tap the ▶ button on any block to start just that one. Future blocks (not yet started) are locked — you can only launch a block once its start time has passed.',
           image: 'assets/images/tutorial/caltut2.png'
         },
         {
           title: 'Sync Google Calendar',
-          description: 'Hit CONNECT on the calendar page to link Google Calendar. Your existing events appear automatically in the time grid so you can plan around them.',
+          description: 'Hit CONNECT to link Google Calendar. Your events appear in the grid automatically. Tap a GCal event to assign it a type (DW / BR / SC) so it works correctly with the timer.',
           image: 'assets/images/tutorial/caltut-fin.png'
         }
       ]

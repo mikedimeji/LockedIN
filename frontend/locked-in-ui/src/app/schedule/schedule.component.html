@@ -54,31 +54,6 @@
 
 </div>
 
-<!-- ── Start Day confirmation ── -->
-<div class="overlay" *ngIf="showStartConfirm" (click)="showStartConfirm = false">
-  <div class="day-modal confirm-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <span class="modal-title">STARTING</span>
-      <button class="close-btn" (click)="showStartConfirm = false">✕</button>
-    </div>
-    <div class="confirm-block-name">{{ confirmBlock?.title }}</div>
-    <div class="confirm-block-type">{{ confirmBlock?.type === 'DEEP_WORK' ? 'Deep Work' : confirmBlock?.type === 'BREAK' ? 'Break' : 'Schedule' }}</div>
-    <div class="confirm-time-row">
-      <span class="confirm-time-label">{{ disp(confirmBlock?.startMinute ?? 0) }} – {{ disp(confirmBlock?.endMinute ?? 0) }}</span>
-      <span class="confirm-remaining" *ngIf="confirmRemainingMins !== confirmTotalMins">
-        {{ confirmRemainingMins }}m left (started {{ confirmTotalMins - confirmRemainingMins }}m ago)
-      </span>
-      <span class="confirm-remaining" *ngIf="confirmRemainingMins === confirmTotalMins">
-        {{ confirmTotalMins }}m
-      </span>
-    </div>
-    <div class="confirm-actions">
-      <button class="dw-cancel" (click)="showStartConfirm = false">NOT YET</button>
-      <button class="dw-start"  (click)="executeStartDay()">LET'S GO →</button>
-    </div>
-  </div>
-</div>
-
 <!-- ── Day modal ── -->
 <div class="overlay" *ngIf="showDay" (click)="showDay = false">
   <div class="day-modal" (click)="$event.stopPropagation()">
@@ -220,5 +195,30 @@
       <button class="dw-start"  (click)="launchDW()">START →</button>
     </div>
 
+  </div>
+</div>
+
+<!-- ── Start Day confirmation (must be last — sits on top of all other overlays) ── -->
+<div class="overlay confirm-overlay" *ngIf="showStartConfirm" (click)="showStartConfirm = false">
+  <div class="day-modal confirm-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">STARTING</span>
+      <button class="close-btn" (click)="showStartConfirm = false">✕</button>
+    </div>
+    <div class="confirm-block-name">{{ confirmBlock?.title }}</div>
+    <div class="confirm-block-type">{{ confirmBlock?.type === 'DEEP_WORK' ? 'Deep Work' : confirmBlock?.type === 'BREAK' ? 'Break' : 'Schedule' }}</div>
+    <div class="confirm-time-row">
+      <span class="confirm-time-label">{{ disp(confirmBlock?.startMinute ?? 0) }} – {{ disp(confirmBlock?.endMinute ?? 0) }}</span>
+      <span class="confirm-remaining" *ngIf="confirmRemainingMins !== confirmTotalMins">
+        {{ confirmRemainingMins }}m left (started {{ confirmTotalMins - confirmRemainingMins }}m ago)
+      </span>
+      <span class="confirm-remaining" *ngIf="confirmRemainingMins === confirmTotalMins">
+        {{ confirmTotalMins }}m
+      </span>
+    </div>
+    <div class="dw-actions">
+      <button class="dw-cancel" (click)="showStartConfirm = false">NOT YET</button>
+      <button class="dw-start"  (click)="executeStartDay()">LET'S GO →</button>
+    </div>
   </div>
 </div>
