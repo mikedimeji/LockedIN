@@ -4,10 +4,12 @@ import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
+import com.stripe.model.Invoice;
 import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,9 +44,12 @@ public class SubscriptionService {
     @Value("${app.frontend-url}")
     private String frontendUrl;
 
-    public String createCheckoutSession(String email, Long userId, String plan) throws StripeException {
+    @PostConstruct
+    private void init() {
         Stripe.apiKey = stripeSecretKey;
+    }
 
+    public String createCheckoutSession(String email, Long userId, String plan) throws StripeException {
         String priceId = "annual".equals(plan) ? priceAnnual : priceMonthly;
 
         Session session = Session.create(
@@ -67,7 +72,6 @@ public class SubscriptionService {
     }
 
     public void handleWebhook(String payload, String sigHeader) {
-        Stripe.apiKey = stripeSecretKey;
         Event event;
 
         try {
@@ -96,8 +100,14 @@ public class SubscriptionService {
                 if (sub != null) cancelSubscription(sub.getCustomer());
             }
             case "invoice.payment_failed" -> {
-                // Mark as past_due — access remains until period end
-                log.info("Payment failed for customer, marking past_due");
+                Invoice invoice = (Invoice) event.getDataObjectDeserializer()
+                        .getObject().orElse(null);
+                if (invoice != null) {
+                    jdbcTemplate.update(
+                        "UPDATE user_subscriptions SET status = 'past_due' WHERE stripe_customer_id = ?",
+                        invoice.getCustomer());
+                    log.info("Payment failed for customer {}, marked past_due", invoice.getCustomer());
+                }
             }
             default -> log.debug("Unhandled Stripe event: {}", event.getType());
         }
@@ -114,7 +124,6 @@ public class SubscriptionService {
 
         LocalDateTime periodEnd = null;
         try {
-            Stripe.apiKey = stripeSecretKey;
             Subscription sub = Subscription.retrieve(subscriptionId);
             periodEnd = toLocalDateTime(sub.getCurrentPeriodEnd());
         } catch (StripeException e) {
@@ -146,6 +155,29 @@ public class SubscriptionService {
         String sql = "UPDATE user_subscriptions SET status = 'cancelled' WHERE stripe_customer_id = ?";
         jdbcTemplate.update(sql, customerId);
         log.info("Subscription cancelled for customer {}", customerId);
+    }
+
+    public String getCustomerId(Long userId) {
+        try {
+            return jdbcTemplate.queryForObject(
+                "SELECT stripe_customer_id FROM user_subscriptions WHERE user_id = ?",
+                String.class, userId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String createPortalSession(Long userId) throws StripeException {
+        String customerId = getCustomerId(userId);
+        if (customerId == null) throw new RuntimeException("No subscription found for user");
+
+        com.stripe.param.billingportal.SessionCreateParams params =
+            com.stripe.param.billingportal.SessionCreateParams.builder()
+                .setCustomer(customerId)
+                .setReturnUrl(frontendUrl + "/stats")
+                .build();
+
+        return com.stripe.model.billingportal.Session.create(params).getUrl();
     }
 
     public boolean isSubscriptionActive(Long userId) {

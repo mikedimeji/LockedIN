@@ -409,6 +409,13 @@ toggleNavVisibility(): void {
     });
   }
 
+  manageSubscription(): void {
+    this.premiumService.openPortal().subscribe({
+      next: ({ url }) => { window.location.href = url; },
+      error: () => {}
+    });
+  }
+
   
   // In your component class...
 ngAfterViewInit() {

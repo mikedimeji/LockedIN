@@ -145,6 +145,7 @@
         </div>
       </div>
       <p class="pm-hint">Switching upgrades your billing cycle · Secure via Stripe</p>
+      <button class="pm-manage-btn" (click)="manageSubscription()">Manage Subscription →</button>
     </ng-container>
 
     <!-- Annual or admin: already on best plan -->
@@ -160,6 +161,7 @@
           <li><span class="pm-diamond">◆</span> No ads — active</li>
         </ul>
       </div>
+      <button class="pm-manage-btn" *ngIf="premiumPlan" (click)="manageSubscription()">Manage Subscription →</button>
     </ng-container>
   </div>
 </div>

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StatsService } from './stats.service';
 import { PremiumService, PremiumModalService, PremiumStatus, FocusInsights } from '../premium.service';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
@@ -79,6 +80,9 @@ export class StatsComponent implements OnInit, OnDestroy {
   weeklyGoalProgress  = 0;
   last14DaysList: { date: string; active: boolean }[] = [];
 
+  subPaymentStatus: 'success' | 'cancelled' | 'processing' | null = null;
+  private pollInterval: any = null;
+
   private trendChart:    Chart | null = null;
   private activityChart: Chart | null = null;
   private streakChart:   Chart | null = null;
@@ -98,7 +102,9 @@ export class StatsComponent implements OnInit, OnDestroy {
     private statsService: StatsService,
     private premiumService: PremiumService,
     private premiumModal: PremiumModalService,
-    private tutorialService: TutorialService
+    private tutorialService: TutorialService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   openUpgrade(): void { this.premiumModal.open(); }
@@ -108,10 +114,43 @@ export class StatsComponent implements OnInit, OnDestroy {
       this.tutorialSteps = this.tutorialService.getTutorialSteps('stats');
       this.showTutorial = true;
     }
+
+    this.route.queryParams.subscribe(params => {
+      if (params['sub'] === 'success') {
+        this.subPaymentStatus = 'processing';
+        this.router.navigate([], { replaceUrl: true, queryParams: {} });
+        this.pollForPremium();
+      } else if (params['sub'] === 'cancel') {
+        this.subPaymentStatus = 'cancelled';
+        this.router.navigate([], { replaceUrl: true, queryParams: {} });
+        setTimeout(() => { this.subPaymentStatus = null; }, 5000);
+      }
+    });
+
     this.loadAll();
   }
 
+  private pollForPremium(): void {
+    let attempts = 0;
+    this.pollInterval = setInterval(() => {
+      this.premiumService.getStatus().subscribe(s => {
+        attempts++;
+        if (s.isPremium) {
+          clearInterval(this.pollInterval);
+          this.premium = s;
+          this.subPaymentStatus = 'success';
+          setTimeout(() => { this.subPaymentStatus = null; }, 5000);
+        } else if (attempts >= 12) {
+          clearInterval(this.pollInterval);
+          this.subPaymentStatus = 'success'; // show success anyway, webhook may still be processing
+          setTimeout(() => { this.subPaymentStatus = null; }, 8000);
+        }
+      });
+    }, 1500);
+  }
+
   ngOnDestroy(): void {
+    clearInterval(this.pollInterval);
     this.trendChart?.destroy();
     this.activityChart?.destroy();
     this.streakChart?.destroy();

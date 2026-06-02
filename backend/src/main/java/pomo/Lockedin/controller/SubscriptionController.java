@@ -55,6 +55,23 @@ public class SubscriptionController {
         }
     }
 
+    @PostMapping("/portal")
+    public ResponseEntity<Map<String, String>> customerPortal() {
+        User user = currentUser();
+        Long userId = userService.getUserIdByEmail(user.getEmail());
+        try {
+            String url = subscriptionService.createPortalSession(userId);
+            return ResponseEntity.ok(Map.of("url", url));
+        } catch (StripeException e) {
+            log.error("Stripe portal error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Could not open billing portal"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/status")
     public PremiumStatusDTO getStatus() {
         return premiumService.getStatus(currentUser().getEmail());

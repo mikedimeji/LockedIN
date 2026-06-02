@@ -6,6 +6,15 @@
   (onSkip)="onTutorialSkip()">
 </app-tutorial-modal>
 
+<!-- Payment status banner -->
+<div *ngIf="subPaymentStatus" class="sub-banner" [ngClass]="'sub-banner-' + subPaymentStatus">
+  <ng-container [ngSwitch]="subPaymentStatus">
+    <span *ngSwitchCase="'processing'">⏳ Confirming your subscription…</span>
+    <span *ngSwitchCase="'success'">✓ Premium activated — welcome aboard!</span>
+    <span *ngSwitchCase="'cancelled'">Payment cancelled. Your plan hasn't changed.</span>
+  </ng-container>
+</div>
+
 <div class="stats-container">
 
   <!-- Loading -->

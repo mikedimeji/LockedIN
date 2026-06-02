@@ -1,3 +1,39 @@
+/* ── Payment status banner ── */
+.sub-banner {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  backdrop-filter: blur(10px);
+  border: 1px solid transparent;
+  animation: sub-banner-in 0.3s ease;
+}
+.sub-banner-processing {
+  background: rgba(82, 113, 255, 0.15);
+  border-color: rgba(82, 113, 255, 0.3);
+  color: rgba(130, 160, 255, 0.9);
+}
+.sub-banner-success {
+  background: rgba(72, 199, 142, 0.15);
+  border-color: rgba(72, 199, 142, 0.3);
+  color: rgba(72, 199, 142, 0.95);
+}
+.sub-banner-cancelled {
+  background: rgba(255, 80, 80, 0.1);
+  border-color: rgba(255, 80, 80, 0.25);
+  color: rgba(255, 120, 120, 0.85);
+}
+@keyframes sub-banner-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* ── Host element: push content to top of hero, clear fixed nav at bottom ── */
 :host {
   display: block;

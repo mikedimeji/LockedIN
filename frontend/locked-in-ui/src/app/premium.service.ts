@@ -34,6 +34,10 @@ export class PremiumService {
   createCheckout(plan: 'monthly' | 'annual'): Observable<{ checkoutUrl: string }> {
     return this.http.post<{ checkoutUrl: string }>(`${this.base}/checkout`, { plan });
   }
+
+  openPortal(): Observable<{ url: string }> {
+    return this.http.post<{ url: string }>(`${this.base}/portal`, {});
+  }
 }
 
 @Injectable({ providedIn: 'root' })

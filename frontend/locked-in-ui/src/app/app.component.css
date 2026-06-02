@@ -1376,6 +1376,26 @@ body.timer-fullscreen-active .hero {
   margin: 0;
 }
 
+.pm-manage-btn {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 0;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.pm-manage-btn:hover {
+  border-color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.65);
+}
+
 /* ── Premium: best-plan confirmation ── */
 .pm-best-message {
   text-align: center;
