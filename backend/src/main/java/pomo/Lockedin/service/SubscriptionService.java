@@ -238,6 +238,6 @@ public class SubscriptionService {
 
     private LocalDateTime toLocalDateTime(Long epochSeconds) {
         if (epochSeconds == null) return null;
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.of("UTC"));
     }
 }

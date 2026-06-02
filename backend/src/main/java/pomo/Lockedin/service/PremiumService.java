@@ -42,8 +42,11 @@ public class PremiumService {
         if (userId == null) {
             return PremiumStatusDTO.builder().isPremium(false).build();
         }
-        String subStatus = subscriptionService.getSubscriptionStatus(userId);
-        boolean active = "active".equals(subStatus) || "past_due".equals(subStatus);
+        // Use isSubscriptionActive so the current_period_end check applies here too
+        boolean active = subscriptionService.isSubscriptionActive(userId);
+        String subStatus = active
+                ? subscriptionService.getSubscriptionStatus(userId)
+                : "inactive";
         String plan = active ? subscriptionService.getSubscriptionPlan(userId) : null;
         return PremiumStatusDTO.builder()
                 .isPremium(active)
