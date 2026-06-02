@@ -351,7 +351,9 @@
   border: 1px solid transparent;
   gap: 6px;
   overflow: hidden;
+  cursor: pointer;
 }
+.block-chip:active { filter: brightness(1.1); }
 .chip-deep_work {
   background: rgba(82, 113, 255, 0.13);
   border-color: rgba(82, 113, 255, 0.28);
@@ -378,7 +380,7 @@
   border: 1px solid rgba(66, 133, 244, 0.38);
 }
 
-/* type badge button — tap to cycle type */
+/* type badge — display only, chip div handles click */
 .chip-badge {
   font-family: 'Courier New', monospace;
   font-size: 7px;
@@ -387,12 +389,9 @@
   padding: 4px 7px;
   border-radius: 5px;
   flex-shrink: 0;
-  cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.15s ease;
-  background: none;
+  pointer-events: none;
   line-height: 1;
 }
-.chip-badge:hover { opacity: 0.75; transform: scale(0.94); }
 .chip-deep_work .chip-badge {
   background: rgba(82, 113, 255, 0.22);
   color: #a0b4ff;
@@ -576,6 +575,47 @@
 /* ── Deep work modal extras ── */
 .dw-modal {
   width: min(380px, 100%);
+}
+
+/* ── Start-day confirmation modal ── */
+.confirm-modal {
+  width: min(380px, 100%);
+  padding-bottom: 4px;
+}
+.confirm-block-name {
+  font-family: bitF1, sans-serif;
+  font-size: 18px;
+  letter-spacing: 2.5px;
+  color: rgba(255, 255, 255, 0.92);
+  padding: 20px 20px 4px;
+}
+.confirm-block-type {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: rgba(82, 113, 255, 0.6);
+  padding: 0 20px 14px;
+  text-transform: uppercase;
+}
+.confirm-time-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 0 20px 20px;
+  border-bottom: 1px solid rgba(82, 113, 255, 0.08);
+  flex-wrap: wrap;
+}
+.confirm-time-label {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.confirm-remaining {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(130, 200, 130, 0.7);
 }
 
 .dw-time {

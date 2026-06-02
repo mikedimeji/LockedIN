@@ -140,11 +140,11 @@
     <div class="next-block-card">
       <div class="nb-label">UP NEXT</div>
       <div class="nb-title">{{ nextDayBlock.title }}</div>
-      <div class="nb-dur">{{ nextDayBlock.endMinute - nextDayBlock.startMinute }}m block</div>
-      <div class="nb-countdown">auto-starting in {{ nextDayCountdown }}s</div>
+      <div class="nb-type">{{ nextDayBlock.type === 'DEEP_WORK' ? 'Deep Work' : nextDayBlock.type === 'BREAK' ? 'Break' : 'Schedule' }} · {{ nextDayBlock.endMinute - nextDayBlock.startMinute }}m</div>
+      <div class="nb-ready">Ready to start?</div>
       <div class="nb-actions">
         <button class="nb-skip" (click)="skipNextDayBlock()">SKIP</button>
-        <button class="nb-start" (click)="launchNextDayBlock()">START NOW →</button>
+        <button class="nb-start" (click)="launchNextDayBlock()">START →</button>
       </div>
     </div>
   </div>

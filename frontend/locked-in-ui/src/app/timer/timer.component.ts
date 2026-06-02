@@ -417,11 +417,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       const [next, ...rest] = playlist;
       sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(rest));
       this.nextDayBlock = next;
-      this.nextDayCountdown = 8;
-      this.nextDayTimerId = setInterval(() => {
-        this.nextDayCountdown--;
-        if (this.nextDayCountdown <= 0) { clearInterval(this.nextDayTimerId); this.launchNextDayBlock(); }
-      }, 1000);
+      this.nextDayCountdown = 0; // no auto-advance — user must confirm
     } catch { sessionStorage.removeItem('lockedin_day_playlist'); }
   }
 

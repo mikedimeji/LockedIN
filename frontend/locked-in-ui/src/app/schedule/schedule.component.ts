@@ -64,6 +64,13 @@ export class ScheduleComponent implements OnInit {
   loadingDay      = false;
   nowMinute       = 0;
 
+  // Start-day confirmation
+  showStartConfirm      = false;
+  confirmBlock: TimeBlock | null = null;
+  confirmRemainingMins  = 0;
+  confirmTotalMins      = 0;
+  private pendingPlaylist: TimeBlock[] = [];
+
   readonly SLOT_HEIGHT    = 52;
   readonly FIRST_SLOT_MIN = 5 * 60;
 
@@ -284,13 +291,35 @@ export class ScheduleComponent implements OnInit {
       return;
     }
 
-    sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(playlist.slice(1)));
     const first = playlist[0];
+    const totalMins = first.endMinute - first.startMinute;
+    const isToday = this.dayDate === this.fmt(now);
+    const remainingMins = (isToday && first.startMinute < currentMin)
+      ? Math.max(first.endMinute - currentMin, 5)
+      : totalMins;
+
+    this.confirmBlock         = first;
+    this.confirmTotalMins     = totalMins;
+    this.confirmRemainingMins = remainingMins;
+    this.pendingPlaylist      = playlist;
+    this.showStartConfirm     = true;
+  }
+
+  executeStartDay() {
+    this.showStartConfirm = false;
+    const first = this.confirmBlock!;
+    const duration = this.confirmRemainingMins;
+
+    sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(this.pendingPlaylist.slice(1)));
     this.showDay = false;
+
     if (first.type === 'DEEP_WORK') {
-      this.openDW(first, new MouseEvent('click'));
+      const adjusted: TimeBlock = { ...first, startMinute: first.endMinute - duration };
+      this.openDW(adjusted, new MouseEvent('click'));
+    } else if (first.type === 'BREAK') {
+      this.router.navigate(['/timer'], { queryParams: { break: 'true', duration } });
     } else {
-      this.router.navigate(['/timer'], { queryParams: { duration: first.endMinute - first.startMinute } });
+      this.router.navigate(['/timer'], { queryParams: { duration } });
     }
   }
 

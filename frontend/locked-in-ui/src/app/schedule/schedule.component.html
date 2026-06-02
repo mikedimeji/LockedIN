@@ -54,6 +54,31 @@
 
 </div>
 
+<!-- ── Start Day confirmation ── -->
+<div class="overlay" *ngIf="showStartConfirm" (click)="showStartConfirm = false">
+  <div class="day-modal confirm-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">STARTING</span>
+      <button class="close-btn" (click)="showStartConfirm = false">✕</button>
+    </div>
+    <div class="confirm-block-name">{{ confirmBlock?.title }}</div>
+    <div class="confirm-block-type">{{ confirmBlock?.type === 'DEEP_WORK' ? 'Deep Work' : confirmBlock?.type === 'BREAK' ? 'Break' : 'Schedule' }}</div>
+    <div class="confirm-time-row">
+      <span class="confirm-time-label">{{ disp(confirmBlock?.startMinute ?? 0) }} – {{ disp(confirmBlock?.endMinute ?? 0) }}</span>
+      <span class="confirm-remaining" *ngIf="confirmRemainingMins !== confirmTotalMins">
+        {{ confirmRemainingMins }}m left (started {{ confirmTotalMins - confirmRemainingMins }}m ago)
+      </span>
+      <span class="confirm-remaining" *ngIf="confirmRemainingMins === confirmTotalMins">
+        {{ confirmTotalMins }}m
+      </span>
+    </div>
+    <div class="confirm-actions">
+      <button class="dw-cancel" (click)="showStartConfirm = false">NOT YET</button>
+      <button class="dw-start"  (click)="executeStartDay()">LET'S GO →</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Day modal ── -->
 <div class="overlay" *ngIf="showDay" (click)="showDay = false">
   <div class="day-modal" (click)="$event.stopPropagation()">
@@ -105,10 +130,11 @@
           <!-- Blocks starting at this slot (absolute, span by height) -->
           <div *ngFor="let b of blocksAt(s.minute)"
                class="block-chip" [ngClass]="'chip-' + b.type.toLowerCase()"
-               [style.height.px]="blockHeight(b)">
-            <button class="chip-badge" (click)="cycleBlockType(b, $event)" title="Tap to change type">
+               [style.height.px]="blockHeight(b)"
+               (click)="cycleBlockType(b, $event)">
+            <span class="chip-badge">
               {{ b.type === 'DEEP_WORK' ? 'DW' : b.type === 'BREAK' ? 'BR' : 'SC' }}
-            </button>
+            </span>
             <div class="chip-body">
               <span class="chip-title">{{ b.title }}</span>
               <span class="chip-time">{{ disp(b.startMinute) }}–{{ disp(b.endMinute) }}</span>
