@@ -93,27 +93,27 @@
           <!-- GCal events at this slot -->
           <div *ngFor="let e of gcalEventsAt(s.minute)"
                class="block-chip chip-gcal"
-               [style.height.px]="gcalBlockHeight(e)"
-               (click)="launchGCalBlock(e, $event)">
+               [style.height.px]="gcalBlockHeight(e)">
             <span class="chip-badge">GC</span>
             <div class="chip-body">
               <span class="chip-title">{{ e.title }}</span>
               <span class="chip-time">{{ disp(e.startMinute) }}–{{ disp(e.endMinute) }}</span>
             </div>
+            <button class="chip-launch" (click)="launchGCalBlock(e, $event)">▶</button>
           </div>
 
           <!-- Blocks starting at this slot (absolute, span by height) -->
           <div *ngFor="let b of blocksAt(s.minute)"
                class="block-chip" [ngClass]="'chip-' + b.type.toLowerCase()"
-               [style.height.px]="blockHeight(b)"
-               (click)="launchBlock(b, $event)">
-            <span class="chip-badge" (click)="cycleBlockType(b, $event)" title="Tap to change type">
+               [style.height.px]="blockHeight(b)">
+            <button class="chip-badge" (click)="cycleBlockType(b, $event)" title="Tap to change type">
               {{ b.type === 'DEEP_WORK' ? 'DW' : b.type === 'BREAK' ? 'BR' : 'SC' }}
-            </span>
+            </button>
             <div class="chip-body">
               <span class="chip-title">{{ b.title }}</span>
               <span class="chip-time">{{ disp(b.startMinute) }}–{{ disp(b.endMinute) }}</span>
             </div>
+            <button class="chip-launch" (click)="launchBlock(b, $event)">▶</button>
             <button class="chip-del" (click)="deleteBlock(b, $event)">✕</button>
           </div>
 

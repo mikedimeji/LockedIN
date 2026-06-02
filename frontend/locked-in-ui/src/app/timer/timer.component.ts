@@ -41,6 +41,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   // Break state
   isBreakMode: boolean = false;
   isLongBreak: boolean = false;
+  isScheduleBreak: boolean = false; // break launched from schedule block (not pomodoro cycle)
   breakMinutes: number = 0;
   breakSeconds: number = 0;
   pomodoroSetPosition: number = 0; // 0–3; increments after each session, resets after long break
@@ -139,8 +140,14 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     // Handle route parameters
     const routeSub = this.route.queryParams.subscribe(params => {
+      if (params['break'] === 'true') {
+        const duration = parseInt(params['duration'] ?? '5', 10);
+        this.isScheduleBreak = true;
+        this.startBreak(duration);
+      }
+
       const duration = params['duration'];
-      if (duration) {
+      if (duration && params['break'] !== 'true') {
         this.setDuration(+duration);
         this.startTimer();
       }
@@ -432,6 +439,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.selectedPresetIndex = 0;
       this.setDuration(this.presets[0].minutes);
       this.startTimer();
+    } else if (block.type === 'BREAK') {
+      this.isScheduleBreak = true;
+      this.startBreak(block.endMinute - block.startMinute);
     } else {
       this.setDuration(block.endMinute - block.startMinute);
       this.startTimer();
@@ -492,6 +502,20 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.streakUpdated = false;
     this.completedPomodoros = 0;
     this.pausedMidPomodoro = false;
+
+    // Schedule break: collapse and advance the day playlist, don't restart pomodoro cycle
+    if (this.isScheduleBreak) {
+      this.isScheduleBreak = false;
+      this.isExpanded = false;
+      document.body.classList.remove('timer-running');
+      this.releaseWakeLock();
+      if (isPlatformBrowser(this.platformId)) {
+        ['.pixel-clock-container', '.stats-display', '.profile-display', '.auth-buttons', '.retro-nav-container']
+          .forEach(sel => document.querySelectorAll(sel).forEach(el => (el as HTMLElement).style.display = ''));
+      }
+      this.checkDayPlaylist();
+      return;
+    }
 
     const wasLongBreak = this.isLongBreak;
     this.isLongBreak = false;

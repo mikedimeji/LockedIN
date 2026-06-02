@@ -294,12 +294,27 @@ export class ScheduleComponent implements OnInit {
     }
   }
 
+  private currentMinute(): number {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+  }
+
+  private blockIsFuture(startMinute: number): boolean {
+    if (this.dayDate !== this.fmt(new Date())) return false; // past/future dates: always allow
+    return startMinute > this.currentMinute();
+  }
+
   launchBlock(block: TimeBlock, e: MouseEvent) {
     e.stopPropagation();
+    if (this.blockIsFuture(block.startMinute)) {
+      this.errorMsg = `This block starts at ${this.disp(block.startMinute)} — you can't start it yet.`;
+      return;
+    }
     this.showDay = false;
     if (block.type === 'DEEP_WORK') {
       this.openDW(block, e);
-      this.showDay = true; // keep modal open behind DW modal
+    } else if (block.type === 'BREAK') {
+      this.router.navigate(['/timer'], { queryParams: { break: 'true', duration: block.endMinute - block.startMinute } });
     } else {
       this.router.navigate(['/timer'], { queryParams: { duration: block.endMinute - block.startMinute } });
     }
@@ -307,6 +322,10 @@ export class ScheduleComponent implements OnInit {
 
   launchGCalBlock(evt: GCalEvent, e: MouseEvent) {
     e.stopPropagation();
+    if (this.blockIsFuture(evt.startMinute)) {
+      this.errorMsg = `This event starts at ${this.disp(evt.startMinute)} — you can't start it yet.`;
+      return;
+    }
     this.showDay = false;
     this.router.navigate(['/timer'], { queryParams: { duration: evt.endMinute - evt.startMinute } });
   }
