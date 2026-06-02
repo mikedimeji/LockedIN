@@ -499,16 +499,10 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.completedPomodoros = 0;
     this.pausedMidPomodoro = false;
 
-    // Schedule break: collapse and advance the day playlist, don't restart pomodoro cycle
+    // Schedule break (explicitly launched as a BREAK block): advance the playlist
     if (this.isScheduleBreak) {
       this.isScheduleBreak = false;
-      this.isExpanded = false;
-      document.body.classList.remove('timer-running');
-      this.releaseWakeLock();
-      if (isPlatformBrowser(this.platformId)) {
-        ['.pixel-clock-container', '.stats-display', '.profile-display', '.auth-buttons', '.retro-nav-container']
-          .forEach(sel => document.querySelectorAll(sel).forEach(el => (el as HTMLElement).style.display = ''));
-      }
+      this.collapseTimer();
       this.checkDayPlaylist();
       return;
     }
@@ -517,19 +511,43 @@ export class TimerComponent implements OnInit, OnDestroy {
     this.isLongBreak = false;
 
     if (this.deepWorkMode && this.deepWorkPomodorosRemaining > 0) {
+      // Mid-deep-work break: keep going with next pomodoro
       this.startTimer();
     } else if (!wasLongBreak) {
-      // Short break ended → auto-start next session in the cycle
-      this.startTimer();
-    } else {
-      // Long break ended (full 4-session cycle complete) → collapse
-      this.isExpanded = false;
-      document.body.classList.remove('timer-running');
-      this.releaseWakeLock();
-      if (isPlatformBrowser(this.platformId)) {
-        ['.pixel-clock-container', '.stats-display', '.profile-display', '.auth-buttons', '.retro-nav-container']
-          .forEach(sel => document.querySelectorAll(sel).forEach(el => (el as HTMLElement).style.display = ''));
+      // Short break after a non-DW session (e.g. SCHEDULE block, or standalone pomodoro)
+      // If there are playlist items waiting, advance to them instead of restarting
+      if (this.hasPlaylistItems()) {
+        this.collapseTimer();
+        this.checkDayPlaylist();
+      } else {
+        this.startTimer();
       }
+    } else {
+      // Long break (4-pomodoro cycle complete) → check playlist, or just collapse
+      this.collapseTimer();
+      if (this.hasPlaylistItems()) {
+        this.checkDayPlaylist();
+      }
+    }
+  }
+
+  private hasPlaylistItems(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    try {
+      const raw = sessionStorage.getItem('lockedin_day_playlist');
+      if (!raw) return false;
+      const playlist = JSON.parse(raw);
+      return Array.isArray(playlist) && playlist.length > 0;
+    } catch { return false; }
+  }
+
+  private collapseTimer(): void {
+    this.isExpanded = false;
+    document.body.classList.remove('timer-running');
+    this.releaseWakeLock();
+    if (isPlatformBrowser(this.platformId)) {
+      ['.pixel-clock-container', '.stats-display', '.profile-display', '.auth-buttons', '.retro-nav-container']
+        .forEach(sel => document.querySelectorAll(sel).forEach(el => (el as HTMLElement).style.display = ''));
     }
   }
 
