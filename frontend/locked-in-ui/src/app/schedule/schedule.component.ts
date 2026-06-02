@@ -273,7 +273,7 @@ export class ScheduleComponent implements OnInit {
     // Merge user blocks + non-allDay GCal events into one playlist
     const gcalAsBlocks: TimeBlock[] = this.gcalEvents
       .filter(e => !e.allDay)
-      .map(e => ({ date: this.dayDate, startMinute: e.startMinute, endMinute: e.endMinute, type: 'SCHEDULE' as const, title: e.title }));
+      .map(e => ({ date: this.dayDate, startMinute: e.startMinute, endMinute: e.endMinute, type: (e.type ?? 'SCHEDULE') as TimeBlock['type'], title: e.title }));
 
     const combined = [...this.dayBlocks, ...gcalAsBlocks]
       .sort((a, b) => a.startMinute - b.startMinute);
@@ -349,6 +349,11 @@ export class ScheduleComponent implements OnInit {
     }
   }
 
+  cycleGCalType(evt: GCalEvent, _e: MouseEvent) {
+    const order: ('DEEP_WORK' | 'BREAK' | 'SCHEDULE')[] = ['DEEP_WORK', 'BREAK', 'SCHEDULE'];
+    evt.type = evt.type ? order[(order.indexOf(evt.type) + 1) % order.length] : 'DEEP_WORK';
+  }
+
   launchGCalBlock(evt: GCalEvent, e: MouseEvent) {
     e.stopPropagation();
     if (this.blockIsFuture(evt.startMinute)) {
@@ -356,7 +361,12 @@ export class ScheduleComponent implements OnInit {
       return;
     }
     this.showDay = false;
-    this.router.navigate(['/timer'], { queryParams: { duration: evt.endMinute - evt.startMinute } });
+    const type = evt.type ?? 'SCHEDULE';
+    if (type === 'BREAK') {
+      this.router.navigate(['/timer'], { queryParams: { break: 'true', duration: evt.endMinute - evt.startMinute } });
+    } else {
+      this.router.navigate(['/timer'], { queryParams: { duration: evt.endMinute - evt.startMinute } });
+    }
   }
 
   cycleBlockType(block: TimeBlock, e: MouseEvent) {

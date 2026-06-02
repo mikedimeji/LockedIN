@@ -117,9 +117,13 @@
 
           <!-- GCal events at this slot -->
           <div *ngFor="let e of gcalEventsAt(s.minute)"
-               class="block-chip chip-gcal"
-               [style.height.px]="gcalBlockHeight(e)">
-            <span class="chip-badge">GC</span>
+               class="block-chip"
+               [ngClass]="e.type ? 'chip-' + e.type.toLowerCase() : 'chip-gcal'"
+               [style.height.px]="gcalBlockHeight(e)"
+               (click)="cycleGCalType(e, $event)">
+            <span class="chip-badge">
+              {{ e.type === 'DEEP_WORK' ? 'DW' : e.type === 'BREAK' ? 'BR' : e.type === 'SCHEDULE' ? 'SC' : 'GC' }}
+            </span>
             <div class="chip-body">
               <span class="chip-title">{{ e.title }}</span>
               <span class="chip-time">{{ disp(e.startMinute) }}–{{ disp(e.endMinute) }}</span>

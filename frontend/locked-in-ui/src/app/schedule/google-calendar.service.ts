@@ -12,6 +12,7 @@ export interface GCalEvent {
   allDay:      boolean;
   startMinute: number;
   endMinute:   number;
+  type?:       'DEEP_WORK' | 'BREAK' | 'SCHEDULE'; // user-assigned override, stored in memory
 }
 
 @Injectable({ providedIn: 'root' })
