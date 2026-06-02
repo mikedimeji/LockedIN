@@ -188,7 +188,12 @@ public class SubscriptionService {
 
     public boolean isSubscriptionActive(Long userId) {
         try {
-            String sql = "SELECT status FROM user_subscriptions WHERE user_id = ?";
+            // Also guard against missed cancellation webhooks: if period has ended, treat as inactive
+            String sql = """
+                SELECT status FROM user_subscriptions
+                WHERE user_id = ?
+                AND (current_period_end IS NULL OR current_period_end > NOW())
+                """;
             String status = jdbcTemplate.queryForObject(sql, String.class, userId);
             return "active".equals(status) || "past_due".equals(status);
         } catch (Exception e) {
