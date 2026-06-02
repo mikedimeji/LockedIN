@@ -1376,6 +1376,14 @@ body.timer-fullscreen-active .hero {
   margin: 0;
 }
 
+.pm-no-refund {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.5px;
+  margin: 4px 0 0;
+}
+
 .pm-manage-btn {
   display: block;
   width: 100%;

@@ -65,6 +65,12 @@ public class SubscriptionService {
                         .setCancelUrl(frontendUrl + "/stats?sub=cancel")
                         .putMetadata("userId", String.valueOf(userId))
                         .putMetadata("plan", plan)
+                        .setCustomText(SessionCreateParams.CustomText.builder()
+                                .setSubmit(SessionCreateParams.CustomText.Submit.builder()
+                                        .setMessage("All payments are final. No refunds are provided. " +
+                                                "You may cancel at any time to stop future charges.")
+                                        .build())
+                                .build())
                         .build()
         );
 
