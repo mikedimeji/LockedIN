@@ -119,7 +119,7 @@
               <span class="subject-name">{{ s.subject }}</span>
               <div class="subject-bar-wrap">
                 <div class="subject-bar"
-                     [style.width.%]="(s.total_minutes / subjectBreakdown[0].total_minutes) * 100">
+                     [style.width.%]="(s.total_minutes / subjectMaxMinutes) * 100">
                 </div>
               </div>
               <span class="subject-time">{{ subjectMinutesToDisplay(s.total_minutes) }}</span>
@@ -403,16 +403,17 @@
       <div class="achievements-list">
         <div *ngFor="let a of achievements"
              class="achievement-item"
-             [class.tier-bronze]="a.goldReward >= 5  && a.goldReward <= 10"
-             [class.tier-silver]="a.goldReward >= 15 && a.goldReward <= 20"
-             [class.tier-gold]="a.goldReward >= 25   && a.goldReward <= 35"
-             [class.tier-diamond]="a.goldReward >= 40">
+             [class.tier-bronze]="achievementTier(a.goldReward) === 'bronze'"
+             [class.tier-silver]="achievementTier(a.goldReward) === 'silver'"
+             [class.tier-gold]="achievementTier(a.goldReward) === 'gold'"
+             [class.tier-diamond]="achievementTier(a.goldReward) === 'diamond'">
           <div class="achievement-tier-bar"></div>
           <div class="achievement-left">
-            <div class="achievement-orb" [class.orb-bronze]="a.goldReward >= 5 && a.goldReward <= 10"
-                                         [class.orb-silver]="a.goldReward >= 15 && a.goldReward <= 20"
-                                         [class.orb-gold]="a.goldReward >= 25 && a.goldReward <= 35"
-                                         [class.orb-diamond]="a.goldReward >= 40">
+            <div class="achievement-orb"
+                 [class.orb-bronze]="achievementTier(a.goldReward) === 'bronze'"
+                 [class.orb-silver]="achievementTier(a.goldReward) === 'silver'"
+                 [class.orb-gold]="achievementTier(a.goldReward) === 'gold'"
+                 [class.orb-diamond]="achievementTier(a.goldReward) === 'diamond'">
               ◆
             </div>
             <div>
@@ -422,10 +423,10 @@
           </div>
           <div class="achievement-right">
             <span *ngIf="a.goldReward > 0" class="achievement-gold"
-                  [class.gold-bronze]="a.goldReward >= 5  && a.goldReward <= 10"
-                  [class.gold-silver]="a.goldReward >= 15 && a.goldReward <= 20"
-                  [class.gold-gold]="a.goldReward >= 25   && a.goldReward <= 35"
-                  [class.gold-diamond]="a.goldReward >= 40">
+                  [class.gold-bronze]="achievementTier(a.goldReward) === 'bronze'"
+                  [class.gold-silver]="achievementTier(a.goldReward) === 'silver'"
+                  [class.gold-gold]="achievementTier(a.goldReward) === 'gold'"
+                  [class.gold-diamond]="achievementTier(a.goldReward) === 'diamond'">
               +{{ a.goldReward }} ◆
             </span>
             <span class="achievement-date">{{ a.date }}</span>

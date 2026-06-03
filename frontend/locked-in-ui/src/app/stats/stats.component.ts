@@ -318,6 +318,18 @@ export class StatsComponent implements OnInit, OnDestroy {
     return this.RING_CIRCUMFERENCE * (1 - score / 100);
   }
 
+  get subjectMaxMinutes(): number {
+    if (!this.subjectBreakdown.length) return 1;
+    return Math.max(...this.subjectBreakdown.map(s => s.total_minutes)) || 1;
+  }
+
+  achievementTier(reward: number): 'bronze' | 'silver' | 'gold' | 'diamond' {
+    if (reward >= 40) return 'diamond';
+    if (reward >= 25) return 'gold';
+    if (reward >= 15) return 'silver';
+    return 'bronze';
+  }
+
   getHeatmapOpacity(val: number): number {
     if (val === 0) return 0.07;
     return Math.max(0.2, val / this.heatmapMax);
