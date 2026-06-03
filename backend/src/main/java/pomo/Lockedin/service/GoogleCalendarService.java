@@ -144,11 +144,13 @@ public class GoogleCalendarService {
                 .queryParam("orderBy",       "startTime")
                 .build().encode().toUri();
 
+        log.info("GCal fetch: user={} date={} zone={} uri={}", email, date, zone, uri);
         try {
             ResponseEntity<Map> resp = restTemplate.exchange(
                     uri, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
             Map<String, Object> body = resp.getBody();
             List<Map<String, Object>> items = body != null ? (List<Map<String, Object>>) body.get("items") : null;
+            log.info("GCal response: {} items for user={} date={}", items == null ? "null" : items.size(), email, date);
             if (items == null) return List.of();
             return items.stream().map(i -> mapEvent(i, date, zone))
                     .filter(Objects::nonNull).collect(Collectors.toList());
@@ -159,10 +161,10 @@ public class GoogleCalendarService {
                 tokenDao.delete(userId);
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google Calendar token expired — please reconnect");
             }
-            log.error("Google Calendar API error: {}", e.getMessage());
+            log.error("GCal API error: status={} body={}", e.getStatusCode(), e.getResponseBodyAsString());
             return List.of();
         } catch (Exception e) {
-            log.error("Error fetching Google Calendar events: {}", e.getMessage());
+            log.error("GCal unexpected error: {}", e.getMessage(), e);
             return List.of();
         }
     }
