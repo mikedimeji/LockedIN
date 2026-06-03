@@ -124,7 +124,7 @@ public class GoogleCalendarService {
         if (userId == null) return List.of();
 
         Optional<GoogleCalendarToken> opt = tokenDao.find(userId);
-        if (opt.isEmpty()) return List.of();
+        if (opt.isEmpty()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google Calendar not connected — please reconnect");
 
         GoogleCalendarToken token = opt.get();
         if (token.expiresAt() < System.currentTimeMillis() + 60_000) {
@@ -136,17 +136,17 @@ public class GoogleCalendarService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.accessToken());
 
-        String url = UriComponentsBuilder
-                .fromUriString("https://www.googleapis.com/calendar/v3/calendars/primary/events")
+        java.net.URI uri = UriComponentsBuilder
+                .fromHttpUrl("https://www.googleapis.com/calendar/v3/calendars/primary/events")
                 .queryParam("timeMin",       timeMin)
                 .queryParam("timeMax",       timeMax)
                 .queryParam("singleEvents",  "true")
                 .queryParam("orderBy",       "startTime")
-                .build().toUriString();
+                .build().encode().toUri();
 
         try {
             ResponseEntity<Map> resp = restTemplate.exchange(
-                    url, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
+                    uri, HttpMethod.GET, new HttpEntity<>(headers), Map.class);
             Map<String, Object> body = resp.getBody();
             List<Map<String, Object>> items = body != null ? (List<Map<String, Object>>) body.get("items") : null;
             if (items == null) return List.of();
@@ -184,18 +184,24 @@ public class GoogleCalendarService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        ResponseEntity<Map> resp = restTemplate.exchange(
-                "https://oauth2.googleapis.com/token",
-                HttpMethod.POST, new HttpEntity<>(body, headers), Map.class);
+        try {
+            ResponseEntity<Map> resp = restTemplate.exchange(
+                    "https://oauth2.googleapis.com/token",
+                    HttpMethod.POST, new HttpEntity<>(body, headers), Map.class);
 
-        Map<String, Object> tokens = resp.getBody();
-        if (tokens == null) return token;
+            Map<String, Object> tokens = resp.getBody();
+            if (tokens == null) return token;
 
-        String newAccess = (String)  tokens.get("access_token");
-        int    expiresIn = (Integer) tokens.get("expires_in");
-        long   expiresAt = System.currentTimeMillis() + expiresIn * 1000L;
-        tokenDao.updateAccessToken(userId, newAccess, expiresAt);
-        return new GoogleCalendarToken(userId, newAccess, token.refreshToken(), expiresAt);
+            String newAccess = (String)  tokens.get("access_token");
+            int    expiresIn = (Integer) tokens.get("expires_in");
+            long   expiresAt = System.currentTimeMillis() + expiresIn * 1000L;
+            tokenDao.updateAccessToken(userId, newAccess, expiresAt);
+            return new GoogleCalendarToken(userId, newAccess, token.refreshToken(), expiresAt);
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.warn("Google Calendar refresh token rejected for user {} ({}): {}", userId, e.getStatusCode(), e.getResponseBodyAsString());
+            tokenDao.delete(userId);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google Calendar token expired — please reconnect");
+        }
     }
 
     @SuppressWarnings("unchecked")

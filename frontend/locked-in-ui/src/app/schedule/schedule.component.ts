@@ -199,6 +199,7 @@ export class ScheduleComponent implements OnInit {
     this.errorMsg   = '';
     this.showDay    = true;
     this.loadingDay = true;
+    this.gcalEvents = [];
     // Snap now to the nearest slot hour for highlighting
     const now = new Date();
     this.nowMinute = cell.today ? now.getHours() * 60 : -1;
