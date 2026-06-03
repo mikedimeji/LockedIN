@@ -133,98 +133,213 @@
 }
 
 /* ── Summary Row ── */
-.summary-row {
+/* ── Hero: Streak + Today ─────────────────────────────────────────── */
+.hero-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 16px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(82,113,255,0.18);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-.metric-card {
+.hero-streak {
   flex: 1;
-  min-width: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding: 22px 16px;
   gap: 4px;
-  padding: 14px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(82, 113, 255, 0.14);
-  border-radius: 14px;
-  transition: border-color 0.2s ease;
 }
 
-.metric-card:hover {
-  border-color: rgba(82, 113, 255, 0.35);
+.hero-streak-alive {
+  background: rgba(255, 140, 0, 0.06);
+  border-right: 1px solid rgba(255, 140, 0, 0.15);
 }
 
+.hero-streak:not(.hero-streak-alive) {
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
 
-.metric-value {
+.hero-streak-num {
   font-family: bitF1, sans-serif;
-  font-size: 22px;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: 52px;
   line-height: 1;
+  color: rgba(255,255,255,0.92);
 }
 
-.metric-label {
+.hero-streak-alive .hero-streak-num {
+  color: #ff9500;
+  text-shadow: 0 0 24px rgba(255,140,0,0.45);
+}
+
+.hero-streak-unit {
   font-family: 'Courier New', monospace;
-  font-size: 7px;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.28);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
   text-transform: uppercase;
 }
 
-/* ── This Week Snapshot ── */
-.week-snapshot {
-  background: rgba(82, 113, 255, 0.05);
-  border: 1px solid rgba(82, 113, 255, 0.16);
-  border-radius: 14px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
+.hero-streak-best {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.2);
+  margin-top: 2px;
 }
 
-.week-snapshot-label {
+.hero-divider { display: none; } /* kept for template compat, border on streak handles it */
+
+.hero-today {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 16px;
+  gap: 4px;
+}
+
+.hero-today-label {
   font-family: 'Courier New', monospace;
   font-size: 8px;
   letter-spacing: 2.5px;
-  color: rgba(82, 113, 255, 0.55);
+  color: rgba(82,113,255,0.6);
   text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.hero-today-sessions {
+  font-family: bitF1, sans-serif;
+  font-size: 36px;
+  line-height: 1;
+  color: rgba(255,255,255,0.9);
+}
+
+.hero-today-sessions-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  margin-left: 4px;
+}
+
+.hero-today-time {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+.hero-today-prompt {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: rgba(82,113,255,0.55);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+/* ── Week Card ────────────────────────────────────────────────────── */
+.week-card {
+  background: rgba(82,113,255,0.04);
+  border: 1px solid rgba(82,113,255,0.14);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.week-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.week-stat-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
+.week-card-label {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2.5px;
+  color: rgba(82,113,255,0.55);
+  text-transform: uppercase;
 }
 
-.week-stat {
+.week-card-vs {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  font-weight: 600;
+}
+
+.week-card-body {
+  display: flex;
+  align-items: center;
+}
+
+.week-card-stat {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
 }
 
-.week-divider {
+.week-card-sep {
   width: 1px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.07);
-  flex-shrink: 0;
+  height: 32px;
+  background: rgba(255,255,255,0.06);
 }
 
-.week-value {
+.week-card-val {
   font-family: bitF1, sans-serif;
   font-size: 24px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255,255,255,0.9);
   line-height: 1;
 }
 
-.week-label {
+.week-card-name {
   font-family: 'Courier New', monospace;
   font-size: 7px;
-  letter-spacing: 1.5px;
-  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 1.2px;
+  color: rgba(255,255,255,0.22);
+  text-transform: uppercase;
+}
+
+/* ── Lifetime row ─────────────────────────────────────────────────── */
+.lifetime-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 14px 0;
+  margin-bottom: 24px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.lifetime-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.lifetime-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.06);
+}
+
+.lifetime-val {
+  font-family: bitF1, sans-serif;
+  font-size: 18px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1;
+}
+
+.lifetime-label {
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  letter-spacing: 1.2px;
+  color: rgba(255,255,255,0.2);
   text-transform: uppercase;
 }
 
@@ -997,9 +1112,11 @@
     max-height: calc(100vh - 170px);
     padding: 20px 16px 28px;
   }
-  .summary-row { gap: 7px; }
-  .metric-card { min-width: 80px; padding: 10px 6px; }
-  .metric-value { font-size: 18px; }
+  .hero-streak-num { font-size: 40px; }
+  .hero-today-sessions { font-size: 28px; }
+  .week-card-val { font-size: 20px; }
+  .bests-row { gap: 8px; }
+  .best-value { font-size: 18px; }
   .score-number { font-size: 22px; }
   .score-ring-wrap { width: 90px; height: 90px; }
   .score-card { flex-direction: column; gap: 12px; }
@@ -1007,7 +1124,6 @@
   .insight-grid { flex-direction: column; }
   .chart-wrap { height: 180px; }
   .streak-dot { width: 22px; height: 22px; }
-  .week-value { font-size: 18px; }
   .tab-btn { font-size: 7px; padding: 6px 9px; letter-spacing: 1px; }
   .heatmap-cell { min-width: 28px; height: 28px; }
   .heatmap-spacer { width: 56px; }
@@ -1291,65 +1407,20 @@
 }
 
 /* Metric card color variants */
-.metric-card.mc-gold {
-  border-color: rgba(255, 215, 0, 0.22);
-  background: rgba(255, 215, 0, 0.04);
-}
-.metric-card.mc-gold .metric-value {
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 180, 0, 0.25);
-}
-.metric-card.mc-gold .metric-label { color: rgba(255, 215, 0, 0.35); }
-
-.metric-card.mc-streak {
-  border-color: rgba(255, 140, 0, 0.22);
-  background: rgba(255, 100, 0, 0.03);
-}
-.metric-card.mc-streak .metric-value {
-  color: #ff9500;
-  text-shadow: 0 0 10px rgba(255, 140, 0, 0.55), 0 0 24px rgba(255, 80, 0, 0.2);
-}
-.metric-card.mc-streak .metric-label { color: rgba(255, 140, 0, 0.35); }
-
-.metric-card.mc-sessions {
-  border-color: rgba(82, 113, 255, 0.26);
-}
-.metric-card.mc-sessions .metric-value {
-  color: rgba(130, 160, 255, 1);
-  text-shadow: 0 0 10px rgba(82, 113, 255, 0.55), 0 0 22px rgba(82, 113, 255, 0.2);
-}
-
-.metric-card.mc-hours {
-  border-color: rgba(74, 222, 128, 0.18);
-}
-.metric-card.mc-hours .metric-value {
-  color: rgba(74, 222, 128, 0.92);
-  text-shadow: 0 0 10px rgba(74, 222, 128, 0.45), 0 0 22px rgba(74, 222, 128, 0.18);
-}
-
-.metric-card.mc-best .metric-value {
-  color: rgba(255, 210, 80, 0.9);
-  text-shadow: 0 0 10px rgba(255, 190, 50, 0.38);
-}
-
-/* Hover glow on all metric cards */
-.metric-card:hover {
-  box-shadow: 0 0 20px rgba(82, 113, 255, 0.08);
-}
-.metric-card.mc-gold:hover   { border-color: rgba(255, 215, 0, 0.4);   box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
-.metric-card.mc-streak:hover { border-color: rgba(255, 140, 0, 0.4);   box-shadow: 0 0 20px rgba(255, 140, 0, 0.1); }
-.metric-card.mc-sessions:hover { border-color: rgba(82, 113, 255, 0.45); }
-.metric-card.mc-hours:hover  { border-color: rgba(74, 222, 128, 0.35); }
-
-/* Week value color variants */
-.week-value.wv-blue {
+/* Week card value colours (shared with week-card-val) */
+.wv-blue {
   color: rgba(130, 160, 255, 1);
   text-shadow: 0 0 12px rgba(82, 113, 255, 0.45);
 }
-.week-value.wv-gold {
+.wv-gold {
   color: #ffd700;
   text-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
 }
+
+/* Week comparison label colours */
+.wv-pos  { color: #4ade80; }
+.wv-neg  { color: #f87171; }
+.wv-zero { color: rgba(255,255,255,0.3); }
 
 /* Section label — subtle purple glow */
 .section-label {
@@ -1366,68 +1437,32 @@
   box-shadow: 0 0 28px rgba(120, 60, 255, 0.22);
 }
 
-
-/* ── Today's snapshot ────────────────────────────────────────────────── */
-.today-snapshot {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  margin-bottom: 14px;
-  background: rgba(82, 113, 255, 0.07);
-  border: 1px solid rgba(82, 113, 255, 0.18);
-  border-radius: 8px;
-  font-family: 'Courier New', monospace;
-}
-.today-pill {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(82, 113, 255, 0.9);
-  background: rgba(82, 113, 255, 0.15);
-  border-radius: 4px;
-  padding: 2px 6px;
-  letter-spacing: 1px;
-}
-.today-stat { font-size: 12px; color: rgba(255,255,255,0.75); }
-.today-sep  { color: rgba(255,255,255,0.25); }
-
-/* ── Weekly comparison ───────────────────────────────────────────────── */
-.week-vs {
-  display: block;
-  font-size: 10px;
-  margin-top: 4px;
-  letter-spacing: 0.5px;
-}
-.wv-pos  { color: #4ade80; }
-.wv-neg  { color: #f87171; }
-.wv-zero { color: rgba(255,255,255,0.35); }
-
 /* ── Personal bests ──────────────────────────────────────────────────── */
 .bests-row {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 .best-card {
   flex: 1;
-  min-width: 80px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 8px;
-  padding: 12px 10px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 14px 10px;
   text-align: center;
-  font-family: 'Courier New', monospace;
 }
 .best-value {
   display: block;
+  font-family: bitF1, sans-serif;
   font-size: 22px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 4px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1;
+  margin-bottom: 5px;
 }
 .best-label {
-  font-size: 9px;
-  color: rgba(255,255,255,0.35);
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.28);
   letter-spacing: 0.8px;
   text-transform: uppercase;
 }

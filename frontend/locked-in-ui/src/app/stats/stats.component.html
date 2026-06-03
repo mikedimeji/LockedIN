@@ -49,87 +49,71 @@
     <!-- ══════════════════════════════════════════ -->
     <div [hidden]="activeSection !== 'overview'">
 
-      <!-- Today's snapshot -->
-      <div class="today-snapshot" *ngIf="summary.todaySessions > 0 || summary.todayMinutes > 0">
-        <span class="today-pill">TODAY</span>
-        <span class="today-stat">{{ summary.todaySessions }} session{{ summary.todaySessions !== 1 ? 's' : '' }}</span>
-        <span class="today-sep">·</span>
-        <span class="today-stat">{{ todayTimeDisplay() }} studied</span>
-      </div>
-
-      <!-- Summary metric cards -->
-      <div class="summary-row">
-        <div class="metric-card mc-gold">
-          <span class="metric-value">{{ summary.currentGold }}</span>
-          <span class="metric-label">GOLD</span>
+      <!-- 1. HERO — streak + today (most retention-critical info first) -->
+      <div class="hero-row">
+        <div class="hero-streak" [class.hero-streak-alive]="summary.currentStreak > 0">
+          <span class="hero-streak-num">{{ summary.currentStreak }}</span>
+          <span class="hero-streak-unit">day streak</span>
+          <span class="hero-streak-best">best: {{ summary.longestStreak }}</span>
         </div>
-        <div class="metric-card mc-sessions">
-          <span class="metric-value">{{ summary.totalPomodoros }}</span>
-          <span class="metric-label">SESSIONS</span>
-        </div>
-        <div class="metric-card mc-streak">
-          <span class="metric-value">{{ summary.currentStreak }}</span>
-          <span class="metric-label">STREAK</span>
-        </div>
-        <div class="metric-card mc-hours">
-          <span class="metric-value">{{ totalHoursDisplay() }}</span>
-          <span class="metric-label">HOURS</span>
-        </div>
-        <div class="metric-card mc-best">
-          <span class="metric-value">{{ summary.longestStreak }}</span>
-          <span class="metric-label">BEST STREAK</span>
+        <div class="hero-divider"></div>
+        <div class="hero-today">
+          <span class="hero-today-label">TODAY</span>
+          <span class="hero-today-sessions">
+            {{ summary.todaySessions }}
+            <span class="hero-today-sessions-sub">session{{ summary.todaySessions !== 1 ? 's' : '' }}</span>
+          </span>
+          <span class="hero-today-time" *ngIf="summary.todayMinutes > 0">{{ todayTimeDisplay() }}</span>
+          <span class="hero-today-prompt" *ngIf="summary.todaySessions === 0">Start one now →</span>
         </div>
       </div>
 
-      <!-- This Week Snapshot -->
-      <div class="week-snapshot">
-        <div class="week-snapshot-label">THIS WEEK</div>
-        <div class="week-stat-row">
-          <div class="week-stat">
-            <span class="week-value wv-blue">{{ weeklyTotalSessions }}</span>
-            <span class="week-label">SESSIONS</span>
-            <span class="week-vs"
-                  [class.wv-pos]="weekDiff > 0"
-                  [class.wv-neg]="weekDiff < 0"
-                  [class.wv-zero]="weekDiff === 0">
-              {{ weekDiffLabel }}
-            </span>
+      <!-- 2. THIS WEEK — with vs-last-week comparison (trajectory) -->
+      <div class="week-card">
+        <div class="week-card-header">
+          <span class="week-card-label">THIS WEEK</span>
+          <span class="week-card-vs"
+                [class.wv-pos]="weekDiff > 0"
+                [class.wv-neg]="weekDiff < 0"
+                [class.wv-zero]="weekDiff === 0">
+            {{ weekDiffLabel }}
+          </span>
+        </div>
+        <div class="week-card-body">
+          <div class="week-card-stat">
+            <span class="week-card-val wv-blue">{{ weeklyTotalSessions }}</span>
+            <span class="week-card-name">sessions</span>
           </div>
-          <div class="week-divider"></div>
-          <div class="week-stat">
-            <span class="week-value wv-gold">{{ weeklyTotalGold }}</span>
-            <span class="week-label">GOLD EARNED</span>
+          <div class="week-card-sep"></div>
+          <div class="week-card-stat">
+            <span class="week-card-val wv-gold">{{ weeklyTotalGold }}</span>
+            <span class="week-card-name">gold earned</span>
           </div>
-          <div class="week-divider"></div>
-          <div class="week-stat">
-            <span class="week-value">{{ bestDay }}</span>
-            <span class="week-label">BEST DAY</span>
+          <div class="week-card-sep"></div>
+          <div class="week-card-stat">
+            <span class="week-card-val">{{ bestDay }}</span>
+            <span class="week-card-name">best day</span>
           </div>
         </div>
       </div>
 
-      <!-- Personal bests -->
-      <div class="section" *ngIf="summary.bestDaySessions > 0 || summary.longestStreak > 0">
-        <div class="section-header">
-          <span class="section-label">PERSONAL BESTS</span>
+      <!-- 3. PERSONAL BESTS — before chart so they anchor the numbers -->
+      <div class="bests-row">
+        <div class="best-card">
+          <span class="best-value">{{ summary.bestDaySessions }}</span>
+          <span class="best-label">best day</span>
         </div>
-        <div class="bests-row">
-          <div class="best-card">
-            <span class="best-value">{{ summary.bestDaySessions }}</span>
-            <span class="best-label">sessions in one day</span>
-          </div>
-          <div class="best-card">
-            <span class="best-value">{{ summary.longestStreak }}</span>
-            <span class="best-label">day longest streak</span>
-          </div>
-          <div class="best-card">
-            <span class="best-value">{{ totalHoursDisplay() }}</span>
-            <span class="best-label">total hours studied</span>
-          </div>
+        <div class="best-card">
+          <span class="best-value">{{ totalHoursDisplay() }}</span>
+          <span class="best-label">total hours</span>
+        </div>
+        <div class="best-card">
+          <span class="best-value">{{ summary.totalPomodoros }}</span>
+          <span class="best-label">total sessions</span>
         </div>
       </div>
 
-      <!-- 28-Day Trend Chart -->
+      <!-- 4. TREND — chart gives context to the numbers above -->
       <div class="section">
         <div class="section-header">
           <span class="section-label">28-DAY TREND</span>
@@ -140,7 +124,25 @@
         </div>
       </div>
 
-      <!-- Premium stats on overview: subjects, focus score, weekly goals -->
+      <!-- 5. LIFETIME — totals last; context not motivation -->
+      <div class="lifetime-row">
+        <div class="lifetime-stat">
+          <span class="lifetime-val">{{ summary.currentGold }}</span>
+          <span class="lifetime-label">GOLD</span>
+        </div>
+        <div class="lifetime-sep"></div>
+        <div class="lifetime-stat">
+          <span class="lifetime-val">{{ summary.totalPomodoros }}</span>
+          <span class="lifetime-label">ALL-TIME SESSIONS</span>
+        </div>
+        <div class="lifetime-sep"></div>
+        <div class="lifetime-stat">
+          <span class="lifetime-val">{{ totalHoursDisplay() }}</span>
+          <span class="lifetime-label">TOTAL HOURS</span>
+        </div>
+      </div>
+
+      <!-- 6. PREMIUM — subjects, focus score, weekly goals -->
       <ng-container *ngIf="premium.isPremium">
 
         <!-- Subject Breakdown -->
