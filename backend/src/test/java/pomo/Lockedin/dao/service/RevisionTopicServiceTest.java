@@ -95,9 +95,9 @@ public class RevisionTopicServiceTest {
     @Test
     void deleteRevisionTopicByIdShouldCallRepository() {
         // Act
-        revisionTopicService.deleteRevisionTopicById(1L);
+        revisionTopicService.deleteRevisionTopicById(1L, 42L);
 
         // Assert
-        verify(revisionTopicRepo).deleteRevisionTopic(1L);
+        verify(revisionTopicRepo).deleteRevisionTopic(1L, 42L);
     }
 }
