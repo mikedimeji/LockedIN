@@ -152,6 +152,15 @@ public class GoogleCalendarService {
             if (items == null) return List.of();
             return items.stream().map(i -> mapEvent(i, date, zone))
                     .filter(Objects::nonNull).collect(Collectors.toList());
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            if (e.getStatusCode().value() == 401) {
+                tokenDao.delete(userId);
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google Calendar token expired — please reconnect");
+            }
+            log.error("Google Calendar API error: {}", e.getMessage());
+            return List.of();
         } catch (Exception e) {
             log.error("Error fetching Google Calendar events: {}", e.getMessage());
             return List.of();
@@ -162,6 +171,10 @@ public class GoogleCalendarService {
 
     @SuppressWarnings("unchecked")
     private GoogleCalendarToken refreshToken(Long userId, GoogleCalendarToken token) {
+        if (token.refreshToken() == null) {
+            tokenDao.delete(userId);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Google Calendar token expired — please reconnect");
+        }
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("refresh_token", token.refreshToken());
         body.add("client_id",     clientId);

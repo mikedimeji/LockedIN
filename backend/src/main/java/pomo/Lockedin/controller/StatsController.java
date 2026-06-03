@@ -154,6 +154,7 @@ public class StatsController {
     public Map<String, Object> syncAchievements() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         achievementService.checkAndGrantAchievements(user.getEmail());
+        achievementService.checkScheduleBlockAchievements(user.getEmail());
         return Map.of("synced", true);
     }
 
@@ -165,7 +166,8 @@ public class StatsController {
     public Map<String, Object> getTrend(
             @RequestParam(defaultValue = "28") int days) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return statsService.getTrend(user.getEmail(), days);
+        int safeDays = Math.max(1, Math.min(days, 365));
+        return statsService.getTrend(user.getEmail(), safeDays);
     }
 
     /**

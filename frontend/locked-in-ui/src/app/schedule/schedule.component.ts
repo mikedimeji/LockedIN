@@ -130,7 +130,10 @@ export class ScheduleComponent implements OnInit {
       this.gcalConnected = s.connected;
       // Handle race condition: day already open when status resolves
       if (s.connected && this.showDay && this.gcalEvents.length === 0) {
-        this.gcalSvc.getEvents(this.dayDate).subscribe(e => this.gcalEvents = e);
+        this.gcalSvc.getEvents(this.dayDate).subscribe({
+          next: e => this.gcalEvents = e,
+          error: () => this.handleGCalAuthError(),
+        });
       }
     });
 
@@ -206,9 +209,9 @@ export class ScheduleComponent implements OnInit {
 
     if (this.gcalConnected) {
       this.gcalLoading = true;
-      this.gcalSvc.getEvents(cell.date).subscribe(e => {
-        this.gcalEvents  = e;
-        this.gcalLoading = false;
+      this.gcalSvc.getEvents(cell.date).subscribe({
+        next: e => { this.gcalEvents = e; this.gcalLoading = false; },
+        error: () => { this.gcalLoading = false; this.handleGCalAuthError(); },
       });
     } else {
       this.gcalEvents = [];
@@ -444,10 +447,16 @@ export class ScheduleComponent implements OnInit {
   refreshGCal() {
     if (!this.gcalConnected || !this.dayDate) return;
     this.gcalLoading = true;
-    this.gcalSvc.getEvents(this.dayDate).subscribe(e => {
-      this.gcalEvents = e;
-      this.gcalLoading = false;
+    this.gcalSvc.getEvents(this.dayDate).subscribe({
+      next: e => { this.gcalEvents = e; this.gcalLoading = false; },
+      error: () => { this.gcalLoading = false; this.handleGCalAuthError(); },
     });
+  }
+
+  private handleGCalAuthError() {
+    this.gcalConnected = false;
+    this.gcalEvents = [];
+    this.errorMsg = 'Google Calendar session expired. Please reconnect.';
   }
 
   connectGCal() {

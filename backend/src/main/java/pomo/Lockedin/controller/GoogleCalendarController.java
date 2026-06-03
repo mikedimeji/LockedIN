@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import pomo.Lockedin.dto.GoogleCalendarEventDTO;
 import pomo.Lockedin.entities.User;
 import pomo.Lockedin.service.AchievementService;

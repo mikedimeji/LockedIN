@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -33,7 +33,10 @@ export class GoogleCalendarService {
   getEvents(date: string): Observable<GCalEvent[]> {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     return this.http.get<GCalEvent[]>(`${this.api}/events?date=${date}&timezone=${encodeURIComponent(tz)}`)
-      .pipe(catchError(() => of([])));
+      .pipe(catchError((err: HttpErrorResponse) => {
+        if (err.status === 401) return throwError(() => new Error('reconnect'));
+        return of([]);
+      }));
   }
 
   disconnect(): Observable<void> {
