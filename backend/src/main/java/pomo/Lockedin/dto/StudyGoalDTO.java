@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class StudyGoalDTO {
     private Long id;
     private String subject;
-    private double weeklyHoursTarget;
+    private Double weeklyHoursTarget;
     private double weeklyHoursCompleted;
 }
