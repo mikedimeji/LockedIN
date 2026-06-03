@@ -130,8 +130,9 @@ public class GoogleCalendarService {
         if (token.expiresAt() < System.currentTimeMillis() + 60_000) {
             token = refreshToken(userId, token);
         }
-        String timeMin = date.atStartOfDay(zone).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        String timeMax = date.plusDays(1).atStartOfDay(zone).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        // Convert to UTC so the query string never contains a '+' (which HTTP servers decode as space)
+        String timeMin = date.atStartOfDay(zone).toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        String timeMax = date.plusDays(1).atStartOfDay(zone).toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.accessToken());
