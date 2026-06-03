@@ -164,6 +164,31 @@ public class StatsService {
         statsDao.tagLatestSession(userId, subject);
     }
 
+    public int getTodaySessions(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        return userId == null ? 0 : statsDao.getTodaySessions(userId);
+    }
+
+    public int getTodayMinutes(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        return userId == null ? 0 : statsDao.getTodayMinutes(userId);
+    }
+
+    public int getBestDaySessions(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        return userId == null ? 0 : statsDao.getBestDaySessions(userId);
+    }
+
+    public int getThisWeekSessions(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        return userId == null ? 0 : statsDao.getThisWeekSessions(userId);
+    }
+
+    public int getLastWeekSessions(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        return userId == null ? 0 : statsDao.getLastWeekSessions(userId);
+    }
+
     /** Current streak computed from actual session dates */
     public int computeCurrentStreak(String userEmail) {
         Long userId = userService.getUserIdByEmail(userEmail);

@@ -4,8 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import pomo.Lockedin.dto.AchievementDTO;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -206,6 +212,105 @@ public class AchievementService {
             if (earned && grant(userId, def)) unlocked.add((String) def[1]);
         }
         return unlocked;
+    }
+
+    // ─── All achievements with progress ───────────────────────────────────────
+
+    public List<AchievementDTO> getAllAchievementsWithProgress(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        if (userId == null) return List.of();
+        try {
+            // earned name → formatted date string
+            Map<String, String> earned = new HashMap<>();
+            jdbcTemplate.queryForList(
+                "SELECT name, achieved_date FROM achievements WHERE user_id = ?", userId)
+                .forEach(r -> {
+                    String raw = r.get("achieved_date") != null ? r.get("achieved_date").toString() : null;
+                    earned.put((String) r.get("name"), formatAchDate(raw));
+                });
+
+            // progress counters
+            int totalSessions  = queryInt("SELECT COALESCE(SUM(pomodoros_completed),0) FROM pomodoro_sessions WHERE user_id=?", userId);
+            int currentStreak  = queryInt("SELECT COALESCE(current_streak,0) FROM userstats WHERE user_id=?", userId);
+            int totalGold      = queryInt("SELECT COALESCE(SUM(amount),0) FROM gold_transactions WHERE user_id=? AND transaction_type='EARN'", userId);
+            int totalMinutes   = queryInt("SELECT COALESCE(SUM(duration_minutes),0) FROM pomodoro_sessions WHERE user_id=?", userId);
+            int totalHoursInt  = totalMinutes / 60;
+            int maxDaily       = queryInt("SELECT COALESCE(MAX(cnt),0) FROM (SELECT SUM(pomodoros_completed) cnt FROM pomodoro_sessions WHERE user_id=? GROUP BY DATE(start_time)) t", userId);
+            int totalBlocks    = queryInt("SELECT COUNT(*) FROM time_blocks WHERE user_id=?", userId);
+            int daysWithBlocks = queryInt("SELECT COUNT(DISTINCT date) FROM time_blocks WHERE user_id=?", userId);
+            int maxBlocksDay   = queryInt("SELECT COALESCE(MAX(cnt),0) FROM (SELECT COUNT(*) cnt FROM time_blocks WHERE user_id=? GROUP BY date) t", userId);
+            boolean gcalConn   = queryInt("SELECT COUNT(*) FROM google_calendar_tokens WHERE user_id=?", userId) > 0;
+
+            List<AchievementDTO> result = new ArrayList<>();
+
+            for (Object[] def : SESSION_MILESTONES)
+                result.add(build(def, earned, "SESSION", Math.min(totalSessions, (int) def[0]), (int) def[0]));
+            for (Object[] def : STREAK_MILESTONES)
+                result.add(build(def, earned, "STREAK", Math.min(currentStreak, (int) def[0]), (int) def[0]));
+            for (Object[] def : GOLD_MILESTONES)
+                result.add(build(def, earned, "GOLD", Math.min(totalGold, (int) def[0]), (int) def[0]));
+            for (Object[] def : HOURS_MILESTONES)
+                result.add(build(def, earned, "TIME", Math.min(totalHoursInt, (int) def[0]), (int) def[0]));
+            for (Object[] def : DAILY_MILESTONES)
+                result.add(build(def, earned, "DAILY", Math.min(maxDaily, (int) def[0]), (int) def[0]));
+            for (Object[] def : SPECIAL_ACHIEVEMENTS) {
+                boolean e = earned.containsKey((String) def[1]);
+                result.add(build(def, earned, "SPECIAL", e ? 1 : 0, 1));
+            }
+            for (Object[] def : SCHEDULE_ACHIEVEMENTS) {
+                String key = (String) def[0];
+                int prog = switch (key) {
+                    case "first_time_block"  -> Math.min(totalBlocks, 1);
+                    case "day_architect"     -> maxBlocksDay;
+                    case "schedule_warrior"  -> daysWithBlocks;
+                    case "gcal_connected"    -> gcalConn ? 1 : 0;
+                    default -> 0;
+                };
+                int tgt = switch (key) {
+                    case "day_architect"    -> 5;
+                    case "schedule_warrior" -> 7;
+                    default -> 1;
+                };
+                result.add(build(def, earned, "SCHEDULE", prog, tgt));
+            }
+
+            // unlocked first (date desc), then locked by progress% desc
+            result.sort((a, b) -> {
+                if (!a.isLocked() && b.isLocked()) return -1;
+                if (a.isLocked() && !b.isLocked()) return 1;
+                if (!a.isLocked()) return (b.getDate() != null ? b.getDate() : "").compareTo(a.getDate() != null ? a.getDate() : "");
+                double pA = a.getTarget() > 0 ? (double) a.getProgress() / a.getTarget() : 0;
+                double pB = b.getTarget() > 0 ? (double) b.getProgress() / b.getTarget() : 0;
+                return Double.compare(pB, pA);
+            });
+            return result;
+        } catch (Exception e) {
+            log.error("getAllAchievementsWithProgress failed for {}: {}", userEmail, e.getMessage());
+            return List.of();
+        }
+    }
+
+    private AchievementDTO build(Object[] def, Map<String, String> earned, String type, int progress, int target) {
+        String name = (String) def[1];
+        boolean locked = !earned.containsKey(name);
+        return AchievementDTO.builder()
+                .id(locked ? null : -1L)
+                .name(name)
+                .description((String) def[2])
+                .goldReward((int) def[4])
+                .type(type)
+                .locked(locked)
+                .progress(progress)
+                .target(target)
+                .date(locked ? null : earned.get(name))
+                .build();
+    }
+
+    private String formatAchDate(String raw) {
+        if (raw == null) return null;
+        try {
+            return LocalDate.parse(raw.substring(0, 10)).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } catch (Exception e) { return raw; }
     }
 
     // ─── Grant helper ─────────────────────────────────────────────────────────

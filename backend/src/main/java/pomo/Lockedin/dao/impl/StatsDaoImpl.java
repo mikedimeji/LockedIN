@@ -289,6 +289,56 @@ public class StatsDaoImpl implements StatsDao {
     }
 
     @Override
+    public int getTodaySessions(Long userId) {
+        try {
+            Integer v = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(pomodoros_completed), 0) FROM pomodoro_sessions WHERE user_id = ? AND DATE(start_time) = CURDATE()",
+                Integer.class, userId);
+            return v != null ? v : 0;
+        } catch (Exception e) { return 0; }
+    }
+
+    @Override
+    public int getTodayMinutes(Long userId) {
+        try {
+            Integer v = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(duration_minutes), 0) FROM pomodoro_sessions WHERE user_id = ? AND DATE(start_time) = CURDATE()",
+                Integer.class, userId);
+            return v != null ? v : 0;
+        } catch (Exception e) { return 0; }
+    }
+
+    @Override
+    public int getBestDaySessions(Long userId) {
+        try {
+            Integer v = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(MAX(cnt), 0) FROM (SELECT SUM(pomodoros_completed) cnt FROM pomodoro_sessions WHERE user_id = ? GROUP BY DATE(start_time)) t",
+                Integer.class, userId);
+            return v != null ? v : 0;
+        } catch (Exception e) { return 0; }
+    }
+
+    @Override
+    public int getThisWeekSessions(Long userId) {
+        try {
+            Integer v = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(pomodoros_completed), 0) FROM pomodoro_sessions WHERE user_id = ? AND DATE(start_time) >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)",
+                Integer.class, userId);
+            return v != null ? v : 0;
+        } catch (Exception e) { return 0; }
+    }
+
+    @Override
+    public int getLastWeekSessions(Long userId) {
+        try {
+            Integer v = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(pomodoros_completed), 0) FROM pomodoro_sessions WHERE user_id = ? AND DATE(start_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 13 DAY) AND DATE_SUB(CURDATE(), INTERVAL 7 DAY)",
+                Integer.class, userId);
+            return v != null ? v : 0;
+        } catch (Exception e) { return 0; }
+    }
+
+    @Override
     public int getFocusScore(Long userId) {
         try {
             String sessionsSql = "SELECT COUNT(*) FROM pomodoro_sessions " +

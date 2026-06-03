@@ -16,4 +16,9 @@ public class StatsControllerSummaryDTO {
         private int currentStreak;
         private int longestStreak;
         private double totalHours;
+        private int todaySessions;
+        private int todayMinutes;
+        private int bestDaySessions;
+        private int thisWeekSessions;
+        private int lastWeekSessions;
 }

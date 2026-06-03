@@ -49,6 +49,14 @@
     <!-- ══════════════════════════════════════════ -->
     <div [hidden]="activeSection !== 'overview'">
 
+      <!-- Today's snapshot -->
+      <div class="today-snapshot" *ngIf="summary.todaySessions > 0 || summary.todayMinutes > 0">
+        <span class="today-pill">TODAY</span>
+        <span class="today-stat">{{ summary.todaySessions }} session{{ summary.todaySessions !== 1 ? 's' : '' }}</span>
+        <span class="today-sep">·</span>
+        <span class="today-stat">{{ todayTimeDisplay() }} studied</span>
+      </div>
+
       <!-- Summary metric cards -->
       <div class="summary-row">
         <div class="metric-card mc-gold">
@@ -80,6 +88,12 @@
           <div class="week-stat">
             <span class="week-value wv-blue">{{ weeklyTotalSessions }}</span>
             <span class="week-label">SESSIONS</span>
+            <span class="week-vs"
+                  [class.wv-pos]="weekDiff > 0"
+                  [class.wv-neg]="weekDiff < 0"
+                  [class.wv-zero]="weekDiff === 0">
+              {{ weekDiffLabel }}
+            </span>
           </div>
           <div class="week-divider"></div>
           <div class="week-stat">
@@ -90,6 +104,27 @@
           <div class="week-stat">
             <span class="week-value">{{ bestDay }}</span>
             <span class="week-label">BEST DAY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal bests -->
+      <div class="section" *ngIf="summary.bestDaySessions > 0 || summary.longestStreak > 0">
+        <div class="section-header">
+          <span class="section-label">PERSONAL BESTS</span>
+        </div>
+        <div class="bests-row">
+          <div class="best-card">
+            <span class="best-value">{{ summary.bestDaySessions }}</span>
+            <span class="best-label">sessions in one day</span>
+          </div>
+          <div class="best-card">
+            <span class="best-value">{{ summary.longestStreak }}</span>
+            <span class="best-label">day longest streak</span>
+          </div>
+          <div class="best-card">
+            <span class="best-value">{{ totalHoursDisplay() }}</span>
+            <span class="best-label">total hours studied</span>
           </div>
         </div>
       </div>
@@ -391,17 +426,17 @@
     <!-- ══════════════════════════════════════════ -->
     <div [hidden]="activeSection !== 'achievements'">
 
-      <div class="awards-count" *ngIf="achievements.length > 0">
-        <span class="awards-count-num">{{ achievements.length }}</span>
+      <div class="awards-count" *ngIf="unlockedAchievements.length > 0">
+        <span class="awards-count-num">{{ unlockedAchievements.length }}</span>
         <span class="awards-count-label">AWARDS UNLOCKED</span>
       </div>
 
-      <div *ngIf="achievements.length === 0" class="no-achievements">
+      <div *ngIf="unlockedAchievements.length === 0" class="no-achievements">
         <p>No achievements yet — complete sessions to start earning them.</p>
       </div>
 
       <div class="achievements-list">
-        <div *ngFor="let a of achievements"
+        <div *ngFor="let a of unlockedAchievements"
              class="achievement-item"
              [class.tier-bronze]="achievementTier(a.goldReward) === 'bronze'"
              [class.tier-silver]="achievementTier(a.goldReward) === 'silver'"
@@ -433,6 +468,28 @@
           </div>
         </div>
       </div>
+
+      <!-- Locked achievements with progress -->
+      <div *ngIf="lockedAchievements.length > 0" class="locked-section">
+        <div class="locked-section-header">LOCKED — WORK IN PROGRESS</div>
+        <div class="locked-list">
+          <div *ngFor="let a of lockedAchievements" class="locked-item">
+            <div class="locked-orb">◆</div>
+            <div class="locked-body">
+              <div class="locked-name">{{ a.name }}</div>
+              <div class="locked-desc">{{ a.description }}</div>
+              <div class="locked-progress-track" *ngIf="a.type !== 'SPECIAL'">
+                <div class="locked-progress-fill" [style.width.%]="achProgressPct(a)"></div>
+              </div>
+              <div class="locked-progress-label" *ngIf="a.type !== 'SPECIAL'">
+                {{ a.progress }} / {{ a.target }}
+              </div>
+            </div>
+            <div class="locked-reward">+{{ a.goldReward }} ◆</div>
+          </div>
+        </div>
+      </div>
+
     </div>
     <!-- /achievements -->
 

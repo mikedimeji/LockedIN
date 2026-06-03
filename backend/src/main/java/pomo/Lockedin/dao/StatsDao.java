@@ -84,4 +84,19 @@ public interface StatsDao {
 
     /** Update the subject on the user's most recent session */
     void tagLatestSession(Long userId, String subject);
+
+    /** Sessions completed today */
+    int getTodaySessions(Long userId);
+
+    /** Minutes studied today */
+    int getTodayMinutes(Long userId);
+
+    /** Max sessions completed in a single day (personal record) */
+    int getBestDaySessions(Long userId);
+
+    /** Total sessions in the last 7 days (this week) */
+    int getThisWeekSessions(Long userId);
+
+    /** Total sessions in the 7 days before that (last week) */
+    int getLastWeekSessions(Long userId);
 }

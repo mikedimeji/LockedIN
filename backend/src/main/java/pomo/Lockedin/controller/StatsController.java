@@ -62,6 +62,11 @@ public class StatsController {
                 .currentStreak(currentStreak)
                 .longestStreak(longestStreak)
                 .totalHours(totalHours)
+                .todaySessions(statsService.getTodaySessions(userEmail))
+                .todayMinutes(statsService.getTodayMinutes(userEmail))
+                .bestDaySessions(statsService.getBestDaySessions(userEmail))
+                .thisWeekSessions(statsService.getThisWeekSessions(userEmail))
+                .lastWeekSessions(statsService.getLastWeekSessions(userEmail))
                 .build();
     }
 
@@ -124,8 +129,7 @@ public class StatsController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userEmail = user.getEmail();
 
-        // Get achievements from service
-        return statsService.getUserAchievements(userEmail);
+        return achievementService.getAllAchievementsWithProgress(userEmail);
     }
 
     /**

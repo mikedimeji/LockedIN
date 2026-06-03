@@ -12,7 +12,11 @@ import lombok.NoArgsConstructor;
 public class AchievementDTO {
     private Long id;
     private String name;
-    private String date; // Formatted date string
+    private String date;
     private String description;
     private int goldReward;
+    private String type;
+    private boolean locked;
+    private int progress;
+    private int target;
 }

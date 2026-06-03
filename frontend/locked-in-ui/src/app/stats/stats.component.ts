@@ -16,6 +16,11 @@ interface SummaryStats {
   currentStreak: number;
   longestStreak: number;
   totalHours: number;
+  todaySessions: number;
+  todayMinutes: number;
+  bestDaySessions: number;
+  thisWeekSessions: number;
+  lastWeekSessions: number;
 }
 
 interface Achievement {
@@ -24,6 +29,10 @@ interface Achievement {
   date: string;
   description: string;
   goldReward: number;
+  type: string;
+  locked: boolean;
+  progress: number;
+  target: number;
 }
 
 type Section = 'overview' | 'focus' | 'activity' | 'achievements';
@@ -46,7 +55,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   loading = true;
   activeSection: Section = 'overview';
 
-  summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0 };
+  summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0, todaySessions: 0, todayMinutes: 0, bestDaySessions: 0, thisWeekSessions: 0, lastWeekSessions: 0 };
   premium: PremiumStatus = { isPremium: false, subscriptionStatus: 'inactive' };
   insights: FocusInsights | null = null;
   achievements: Achievement[] = [];
@@ -316,6 +325,37 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   scoreDashOffsetFor(score: number): number {
     return this.RING_CIRCUMFERENCE * (1 - score / 100);
+  }
+
+  get unlockedAchievements(): Achievement[] {
+    return this.achievements.filter(a => !a.locked);
+  }
+
+  get lockedAchievements(): Achievement[] {
+    return this.achievements.filter(a => a.locked);
+  }
+
+  get weekDiff(): number {
+    return (this.summary.thisWeekSessions ?? 0) - (this.summary.lastWeekSessions ?? 0);
+  }
+
+  get weekDiffLabel(): string {
+    const d = this.weekDiff;
+    if (d === 0) return 'same as last week';
+    return `${d > 0 ? '+' : ''}${d} vs last week`;
+  }
+
+  todayTimeDisplay(): string {
+    const m = this.summary.todayMinutes ?? 0;
+    if (m === 0) return '0m';
+    if (m < 60) return `${m}m`;
+    const h = Math.floor(m / 60);
+    const rem = m % 60;
+    return rem > 0 ? `${h}h ${rem}m` : `${h}h`;
+  }
+
+  achProgressPct(a: Achievement): number {
+    return a.target > 0 ? Math.min(100, Math.round((a.progress / a.target) * 100)) : 0;
   }
 
   get subjectMaxMinutes(): number {

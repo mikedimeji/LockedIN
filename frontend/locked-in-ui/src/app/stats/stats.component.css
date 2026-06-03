@@ -1366,3 +1366,134 @@
   box-shadow: 0 0 28px rgba(120, 60, 255, 0.22);
 }
 
+
+/* ── Today's snapshot ────────────────────────────────────────────────── */
+.today-snapshot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  margin-bottom: 14px;
+  background: rgba(82, 113, 255, 0.07);
+  border: 1px solid rgba(82, 113, 255, 0.18);
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+}
+.today-pill {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(82, 113, 255, 0.9);
+  background: rgba(82, 113, 255, 0.15);
+  border-radius: 4px;
+  padding: 2px 6px;
+  letter-spacing: 1px;
+}
+.today-stat { font-size: 12px; color: rgba(255,255,255,0.75); }
+.today-sep  { color: rgba(255,255,255,0.25); }
+
+/* ── Weekly comparison ───────────────────────────────────────────────── */
+.week-vs {
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+.wv-pos  { color: #4ade80; }
+.wv-neg  { color: #f87171; }
+.wv-zero { color: rgba(255,255,255,0.35); }
+
+/* ── Personal bests ──────────────────────────────────────────────────── */
+.bests-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.best-card {
+  flex: 1;
+  min-width: 80px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 12px 10px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+.best-value {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 4px;
+}
+.best-label {
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+/* ── Locked achievements ─────────────────────────────────────────────── */
+.locked-section { margin-top: 24px; }
+.locked-section-header {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+.locked-list { display: flex; flex-direction: column; gap: 8px; }
+.locked-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  opacity: 0.7;
+}
+.locked-orb {
+  font-size: 14px;
+  color: rgba(255,255,255,0.15);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.locked-body { flex: 1; min-width: 0; }
+.locked-name {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 2px;
+}
+.locked-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.28);
+  margin-bottom: 7px;
+}
+.locked-progress-track {
+  height: 4px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.locked-progress-fill {
+  height: 100%;
+  background: rgba(82, 113, 255, 0.55);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.locked-progress-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+}
+.locked-reward {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: rgba(255, 215, 0, 0.3);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
