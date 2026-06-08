@@ -613,8 +613,8 @@ private updatePfpUnlockStatus(unlockedPfpPaths: string[]): void {
     const text = this.feedbackText.trim();
     if (!text) return;
     this.feedbackSending = true;
-    const subject = encodeURIComponent('LockedIN Feedback');
-    const body = encodeURIComponent(text + '\n\n— Sent from LockedIN\nUser: ' + (this.authService.getUsername() || 'guest'));
+    const subject = encodeURIComponent('TokiSpirit Feedback');
+    const body = encodeURIComponent(text + '\n\n— Sent from TokiSpirit\nUser: ' + (this.authService.getUsername() || 'guest'));
     window.open(`mailto:oladimeji.michael12345@gmail.com?subject=${subject}&body=${body}`, '_blank');
     setTimeout(() => {
       this.showFeedbackModal = false;

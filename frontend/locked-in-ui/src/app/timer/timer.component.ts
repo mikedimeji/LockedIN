@@ -409,16 +409,16 @@ export class TimerComponent implements OnInit, OnDestroy {
 
   private checkDayPlaylist(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    const raw = sessionStorage.getItem('lockedin_day_playlist');
+    const raw = sessionStorage.getItem('tokispirit_day_playlist');
     if (!raw) return;
     try {
       const playlist = JSON.parse(raw) as { type: string; title: string; startMinute: number; endMinute: number }[];
-      if (!playlist.length) { sessionStorage.removeItem('lockedin_day_playlist'); return; }
+      if (!playlist.length) { sessionStorage.removeItem('tokispirit_day_playlist'); return; }
       const [next, ...rest] = playlist;
-      sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(rest));
+      sessionStorage.setItem('tokispirit_day_playlist', JSON.stringify(rest));
       this.nextDayBlock = next;
       this.nextDayCountdown = 0; // no auto-advance — user must confirm
-    } catch { sessionStorage.removeItem('lockedin_day_playlist'); }
+    } catch { sessionStorage.removeItem('tokispirit_day_playlist'); }
   }
 
   launchNextDayBlock(): void {
@@ -447,7 +447,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   skipNextDayBlock(): void {
     clearInterval(this.nextDayTimerId);
     this.nextDayBlock = null;
-    sessionStorage.removeItem('lockedin_day_playlist');
+    sessionStorage.removeItem('tokispirit_day_playlist');
   }
 
   startBreak(minutes: number): void {
@@ -534,7 +534,7 @@ export class TimerComponent implements OnInit, OnDestroy {
   /** Returns true if the session was started from the schedule (key exists, even if empty). */
   isInScheduleMode(): boolean {
     if (!isPlatformBrowser(this.platformId)) return false;
-    return sessionStorage.getItem('lockedin_day_playlist') !== null;
+    return sessionStorage.getItem('tokispirit_day_playlist') !== null;
   }
 
   private collapseTimer(): void {

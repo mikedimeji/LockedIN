@@ -2,7 +2,7 @@
 <div class="lia-overlay" *ngIf="appDialog.show" (click)="closeAppDialog()">
   <div class="lia-panel" (click)="$event.stopPropagation()">
     <div class="lia-header">
-      <span class="lia-logo">LOCKED IN</span>
+      <span class="lia-logo">TOKISPIRIT</span>
       <span class="lia-sep">·</span>
       <span class="lia-tag"
             [class.lia-tag-error]="appDialog.type === 'error'"
@@ -32,7 +32,7 @@
   <div class="feedback-panel" (click)="$event.stopPropagation()">
     <div class="feedback-header">
       <div class="feedback-hud-left">
-        <span class="feedback-logo">LOCKED IN</span>
+        <span class="feedback-logo">TOKISPIRIT</span>
         <span class="feedback-sep">·</span>
         <span class="feedback-tag">FEEDBACK</span>
       </div>
@@ -63,7 +63,7 @@
 <!-- Loading screen -->
 <div *ngIf="isLoading" class="loading-screen">
   <div class="loading-content">
-    <div class="loading-logo">LOCKED IN</div>
+    <div class="loading-logo">TOKISPIRIT</div>
     <div class="loading-dots">
       <span></span><span></span><span></span>
     </div>
@@ -98,7 +98,7 @@
     <button class="pm-close" (click)="closePremiumModal()">✕</button>
     <div class="pm-glow"></div>
     <div class="pm-icon">◆</div>
-    <h2 class="pm-title">LOCKED IN PREMIUM</h2>
+    <h2 class="pm-title">TOKISPIRIT PREMIUM</h2>
 
     <!-- Not yet premium: show full pitch + both plans -->
     <ng-container *ngIf="!isPremium">
@@ -173,7 +173,7 @@
 
     <div class="pfp-selector-header">
       <div class="pfp-header-left">
-        <span class="pfp-hud-logo">LOCKED IN</span>
+        <span class="pfp-hud-logo">TOKISPIRIT</span>
         <span class="pfp-hud-tag">CHOOSE AVATAR</span>
       </div>
       <button class="pfp-close-btn" (click)="closePfpSelector()">✕</button>

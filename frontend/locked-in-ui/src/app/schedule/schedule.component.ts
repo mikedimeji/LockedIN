@@ -324,7 +324,7 @@ export class ScheduleComponent implements OnInit {
     const first = this.confirmBlock!;
     const duration = this.confirmRemainingMins;
 
-    sessionStorage.setItem('lockedin_day_playlist', JSON.stringify(this.pendingPlaylist.slice(1)));
+    sessionStorage.setItem('tokispirit_day_playlist', JSON.stringify(this.pendingPlaylist.slice(1)));
     this.showDay = false;
 
     if (first.type === 'DEEP_WORK') {

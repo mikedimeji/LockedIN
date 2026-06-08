@@ -159,7 +159,7 @@ export class QuestionnaireModalComponent {
     {
       key: 'primaryMotivation',
       section: 'Goals',
-      text: "What's your main reason for using LockedIN?",
+      text: "What's your main reason for using TokiSpirit?",
       options: [
         { label: 'Build better focus habits', value: 'focus_habits' },
         { label: 'Manage ADHD symptoms', value: 'adhd_management' },
