@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pomo.Lockedin.Security.JwtService;
@@ -29,6 +30,7 @@ public class PasswordResetService {
     @Value("${spring.mail.from:noreply@tokispirit.app}")
     private String fromEmail;
 
+    @Async
     public void sendResetEmail(String email) {
         Optional<User> userOpt = userDao.findUserByEmailOrUsername(email);
         if (userOpt.isEmpty()) {
