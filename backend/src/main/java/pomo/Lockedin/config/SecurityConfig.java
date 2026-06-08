@@ -51,7 +51,7 @@ public class SecurityConfig extends WebSecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:*", "https://lockedin-production-c669.up.railway.app", "https://*.vercel.app"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:*", "https://lockedin-production-c669.up.railway.app", "https://*.vercel.app", "https://tokispirit.com", "https://www.tokispirit.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Allow these methods
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // Allow these headers
         configuration.setAllowCredentials(true); // Allow credentials
