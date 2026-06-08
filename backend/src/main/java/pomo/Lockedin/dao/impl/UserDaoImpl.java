@@ -67,6 +67,11 @@ public class UserDaoImpl implements UserDao {
     }
 
 
+    @Override
+    public void updatePassword(String email, String encodedPassword) {
+        jdbcTemplate.update("UPDATE user SET password = ? WHERE email = ?", encodedPassword, email);
+    }
+
     public static class UserRowMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {

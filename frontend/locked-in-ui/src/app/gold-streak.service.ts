@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
-import { environment } from '../environments/environment'; // ✅ ADD THIS
+import { Observable, catchError, retry, throwError, timer } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +31,34 @@ export class GoldStreakService {
       );
   }
 
+  private static readonly QUEUE_KEY = 'tokispirit_pending_rewards';
+
+  /** Drain any rewards that failed in a previous session and retry them now. */
+  drainPendingRewards(): void {
+    const raw = localStorage.getItem(GoldStreakService.QUEUE_KEY);
+    if (!raw) return;
+    let queue: any[] = [];
+    try { queue = JSON.parse(raw); } catch { localStorage.removeItem(GoldStreakService.QUEUE_KEY); return; }
+    if (!queue.length) { localStorage.removeItem(GoldStreakService.QUEUE_KEY); return; }
+    localStorage.removeItem(GoldStreakService.QUEUE_KEY);
+    for (const payload of queue) {
+      this.http.post<any>(`${this.apiBaseUrl}/gold/pomodoro-reward`, payload)
+        .pipe(retry({ count: 2, delay: (_, n) => timer(n * 3000) }), catchError(() => throwError(() => null)))
+        .subscribe({ error: () => this.enqueueReward(payload) });
+    }
+  }
+
+  private enqueueReward(payload: any): void {
+    let queue: any[] = [];
+    try { queue = JSON.parse(localStorage.getItem(GoldStreakService.QUEUE_KEY) ?? '[]'); } catch {}
+    queue.push(payload);
+    localStorage.setItem(GoldStreakService.QUEUE_KEY, JSON.stringify(queue));
+  }
+
   /**
-   * Award gold for completed pomodoros
+   * Award gold for completed pomodoros.
+   * Retries 3× with exponential backoff; on final failure queues to localStorage
+   * so it is retried automatically on next app load.
    */
   rewardPomodoro(
     pomodorosCompleted: number,
@@ -44,14 +70,24 @@ export class GoldStreakService {
       pauseCount?: number;
     }
   ): Observable<any> {
-    return this.http.post<any>(`${this.apiBaseUrl}/gold/pomodoro-reward`, {
+    const payload = {
       pomodorosCompleted,
       subject: opts?.subject ?? null,
       startTime: opts?.startTime ?? null,
       endTime: opts?.endTime ?? null,
       durationMinutes: opts?.durationMinutes ?? 0,
       pauseCount: opts?.pauseCount ?? 0
-    }).pipe(catchError(this.handleError));
+    };
+    return this.http.post<any>(`${this.apiBaseUrl}/gold/pomodoro-reward`, payload).pipe(
+      retry({ count: 3, delay: (_, attempt) => timer(attempt * 2000) }),
+      catchError((err: HttpErrorResponse) => {
+        // 4xx errors are definitive failures — don't queue (e.g. auth expired)
+        if (err.status >= 400 && err.status < 500) return throwError(() => err);
+        // Network / 5xx — queue for next session
+        this.enqueueReward(payload);
+        return throwError(() => err);
+      })
+    );
   }
 
   getSubjectBreakdown(): Observable<any[]> {

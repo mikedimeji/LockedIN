@@ -35,7 +35,14 @@ export class UserLoginComponent {
   email: string = "";
   isLoading: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router,private authService: AuthService) { }
+  // Forgot password state
+  showForgotPw = false;
+  forgotPwEmail = '';
+  forgotPwLoading = false;
+  forgotPwDone = false;
+  forgotPwError = '';
+
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService) { }
 
   ngOnInit() {
     if (this.isBrowser()) {
@@ -135,6 +142,26 @@ export class UserLoginComponent {
   }
 
   clearError() { this.invalidLogin = false; }
+
+  openForgotPw(): void {
+    this.showForgotPw = true;
+    this.forgotPwDone = false;
+    this.forgotPwError = '';
+    this.forgotPwEmail = this.email || '';
+  }
+
+  closeForgotPw(): void { this.showForgotPw = false; }
+
+  submitForgotPw(): void {
+    if (!this.forgotPwEmail.trim()) { this.forgotPwError = 'Enter your email.'; return; }
+    this.forgotPwLoading = true;
+    this.forgotPwError = '';
+    this.http.post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email: this.forgotPwEmail.trim() })
+      .subscribe({
+        next: () => { this.forgotPwLoading = false; this.forgotPwDone = true; },
+        error: () => { this.forgotPwLoading = false; this.forgotPwError = 'Something went wrong. Try again.'; }
+      });
+  }
 
   onBackdropClick(_event: MouseEvent): void {
     this.router.navigate(['/timer']);

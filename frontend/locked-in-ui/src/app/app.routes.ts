@@ -9,9 +9,11 @@ import { StatsComponent } from './stats/stats.component';
 import { AmbienceComponent } from './ambience/ambience.component';
 import { ScheduleComponent } from './schedule/schedule.component';
 import { AuthGuard } from './auth.guard';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 export const routes: Routes = [
-  { path: 'timer',    component: TimerComponent },
+  { path: 'timer',          component: TimerComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'about',    component: AboutComponent },
   { path: 'themes',   component: ThemesComponent,   canActivate: [AuthGuard] },
   { path: 'login',    component: UserLoginComponent },

@@ -37,5 +37,31 @@
     <div class="auth-link">
       Don't have an account? <a routerLink="/register">Register</a>
     </div>
+    <div class="auth-link">
+      <a href="javascript:void(0)" (click)="openForgotPw()">Forgot password?</a>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div *ngIf="showForgotPw" class="fp-overlay" (click)="closeForgotPw()">
+  <div class="fp-panel" (click)="$event.stopPropagation()">
+    <button class="fp-close" (click)="closeForgotPw()">✕</button>
+    <h3 class="fp-title">Reset Password</h3>
+
+    <ng-container *ngIf="!forgotPwDone">
+      <p class="fp-desc">Enter your account email and we'll send a reset link.</p>
+      <input class="fp-input" type="email" placeholder="Email" [(ngModel)]="forgotPwEmail" name="fpEmail">
+      <div class="fp-error" *ngIf="forgotPwError">{{ forgotPwError }}</div>
+      <button class="fp-btn" [disabled]="forgotPwLoading" (click)="submitForgotPw()">
+        {{ forgotPwLoading ? 'SENDING...' : 'SEND RESET LINK' }}
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="forgotPwDone">
+      <div class="fp-success">
+        ✓ Check your inbox — if that email is registered, a reset link is on its way.
+      </div>
+    </ng-container>
   </div>
 </div>

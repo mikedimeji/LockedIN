@@ -11,4 +11,5 @@ public interface UserDao {
     void updateUserGold(Long userId, int newGoldAmount);
     int getUserGold(Long userId);
     void incrementUserGold(Long userId, int amount);
+    void updatePassword(String email, String encodedPassword);
 }

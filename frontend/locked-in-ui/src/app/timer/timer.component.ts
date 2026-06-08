@@ -168,6 +168,7 @@ export class TimerComponent implements OnInit, OnDestroy {
     // Get initial gold balance, streak, and premium status if user is logged in
     if (this.authService.isLoggedIn()) {
       this.loadUserStats();
+      this.goldStreakService.drainPendingRewards();
       const premSub = this.premiumService.getStatus().subscribe({
         next: (s) => { this.isPremium = s.isPremium; },
         error: () => {}
@@ -426,9 +427,17 @@ export class TimerComponent implements OnInit, OnDestroy {
     const block = this.nextDayBlock;
     this.nextDayBlock = null;
     if (!block) return;
+
+    // Subtract any time that elapsed since this block was supposed to start
+    const now = new Date();
+    const currentMin = now.getHours() * 60 + now.getMinutes();
+    const fullDur = block.endMinute - block.startMinute;
+    const remaining = currentMin > block.startMinute
+      ? Math.max(block.endMinute - currentMin, 5)
+      : fullDur;
+
     if (block.type === 'DEEP_WORK') {
-      const dur = block.endMinute - block.startMinute;
-      const pomos = Math.max(1, Math.floor((dur + 5) / 30));
+      const pomos = Math.max(1, Math.floor((remaining + 5) / 30));
       this.deepWorkMode = true;
       this.deepWorkTotal = pomos;
       this.deepWorkPomodorosRemaining = pomos;
@@ -437,9 +446,9 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.startTimer();
     } else if (block.type === 'BREAK') {
       this.isScheduleBreak = true;
-      this.startBreak(block.endMinute - block.startMinute);
+      this.startBreak(remaining);
     } else {
-      this.setDuration(block.endMinute - block.startMinute);
+      this.setDuration(remaining);
       this.startTimer();
     }
   }

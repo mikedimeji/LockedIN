@@ -1,6 +1,7 @@
 package pomo.Lockedin.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -11,9 +12,11 @@ import pomo.Lockedin.Requests.RegisterRequest;
 import pomo.Lockedin.Security.JwtService;
 import pomo.Lockedin.entities.AuthenticationResponse;
 import pomo.Lockedin.service.AuthenticationService;
+import pomo.Lockedin.service.PasswordResetService;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/home/auth")
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class UserAuthController {
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
+    private final PasswordResetService passwordResetService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request){
@@ -61,6 +65,38 @@ public class UserAuthController {
                     .body(AuthenticationResponse.builder()
                             .message("Server error occurred during login")
                             .build());
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email is required"));
+        }
+        try {
+            passwordResetService.sendResetEmail(email.trim().toLowerCase());
+        } catch (Exception e) {
+            log.warn("forgot-password error: {}", e.getMessage());
+        }
+        // Always 200 — never reveal whether the email is registered
+        return ResponseEntity.ok(Map.of("message", "If that email is registered, a reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        String newPassword = body.get("newPassword");
+        if (token == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Token and new password are required"));
+        }
+        try {
+            passwordResetService.resetPassword(token, newPassword);
+            return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid or expired reset link"));
         }
     }
 

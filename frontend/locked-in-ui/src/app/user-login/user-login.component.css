@@ -212,3 +212,52 @@
   }
 }
   
+/* ── Forgot password modal ── */
+.fp-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.fp-panel {
+  position: relative;
+  background: #0d1117;
+  border: 1px solid rgba(82,113,255,0.25);
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 100%; max-width: 360px;
+  font-family: 'Courier New', monospace;
+}
+.fp-close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.4); font-size: 16px; cursor: pointer;
+}
+.fp-title {
+  font-size: 16px; font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 8px; letter-spacing: 1px;
+}
+.fp-desc { font-size: 12px; color: rgba(255,255,255,0.45); margin-bottom: 16px; }
+.fp-input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(82,113,255,0.2);
+  border-radius: 8px; padding: 10px 14px;
+  color: rgba(255,255,255,0.85); font-family: inherit; font-size: 13px;
+  margin-bottom: 10px;
+}
+.fp-input:focus { outline: none; border-color: rgba(82,113,255,0.5); }
+.fp-error { font-size: 11px; color: #f87171; margin-bottom: 8px; }
+.fp-btn {
+  width: 100%; padding: 10px;
+  background: rgba(82,113,255,0.8); border: none; border-radius: 8px;
+  color: #fff; font-family: inherit; font-size: 12px;
+  letter-spacing: 1px; cursor: pointer; font-weight: 600;
+}
+.fp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.fp-btn:hover:not(:disabled) { background: rgba(82,113,255,1); }
+.fp-success {
+  font-size: 12px; color: #4ade80;
+  line-height: 1.6; padding: 12px 0;
+}

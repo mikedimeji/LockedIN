@@ -48,6 +48,27 @@ public class JwtService {
                 .compact();
     }
 
+    public String generatePasswordResetToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("type", "password_reset")
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000L))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String extractEmailFromResetToken(String token) {
+        Claims claims = extractALLClaims(token);
+        if (!"password_reset".equals(claims.get("type", String.class))) {
+            throw new IllegalArgumentException("Invalid reset token");
+        }
+        if (claims.getExpiration().before(new Date())) {
+            throw new IllegalArgumentException("Reset link has expired");
+        }
+        return claims.getSubject();
+    }
+
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
