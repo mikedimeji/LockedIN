@@ -49,12 +49,13 @@ public class StatsController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String userEmail = user.getEmail();
 
-        // Fetch all the required data
-        int currentGold = goldService.getUserGold(userEmail);
-        int currentStreak = statsService.computeCurrentStreak(userEmail);
-        int longestStreak = statsService.computeLongestStreak(userEmail);
+        int currentGold    = goldService.getUserGold(userEmail);
+        int currentStreak  = statsService.computeCurrentStreak(userEmail);
+        int longestStreak  = statsService.computeLongestStreak(userEmail);
         int totalPomodoros = statsService.getTotalPomodorosCompleted(userEmail);
-        double totalHours = statsService.getTotalHoursRevised(userEmail);
+        double totalHours  = statsService.getTotalHoursRevised(userEmail);
+        int totalXp        = statsService.getTotalXp(userEmail);
+        int[] rankBounds   = statsService.getRankBounds(totalXp);
 
         return StatsControllerSummaryDTO.builder()
                 .currentGold(currentGold)
@@ -67,6 +68,11 @@ public class StatsController {
                 .bestDaySessions(statsService.getBestDaySessions(userEmail))
                 .thisWeekSessions(statsService.getThisWeekSessions(userEmail))
                 .lastWeekSessions(statsService.getLastWeekSessions(userEmail))
+                .totalXp(totalXp)
+                .rankName(statsService.getRankName(totalXp))
+                .rankIndex(statsService.getRankIndex(totalXp))
+                .rankXpFloor(rankBounds[0])
+                .rankXpCeiling(rankBounds[1])
                 .build();
     }
 

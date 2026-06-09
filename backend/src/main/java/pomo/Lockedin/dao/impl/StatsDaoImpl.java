@@ -361,4 +361,14 @@ public class StatsDaoImpl implements StatsDao {
             return 0;
         }
     }
+
+    @Override
+    public int getTotalXp(Long userId) {
+        try {
+            Integer v = jdbcTemplate.queryForObject(
+                "SELECT COALESCE(SUM(pomodoros_completed), 0) * 10 FROM pomodoro_sessions WHERE user_id = ?",
+                Integer.class, userId);
+            return v != null ? v : 0;
+        } catch (Exception e) { return 0; }
+    }
 }

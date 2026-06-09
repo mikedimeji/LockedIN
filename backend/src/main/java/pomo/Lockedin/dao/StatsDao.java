@@ -85,6 +85,9 @@ public interface StatsDao {
     /** Update the subject on the user's most recent session */
     void tagLatestSession(Long userId, String subject);
 
+    /** Total XP earned (10 XP per pomodoro completed) */
+    int getTotalXp(Long userId);
+
     /** Sessions completed today */
     int getTodaySessions(Long userId);
 

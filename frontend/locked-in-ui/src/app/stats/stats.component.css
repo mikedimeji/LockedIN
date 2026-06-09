@@ -1532,3 +1532,94 @@
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+/* ── Rank card ───────────────────────────────────────────────────────── */
+.rank-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+}
+
+.rank-badge {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border: 2px solid;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: rgba(255,255,255,0.03);
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.rank-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rank-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.rank-name {
+  font-family: bitF1, sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.rank-xp {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.5px;
+}
+
+.rank-bar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rank-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+.rank-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rank-progress-pct {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+}
+
+.rank-next {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 480px) {
+  .rank-badge { width: 40px; height: 40px; font-size: 16px; border-radius: 10px; }
+  .rank-name { font-size: 13px; }
+}

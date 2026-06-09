@@ -21,6 +21,11 @@ interface SummaryStats {
   bestDaySessions: number;
   thisWeekSessions: number;
   lastWeekSessions: number;
+  totalXp: number;
+  rankName: string;
+  rankIndex: number;
+  rankXpFloor: number;
+  rankXpCeiling: number;
 }
 
 interface Achievement {
@@ -55,7 +60,7 @@ export class StatsComponent implements OnInit, OnDestroy {
   loading = true;
   activeSection: Section = 'overview';
 
-  summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0, todaySessions: 0, todayMinutes: 0, bestDaySessions: 0, thisWeekSessions: 0, lastWeekSessions: 0 };
+  summary: SummaryStats = { currentGold: 0, totalPomodoros: 0, currentStreak: 0, longestStreak: 0, totalHours: 0, todaySessions: 0, todayMinutes: 0, bestDaySessions: 0, thisWeekSessions: 0, lastWeekSessions: 0, totalXp: 0, rankName: 'Novice', rankIndex: 1, rankXpFloor: 0, rankXpCeiling: 100 };
   premium: PremiumStatus = { isPremium: false, subscriptionStatus: 'inactive' };
   insights: FocusInsights | null = null;
   achievements: Achievement[] = [];
@@ -325,6 +330,26 @@ export class StatsComponent implements OnInit, OnDestroy {
 
   scoreDashOffsetFor(score: number): number {
     return this.RING_CIRCUMFERENCE * (1 - score / 100);
+  }
+
+  get rankProgressPct(): number {
+    const floor = this.summary.rankXpFloor;
+    const ceil  = this.summary.rankXpCeiling;
+    if (ceil === floor) return 100;
+    return Math.min(100, Math.round((this.summary.totalXp - floor) / (ceil - floor) * 100));
+  }
+
+  get rankColor(): string {
+    const i = this.summary.rankIndex;
+    if (i <= 3)  return 'rgba(180,140,100,0.9)';   // bronze
+    if (i <= 6)  return 'rgba(130,160,255,0.9)';   // blue/silver
+    if (i <= 9)  return '#ffd700';                  // gold
+    if (i === 10) return '#c084fc';                 // myth — purple
+    return '#ff9500';                               // god — orange glow
+  }
+
+  get xpToNextRank(): number {
+    return Math.max(0, this.summary.rankXpCeiling - this.summary.totalXp);
   }
 
   get unlockedAchievements(): Achievement[] {

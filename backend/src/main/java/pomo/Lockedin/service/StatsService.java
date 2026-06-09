@@ -189,6 +189,55 @@ public class StatsService {
         return userId == null ? 0 : statsDao.getLastWeekSessions(userId);
     }
 
+    // ── Rank system ──────────────────────────────────────────────────────────
+    // 11 tiers: 10 XP per pomodoro, exponential XP curve
+    private static final Object[][] RANKS = {
+        {0,       "Novice",      1},
+        {100,     "Student",     2},
+        {300,     "Scholar",     3},
+        {700,     "Adept",       4},
+        {1500,    "Sage",        5},
+        {3000,    "Expert",      6},
+        {6000,    "Master",      7},
+        {12000,   "Grandmaster", 8},
+        {25000,   "Legend",      9},
+        {50000,   "Myth",        10},
+        {100000,  "God",         11},
+    };
+
+    public int getTotalXp(String userEmail) {
+        Long userId = userService.getUserIdByEmail(userEmail);
+        return userId == null ? 0 : statsDao.getTotalXp(userId);
+    }
+
+    public int[] getRankBounds(int totalXp) {
+        int floor = 0, ceiling = (int) RANKS[1][0];
+        for (int i = RANKS.length - 1; i >= 0; i--) {
+            if (totalXp >= (int) RANKS[i][0]) {
+                floor = (int) RANKS[i][0];
+                ceiling = (i == RANKS.length - 1) ? (int) RANKS[i][0] : (int) RANKS[i + 1][0];
+                break;
+            }
+        }
+        return new int[]{floor, ceiling};
+    }
+
+    public String getRankName(int totalXp) {
+        String name = "Novice";
+        for (Object[] rank : RANKS) {
+            if (totalXp >= (int) rank[0]) name = (String) rank[1];
+        }
+        return name;
+    }
+
+    public int getRankIndex(int totalXp) {
+        int index = 1;
+        for (Object[] rank : RANKS) {
+            if (totalXp >= (int) rank[0]) index = (int) rank[2];
+        }
+        return index;
+    }
+
     /** Current streak computed from actual session dates */
     public int computeCurrentStreak(String userEmail) {
         Long userId = userService.getUserIdByEmail(userEmail);

@@ -49,6 +49,32 @@
     <!-- ══════════════════════════════════════════ -->
     <div [hidden]="activeSection !== 'overview'">
 
+      <!-- 0. RANK CARD — top of page, biggest motivator -->
+      <div class="rank-card">
+        <div class="rank-badge" [style.color]="rankColor" [style.borderColor]="rankColor">
+          ◆
+        </div>
+        <div class="rank-body">
+          <div class="rank-top">
+            <span class="rank-name" [style.color]="rankColor">{{ summary.rankName | uppercase }}</span>
+            <span class="rank-xp">{{ summary.totalXp }} XP</span>
+          </div>
+          <div class="rank-bar-track">
+            <div class="rank-bar-fill"
+                 [style.width.%]="rankProgressPct"
+                 [style.background]="rankColor">
+            </div>
+          </div>
+          <div class="rank-bottom">
+            <span class="rank-progress-pct">{{ rankProgressPct }}%</span>
+            <span class="rank-next" *ngIf="summary.rankIndex < 11">
+              {{ xpToNextRank }} XP to next rank
+            </span>
+            <span class="rank-next" *ngIf="summary.rankIndex === 11">MAX RANK</span>
+          </div>
+        </div>
+      </div>
+
       <!-- 1. HERO — streak + today (most retention-critical info first) -->
       <div class="hero-row">
         <div class="hero-streak" [class.hero-streak-alive]="summary.currentStreak > 0">

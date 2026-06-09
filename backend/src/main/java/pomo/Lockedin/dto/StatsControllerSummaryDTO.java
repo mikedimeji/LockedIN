@@ -21,4 +21,9 @@ public class StatsControllerSummaryDTO {
         private int bestDaySessions;
         private int thisWeekSessions;
         private int lastWeekSessions;
+        private int totalXp;
+        private String rankName;
+        private int rankIndex;
+        private int rankXpFloor;
+        private int rankXpCeiling;
 }
