@@ -1727,3 +1727,119 @@ body.timer-fullscreen-active .hero {
 .retro-nav .nav-item.active .nav-svg-icon {
   color: rgba(255,255,255,0.95);
 }
+
+/* ═══════════════════════════════════════════
+   TABLET + MOBILE RESPONSIVE
+   ═══════════════════════════════════════════ */
+
+/* ── Tablet (768px and below) ── */
+@media (max-width: 768px) {
+  /* Shrink auth buttons */
+  .register-button, .login-button {
+    padding: 7px 14px;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  /* Compact profile pill — hide username label */
+  .profile-display {
+    padding: 4px 10px 4px 4px;
+    gap: 7px;
+    top: 10px;
+    right: 10px;
+  }
+  .username { display: none; }
+  .logout-button { font-size: 9px; padding: 3px 8px; letter-spacing: 0.5px; }
+
+  /* Compact stats strip */
+  .stats-display { gap: 10px; padding: 6px 12px; top: 10px; left: 10px; }
+
+  /* Nav — wider tap targets */
+  .retro-nav { padding: 8px 12px; }
+  .retro-nav .nav-item { padding: 6px 4px; }
+}
+
+/* ── Mobile (480px and below) ── */
+@media (max-width: 480px) {
+  /* Stack auth buttons */
+  .auth-buttons { gap: 6px; top: 10px; right: 10px; }
+  .register-button, .login-button { padding: 6px 12px; font-size: 9px; }
+
+  /* Even more compact profile */
+  .profile-display { padding: 3px 8px 3px 3px; gap: 6px; top: 8px; right: 8px; }
+
+  /* Smaller stats icons */
+  .stats-display { gap: 8px; padding: 5px 10px; top: 8px; left: 8px; }
+
+  /* Nav closer to edge */
+  .retro-nav-container { bottom: 14px; }
+  .retro-nav { padding: 6px 8px; }
+}
+
+/* ── Canny feedback button ── */
+.feedback-canny-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(82, 113, 255, 0.08);
+  border: 1px solid rgba(82, 113, 255, 0.28);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.feedback-canny-btn:hover {
+  background: rgba(82, 113, 255, 0.15);
+  border-color: rgba(82, 113, 255, 0.5);
+  transform: translateY(-1px);
+}
+.feedback-canny-icon {
+  font-size: 16px;
+  color: rgba(82, 113, 255, 0.8);
+  flex-shrink: 0;
+}
+.feedback-canny-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.feedback-canny-title {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+}
+.feedback-canny-sub {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.3px;
+}
+.feedback-canny-arrow {
+  font-size: 14px;
+  color: rgba(82, 113, 255, 0.6);
+  flex-shrink: 0;
+}
+.feedback-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+.feedback-divider::before, .feedback-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+}
+.feedback-divider span {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}

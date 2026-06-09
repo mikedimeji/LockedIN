@@ -521,3 +521,7 @@ textarea.input-field {
   .button-container { flex-direction: column; }
   .retro-btn { width: 100%; }
 }
+
+@media (max-width: 768px) {
+  :host { padding: 70px 10px 100px; }
+}

@@ -1030,3 +1030,27 @@
   from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .expanded-time,
+  .expanded-time .time-input,
+  .expanded-time .t-sep {
+    font-size: clamp(64px, 18vw, 120px);
+  }
+  .expanded-time .time-input { width: clamp(80px, 22vw, 150px); }
+  .expanded-controls { bottom: 16%; gap: 10px; }
+  .expanded-controls button { padding: 11px 24px; font-size: 11px; }
+  .ach-inner { min-width: 200px; max-width: 90vw; }
+}
+
+@media (max-width: 480px) {
+  .expanded-time,
+  .expanded-time .time-input,
+  .expanded-time .t-sep {
+    font-size: clamp(52px, 18vw, 88px);
+  }
+  .expanded-time .time-input { width: clamp(64px, 20vw, 110px); }
+  .expanded-controls { flex-direction: column; align-items: center; bottom: 10%; gap: 8px; }
+  .expanded-controls button { width: 200px; padding: 12px 0; font-size: 11px; }
+}

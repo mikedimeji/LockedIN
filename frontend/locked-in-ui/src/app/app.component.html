@@ -38,13 +38,25 @@
       </div>
       <button class="feedback-close" (click)="closeFeedbackModal()">✕</button>
     </div>
-    <p class="feedback-desc">What's working? What's broken? What would you love to see?</p>
+    <!-- Canny board link -->
+    <a class="feedback-canny-btn" href="https://tokispirit.canny.io" target="_blank" rel="noopener" (click)="closeFeedbackModal()">
+      <span class="feedback-canny-icon">◆</span>
+      <div class="feedback-canny-text">
+        <span class="feedback-canny-title">Feature Requests &amp; Roadmap</span>
+        <span class="feedback-canny-sub">Vote on features, suggest ideas, see what's coming</span>
+      </div>
+      <span class="feedback-canny-arrow">→</span>
+    </a>
+
+    <div class="feedback-divider"><span>or send a quick message</span></div>
+
+    <p class="feedback-desc">Bug report, question, or anything else — goes straight to us.</p>
     <textarea
       class="feedback-textarea"
-      placeholder="Type your feedback here..."
+      placeholder="Type your message here..."
       [(ngModel)]="feedbackText"
       maxlength="1000"
-      rows="5">
+      rows="4">
     </textarea>
     <div class="feedback-footer">
       <span class="feedback-char-count">{{ feedbackText.length }} / 1000</span>

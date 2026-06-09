@@ -904,3 +904,56 @@
   justify-content: center;
 }
 .help-btn:hover { border-color: rgba(82, 113, 255, 0.5); color: #a0b4ff; }
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :host { padding: 70px 10px 100px; }
+
+  .card { padding: 20px 16px; border-radius: 18px; }
+
+  .month-label { font-size: 13px; }
+
+  .day-name { font-size: 8px; letter-spacing: 1px; padding-bottom: 6px; }
+
+  .cal-cell { border-radius: 6px; padding: 4px 2px; }
+
+  .cell-num { font-size: 10px; }
+
+  .day-modal {
+    width: 100vw;
+    max-width: 100vw;
+    max-height: 90vh;
+    border-radius: 18px 18px 0 0;
+    align-self: flex-end;
+    margin-top: auto;
+  }
+
+  .modal-header { padding: 14px 16px 10px; }
+
+  .slot-time { font-size: 8px; min-width: 34px; }
+
+  .block-chip { font-size: 10px; }
+
+  .chip-title { font-size: 10px; }
+
+  .start-day-btn { font-size: 9px; padding: 6px 12px; letter-spacing: 1px; }
+
+  .gcal-bar { padding: 8px 12px; }
+}
+
+@media (max-width: 480px) {
+  :host { padding: 60px 0 90px; }
+
+  .card { border-radius: 14px; padding: 16px 12px; }
+
+  .day-modal {
+    border-radius: 14px 14px 0 0;
+    max-height: 88vh;
+  }
+
+  .slot-row { min-height: 44px; }
+
+  .header-actions { gap: 6px; }
+
+  .close-btn { font-size: 14px; padding: 2px 6px; }
+}
