@@ -85,6 +85,14 @@ public class GoldController {
         private int currentStreak;
         private int longestStreak;
         private java.util.List<String> newAchievements;
+        private int xpEarned;
+        private int totalXp;
+        private String rankName;
+        private int rankIndex;
+        private int rankXpFloor;
+        private int rankXpCeiling;
+        private boolean rankedUp;
+        private String previousRankName;
     }
 
     /**
@@ -103,7 +111,10 @@ public class GoldController {
         pomodoroCompletion.setDurationMinutes(duration);
 
         try {
-            int newBalance = goldService.awardGoldForPomodoros(userEmail, pomodoros);
+            int oldXp = statsService.getTotalXp(userEmail);
+            String oldRankName = statsService.getRankName(oldXp);
+
+            int newBalance    = goldService.awardGoldForPomodoros(userEmail, pomodoros);
             int currentStreak = streakService.getCurrentStreak(userEmail);
             int longestStreak = streakService.getLongestStreak(userEmail);
 
@@ -119,11 +130,24 @@ public class GoldController {
                     pomodoroCompletion.getSubject()
             );
 
+            int newXp         = statsService.getTotalXp(userEmail);
+            String newRankName = statsService.getRankName(newXp);
+            int[] rankBounds  = statsService.getRankBounds(newXp);
+            boolean rankedUp  = !oldRankName.equals(newRankName);
+
             return PomodoroRewardResponse.builder()
                     .currentGold(newBalance)
                     .currentStreak(currentStreak)
                     .longestStreak(longestStreak)
                     .newAchievements(newAchievements)
+                    .xpEarned(newXp - oldXp)
+                    .totalXp(newXp)
+                    .rankName(newRankName)
+                    .rankIndex(statsService.getRankIndex(newXp))
+                    .rankXpFloor(rankBounds[0])
+                    .rankXpCeiling(rankBounds[1])
+                    .rankedUp(rankedUp)
+                    .previousRankName(rankedUp ? oldRankName : null)
                     .build();
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

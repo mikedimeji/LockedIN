@@ -104,6 +104,21 @@ export class TimerComponent implements OnInit, OnDestroy {
   showAchievementPopup = false;
   private achievementDismissTimer: any = null;
 
+  // XP / rank (shown on completion screen)
+  xpEarned       = 0;
+  xpDisplayed    = 0;
+  totalXp        = 0;
+  rankName       = 'Novice';
+  rankIndex      = 1;
+  rankXpFloor    = 0;
+  rankXpCeiling  = 100;
+  rankedUp       = false;
+  previousRankName = '';
+  rankBarBefore  = 0;   // % before this session
+  rankBarAfter   = 0;   // % after this session (animated to)
+  showRankUpBadge = false;
+  private xpCounterTimer: any = null;
+
   // Day playlist (Start Day flow from schedule)
   nextDayBlock: { type: string; title: string; startMinute: number; endMinute: number } | null = null;
   nextDayCountdown = 0;
@@ -383,6 +398,9 @@ export class TimerComponent implements OnInit, OnDestroy {
   }
 
   dismissCompletion(): void {
+    clearInterval(this.xpCounterTimer);
+    this.xpDisplayed = 0;
+    this.showRankUpBadge = false;
     if (this.selectedSubject.trim() && this.goldEarned > 0) {
       this.goldStreakService.tagLatestSession(this.selectedSubject.trim())
         .pipe(catchError(() => of(null)))
@@ -728,10 +746,26 @@ export class TimerComponent implements OnInit, OnDestroy {
               if (response.newAchievements?.length) {
                 this.showAchievementUnlocks(response.newAchievements);
               }
+              // XP / rank
+              this.xpEarned      = response.xpEarned ?? 0;
+              this.totalXp       = response.totalXp ?? 0;
+              this.rankName      = response.rankName ?? 'Novice';
+              this.rankIndex     = response.rankIndex ?? 1;
+              this.rankXpFloor   = response.rankXpFloor ?? 0;
+              this.rankXpCeiling = response.rankXpCeiling ?? 100;
+              this.rankedUp      = response.rankedUp ?? false;
+              this.previousRankName = response.previousRankName ?? '';
+
+              const oldXp = this.totalXp - this.xpEarned;
+              const range = this.rankXpCeiling - this.rankXpFloor;
+              this.rankBarBefore = this.rankedUp ? 0 : (range > 0 ? Math.round((oldXp - this.rankXpFloor) / range * 100) : 0);
+              this.rankBarAfter  = this.rankedUp ? 100 : (range > 0 ? Math.min(100, Math.round((this.totalXp - this.rankXpFloor) / range * 100)) : 100);
+              this.showRankUpBadge = false;
             }
             this.completeAudio?.play().catch(() => {});
             this.showCompletionScreen = true;
             this.scheduleAutoAdvance();
+            if (this.xpEarned > 0) this.startXpAnimation();
           }
         });
       this.subscriptions.push(rewardSub);
@@ -791,6 +825,28 @@ export class TimerComponent implements OnInit, OnDestroy {
   
   cycleOpacity(): void {
     this.timerOpacity = ((this.timerOpacity + 1) % 3) as 0 | 1 | 2;
+  }
+
+  startXpAnimation(): void {
+    // 1. Count up the XP number over 900ms
+    clearInterval(this.xpCounterTimer);
+    this.xpDisplayed = 0;
+    const target = this.xpEarned;
+    const steps  = 24;
+    const delay  = 900 / steps;
+    let step = 0;
+    this.xpCounterTimer = setInterval(() => {
+      step++;
+      this.xpDisplayed = Math.round((step / steps) * target);
+      if (step >= steps) {
+        this.xpDisplayed = target;
+        clearInterval(this.xpCounterTimer);
+        // 2. If rank-up: show badge after bar fills
+        if (this.rankedUp) {
+          setTimeout(() => { this.showRankUpBadge = true; }, 600);
+        }
+      }
+    }, delay);
   }
 
   showAchievementUnlocks(names: string[]): void {

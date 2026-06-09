@@ -1054,3 +1054,94 @@
   .expanded-controls { flex-direction: column; align-items: center; bottom: 10%; gap: 8px; }
   .expanded-controls button { width: 200px; padding: 12px 0; font-size: 11px; }
 }
+
+/* ── Completion XP / rank section ───────────────────────────────────── */
+.comp-xp-section {
+  margin: 4px 0 12px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(82,113,255,0.15);
+  border-radius: 12px;
+}
+
+.comp-xp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.comp-xp-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.35);
+}
+
+.comp-xp-earned {
+  font-family: bitF1, sans-serif;
+  font-size: 13px;
+  color: rgba(130,160,255,0.95);
+  text-shadow: 0 0 12px rgba(82,113,255,0.6);
+  letter-spacing: 1px;
+}
+
+.comp-xp-track {
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.comp-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(82,113,255,0.7), rgba(130,160,255,0.9));
+  border-radius: 3px;
+  transition: width 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+  box-shadow: 0 0 8px rgba(82,113,255,0.5);
+}
+
+.comp-xp-fill.comp-xp-rankup {
+  background: linear-gradient(90deg, #ffd700, #ffaa00);
+  box-shadow: 0 0 16px rgba(255,200,0,0.7);
+  animation: xp-rankup-pulse 0.6s ease 0.3s both;
+}
+
+@keyframes xp-rankup-pulse {
+  0%   { box-shadow: 0 0 8px rgba(255,200,0,0.5); }
+  50%  { box-shadow: 0 0 28px rgba(255,200,0,0.9); }
+  100% { box-shadow: 0 0 16px rgba(255,200,0,0.7); }
+}
+
+.comp-rankup-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 6px 10px;
+  background: rgba(255,200,0,0.08);
+  border: 1px solid rgba(255,200,0,0.3);
+  border-radius: 8px;
+  animation: rankup-drop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes rankup-drop {
+  from { opacity: 0; transform: translateY(-8px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.comp-rankup-label {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,200,0,0.6);
+}
+
+.comp-rankup-name {
+  font-family: bitF1, sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #ffd700;
+  text-shadow: 0 0 12px rgba(255,200,0,0.7);
+}

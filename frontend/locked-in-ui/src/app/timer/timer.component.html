@@ -188,6 +188,24 @@
         </div>
       </div>
 
+      <!-- XP / rank progress -->
+      <div class="comp-xp-section" *ngIf="xpEarned > 0">
+        <div class="comp-xp-row">
+          <span class="comp-xp-label">{{ (rankedUp ? previousRankName : rankName).toUpperCase() }}</span>
+          <span class="comp-xp-earned">+{{ xpDisplayed }} XP</span>
+        </div>
+        <div class="comp-xp-track">
+          <div class="comp-xp-fill"
+               [style.width.%]="xpDisplayed > 0 ? rankBarAfter : rankBarBefore"
+               [class.comp-xp-rankup]="rankedUp">
+          </div>
+        </div>
+        <div class="comp-rankup-badge" *ngIf="showRankUpBadge">
+          <span class="comp-rankup-label">RANK UP</span>
+          <span class="comp-rankup-name">{{ rankName.toUpperCase() }}</span>
+        </div>
+      </div>
+
       <!-- Subject tagging (premium only) -->
       <div class="comp-subject" *ngIf="isPremium && goldEarned > 0">
         <div class="comp-subject-label">TAG THIS SESSION</div>
