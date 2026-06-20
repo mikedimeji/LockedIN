@@ -38,6 +38,10 @@ export class PremiumService {
   openPortal(): Observable<{ url: string }> {
     return this.http.post<{ url: string }>(`${this.base}/portal`, {});
   }
+
+  changePlan(plan: 'monthly' | 'annual'): Observable<{ status: string }> {
+    return this.http.post<{ status: string }>(`${this.base}/change-plan`, { plan });
+  }
 }
 
 @Injectable({ providedIn: 'root' })

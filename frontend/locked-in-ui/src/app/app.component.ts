@@ -416,6 +416,25 @@ toggleNavVisibility(): void {
     });
   }
 
+  switchPlan(plan: 'monthly' | 'annual'): void {
+    if (this.premiumCheckingOut) return;
+    this.premiumCheckingOut = true;
+    this.premiumService.changePlan(plan).subscribe({
+      next: () => {
+        this.premiumPlan = plan;
+        this.premiumCheckingOut = false;
+        this.premiumService.getStatus().subscribe({
+          next: (status) => {
+            this.isPremium = status.isPremium;
+            this.premiumPlan = status.plan ?? null;
+          },
+          error: () => {}
+        });
+      },
+      error: () => { this.premiumCheckingOut = false; }
+    });
+  }
+
   
   // In your component class...
 ngAfterViewInit() {

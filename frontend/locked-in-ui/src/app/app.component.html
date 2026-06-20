@@ -152,12 +152,12 @@
           <span class="pm-plan-label">ANNUAL</span>
           <span class="pm-plan-price">$79.99<span class="pm-plan-period">/yr</span></span>
           <span class="pm-plan-saving">Save 33% vs monthly</span>
-          <button class="pm-btn pm-btn-gold" [disabled]="premiumCheckingOut" (click)="subscribePremium('annual')">
-            {{ premiumCheckingOut ? 'REDIRECTING...' : 'UPGRADE TO ANNUAL' }}
+          <button class="pm-btn pm-btn-gold" [disabled]="premiumCheckingOut" (click)="switchPlan('annual')">
+            {{ premiumCheckingOut ? 'SWITCHING...' : 'UPGRADE TO ANNUAL' }}
           </button>
         </div>
       </div>
-      <p class="pm-hint">Switching upgrades your billing cycle · Secure via Stripe</p>
+      <p class="pm-hint">Switching upgrades your existing subscription · Prorated automatically</p>
       <button class="pm-manage-btn" (click)="manageSubscription()">Manage Subscription →</button>
     </ng-container>
 

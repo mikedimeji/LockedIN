@@ -55,6 +55,24 @@ public class SubscriptionController {
         }
     }
 
+    @PostMapping("/change-plan")
+    public ResponseEntity<Map<String, String>> changePlan(@RequestBody Map<String, String> body) {
+        User user = currentUser();
+        Long userId = userService.getUserIdByEmail(user.getEmail());
+        String plan = body.getOrDefault("plan", "annual");
+        try {
+            String status = subscriptionService.changePlan(userId, plan);
+            return ResponseEntity.ok(Map.of("status", status));
+        } catch (StripeException e) {
+            log.error("Stripe change-plan error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Could not change plan"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/portal")
     public ResponseEntity<Map<String, String>> customerPortal() {
         User user = currentUser();

@@ -35,12 +35,12 @@
   <!-- Ensure the Content Security Policy allows the required sources -->
   <meta http-equiv="Content-Security-Policy" content="
   default-src 'self' https://sdk.scdn.co https://fonts.googleapis.com https://fonts.gstatic.com;
-  script-src 'self' 'unsafe-inline' https://sdk.scdn.co;
+  script-src 'self' 'unsafe-inline' https://sdk.scdn.co https://*.clarity.ms;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' https://i.scdn.co https://*.scdn.co data:;
   media-src 'self' https://*.scdn.co;
-  connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080 https://lockedin-backend.onrender.com https://lockedin-production-c669.up.railway.app;
+  connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080 https://lockedin-backend.onrender.com https://lockedin-production-c669.up.railway.app https://*.clarity.ms;
   object-src 'none';
   base-uri 'self';
   form-action 'self';

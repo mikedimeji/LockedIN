@@ -88,6 +88,15 @@ export class ThemesComponent implements OnInit {
     { path: 'assets/videos/mario.gif',              name: 'Mario',        premium: true, category: 'custom',    isLive: true,  goldCost: 250, unlocked: false },
     { path: 'assets/videos/zelda.gif',              name: 'Zelda',        premium: true, category: 'custom',    isLive: true,  goldCost: 300, unlocked: false },
 
+    // ── Premium live themes (new set) ──
+    { path: 'assets/videos/lain2.gif',          name: 'Lain II',          premium: true, category: 'anime',     isLive: true,  goldCost: 200, unlocked: false },
+    { path: 'assets/videos/snow.gif',           name: 'Snowy Pier',       premium: true, category: 'chill',     isLive: true,  goldCost: 150, unlocked: false },
+    { path: 'assets/videos/Quickquick.gif',     name: 'Blue District',    premium: true, category: 'aesthetic', isLive: true,  goldCost: 200, unlocked: false },
+    { path: 'assets/videos/citygun.gif',        name: 'Rooftop Gunner',   premium: true, category: 'aesthetic', isLive: true,  goldCost: 250, unlocked: false },
+    { path: 'assets/videos/edgerunner.gif',     name: 'Edgerunner',       premium: true, category: 'anime',     isLive: true,  goldCost: 250, unlocked: false },
+    { path: 'assets/videos/neonstaircase.gif',  name: 'Neon Stairwell',   premium: true, category: 'aesthetic', isLive: true,  goldCost: 200, unlocked: false },
+    { path: 'assets/videos/unmbrella.gif',      name: 'Rainy Umbrella',   premium: true, category: 'chill',     isLive: true,  goldCost: 150, unlocked: false },
+
     // ── Premium static themes ──
     { path: 'assets/images/themes/lo-fi.jpg',        name: '-9',           premium: true, category: 'study',     isLive: false, goldCost: 60,  unlocked: false },
     { path: 'assets/images/themes/rei.webp',        name: 'Rei',          premium: true, category: 'anime',     isLive: false, goldCost: 100, unlocked: false },

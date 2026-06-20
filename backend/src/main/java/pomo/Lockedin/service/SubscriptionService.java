@@ -5,9 +5,11 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.Invoice;
+import com.stripe.model.StripeObject;
 import com.stripe.model.Subscription;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import com.stripe.param.SubscriptionUpdateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -91,23 +93,19 @@ public class SubscriptionService {
 
         switch (event.getType()) {
             case "checkout.session.completed" -> {
-                Session session = (Session) event.getDataObjectDeserializer()
-                        .getObject().orElse(null);
+                Session session = (Session) deserialize(event);
                 if (session != null) handleCheckoutComplete(session);
             }
             case "customer.subscription.updated" -> {
-                Subscription sub = (Subscription) event.getDataObjectDeserializer()
-                        .getObject().orElse(null);
+                Subscription sub = (Subscription) deserialize(event);
                 if (sub != null) handleSubscriptionUpdate(sub);
             }
             case "customer.subscription.deleted" -> {
-                Subscription sub = (Subscription) event.getDataObjectDeserializer()
-                        .getObject().orElse(null);
+                Subscription sub = (Subscription) deserialize(event);
                 if (sub != null) cancelSubscription(sub.getCustomer());
             }
             case "invoice.payment_failed" -> {
-                Invoice invoice = (Invoice) event.getDataObjectDeserializer()
-                        .getObject().orElse(null);
+                Invoice invoice = (Invoice) deserialize(event);
                 if (invoice != null) {
                     jdbcTemplate.update(
                         "UPDATE user_subscriptions SET status = 'past_due' WHERE stripe_customer_id = ?",
@@ -116,6 +114,23 @@ public class SubscriptionService {
                 }
             }
             default -> log.debug("Unhandled Stripe event: {}", event.getType());
+        }
+    }
+
+    // The typed deserializer returns empty when the event's API version (set by the
+    // Stripe account) doesn't match the version this SDK was generated against — which
+    // silently no-ops every webhook handler below. Fall back to the SDK's documented
+    // unsafe deserialization (raw JSON -> current model classes) in that case.
+    private StripeObject deserialize(Event event) {
+        var deserializer = event.getDataObjectDeserializer();
+        if (deserializer.getObject().isPresent()) {
+            return deserializer.getObject().get();
+        }
+        try {
+            return deserializer.deserializeUnsafe();
+        } catch (Exception e) {
+            log.error("Failed to deserialize Stripe event {} ({}): {}", event.getId(), event.getType(), e.getMessage());
+            return null;
         }
     }
 
@@ -145,22 +160,61 @@ public class SubscriptionService {
         String status = sub.getStatus(); // active, past_due, canceled, etc.
         LocalDateTime periodEnd = toLocalDateTime(sub.getCurrentPeriodEnd());
 
-        String mappedStatus = switch (status) {
-            case "active", "trialing" -> "active";
-            case "past_due"           -> "past_due";
-            case "canceled", "unpaid" -> "cancelled";
-            default -> "inactive";
-        };
+        String mappedStatus = mapStripeStatus(status);
 
         String sql = "UPDATE user_subscriptions SET status = ?, current_period_end = ? WHERE stripe_customer_id = ?";
         jdbcTemplate.update(sql, mappedStatus, periodEnd, customerId);
         log.info("Subscription updated for customer {}: status={}", customerId, mappedStatus);
     }
 
+    private String mapStripeStatus(String status) {
+        return switch (status) {
+            case "active", "trialing" -> "active";
+            case "past_due"           -> "past_due";
+            case "canceled", "unpaid" -> "cancelled";
+            default -> "inactive";
+        };
+    }
+
     private void cancelSubscription(String customerId) {
         String sql = "UPDATE user_subscriptions SET status = 'cancelled' WHERE stripe_customer_id = ?";
         jdbcTemplate.update(sql, customerId);
         log.info("Subscription cancelled for customer {}", customerId);
+    }
+
+    public String changePlan(Long userId, String newPlan) throws StripeException {
+        String subscriptionId;
+        try {
+            subscriptionId = jdbcTemplate.queryForObject(
+                "SELECT stripe_subscription_id FROM user_subscriptions WHERE user_id = ? AND status IN ('active', 'past_due')",
+                String.class, userId);
+        } catch (Exception e) {
+            subscriptionId = null;
+        }
+        if (subscriptionId == null) {
+            throw new RuntimeException("No active subscription found");
+        }
+
+        Subscription subscription = Subscription.retrieve(subscriptionId);
+        String newPriceId = "annual".equals(newPlan) ? priceAnnual : priceMonthly;
+        String currentItemId = subscription.getItems().getData().get(0).getId();
+
+        SubscriptionUpdateParams params = SubscriptionUpdateParams.builder()
+                .addItem(SubscriptionUpdateParams.Item.builder()
+                        .setId(currentItemId)
+                        .setPrice(newPriceId)
+                        .build())
+                .setProrationBehavior(SubscriptionUpdateParams.ProrationBehavior.CREATE_PRORATIONS)
+                .build();
+
+        Subscription updated = subscription.update(params);
+
+        jdbcTemplate.update(
+            "UPDATE user_subscriptions SET plan = ?, status = ? WHERE user_id = ?",
+            newPlan, mapStripeStatus(updated.getStatus()), userId);
+
+        log.info("User {} switched subscription {} to plan {}", userId, subscriptionId, newPlan);
+        return updated.getStatus();
     }
 
     public String getCustomerId(Long userId) {

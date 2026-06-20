@@ -35,7 +35,9 @@ export class AuthService {
 
   // Check session on application startup
   private checkSessionOnStartup(): void {
-    if (!this.isBrowser()) {
+    if (!this.isBrowser() || !this.isLoggedIn()) {
+      // No token means there's no session to expire — guests shouldn't be
+      // bounced to /login on public routes (e.g. /timer, /reset-password).
       return;
     }
 
