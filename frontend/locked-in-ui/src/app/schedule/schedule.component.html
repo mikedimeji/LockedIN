@@ -7,10 +7,21 @@
 </app-tutorial-modal>
 
 <!-- Premium gate -->
-<div class="card" *ngIf="!isPremium">
-  <div class="gate-label">PREMIUM FEATURE</div>
-  <div class="gate-title">TIME BLOCKING</div>
-  <p class="gate-desc">Plan your day with deep work, break, and schedule blocks.</p>
+<div class="card gate-card" *ngIf="!isPremium">
+  <div class="premium-gate">
+    <div class="gate-glow"></div>
+    <div class="gate-icon">◆</div>
+    <h2 class="gate-title">TIME BLOCKING</h2>
+    <p class="gate-desc">Plan your day with deep work, break, and schedule blocks — synced with Google Calendar.</p>
+    <ul class="gate-benefits">
+      <li><span class="gate-diamond">◆</span> Deep work, break &amp; schedule blocks</li>
+      <li><span class="gate-diamond">◆</span> Google Calendar sync</li>
+      <li><span class="gate-diamond">◆</span> One-tap day launch &amp; auto playlists</li>
+      <li><span class="gate-diamond">◆</span> No ads — ever</li>
+    </ul>
+    <button class="gate-btn gate-btn-gold" (click)="openUpgrade()">UPGRADE TO PREMIUM</button>
+    <p class="gate-hint">Secure payment via Stripe · Cancel anytime</p>
+  </div>
 </div>
 
 <!-- Calendar card -->

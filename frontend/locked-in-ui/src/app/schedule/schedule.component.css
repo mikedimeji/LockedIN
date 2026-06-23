@@ -35,25 +35,111 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* ── Premium gate ── */
-.gate-label {
-  font-size: 8px;
-  letter-spacing: 3px;
-  color: rgba(255, 255, 255, 0.22);
-  margin-bottom: 10px;
+/* ── Premium gate ──
+   Plain dark card — no atmospheric background image — so the paywall
+   reads as a clean upsell rather than a random scene from the theme art. */
+.gate-card {
+  background:
+    linear-gradient(170deg,
+      rgba(4, 8, 22, 0.96) 0%,
+      rgba(6, 12, 28, 0.97) 100%);
 }
+
+.premium-gate {
+  position: relative;
+  text-align: center;
+  padding: 16px 8px 8px;
+  overflow: hidden;
+}
+
+.gate-glow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(82, 113, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.gate-icon {
+  font-size: 28px;
+  color: rgba(255, 215, 0, 0.6);
+  margin-bottom: 12px;
+}
+
 .gate-title {
   font-family: bitF1, sans-serif;
-  font-size: 20px;
+  font-size: 16px;
   letter-spacing: 3px;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 12px;
 }
+
 .gate-desc {
+  font-family: 'Courier New', monospace;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.28);
-  max-width: 260px;
-  line-height: 1.6;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.4);
+  max-width: 360px;
+  margin: 0 auto 16px;
+}
+
+.gate-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto 24px;
+  max-width: 320px;
+  text-align: left;
+}
+
+.gate-benefits li {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 7px 0;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gate-diamond {
+  color: #ffd700;
+  font-size: 8px;
+  flex-shrink: 0;
+}
+
+.gate-btn {
+  font-family: bitF1, sans-serif;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #4060ff, #5271ff);
+  color: white;
+}
+
+.gate-btn-gold {
+  background: linear-gradient(135deg, #b8860b, #d4a017);
+  box-shadow: 0 4px 16px rgba(212, 160, 23, 0.3);
+}
+
+.gate-btn-gold:hover {
+  background: linear-gradient(135deg, #d4a017, #f0b429);
+  box-shadow: 0 4px 24px rgba(212, 160, 23, 0.5);
+}
+
+.gate-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+  margin: 12px 0 0;
 }
 
 /* ── Calendar header ── */

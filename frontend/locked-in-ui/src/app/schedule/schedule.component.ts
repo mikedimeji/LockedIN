@@ -6,7 +6,7 @@ import { catchError, of } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { ScheduleService, TimeBlock } from './schedule.service';
-import { PremiumService } from '../premium.service';
+import { PremiumService, PremiumModalService } from '../premium.service';
 import { GoogleCalendarService, GCalEvent } from './google-calendar.service';
 import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
@@ -101,6 +101,7 @@ export class ScheduleComponent implements OnInit {
   constructor(
     private svc: ScheduleService,
     private premSvc: PremiumService,
+    private premiumModal: PremiumModalService,
     private router: Router,
     private route: ActivatedRoute,
     private gcalSvc: GoogleCalendarService,
@@ -152,6 +153,8 @@ export class ScheduleComponent implements OnInit {
     this.tutorialSteps = this.tutorialService.getTutorialSteps('schedule');
     this.showTutorial = true;
   }
+
+  openUpgrade(): void { this.premiumModal.open(); }
 
   // ── Calendar ──────────────────────────────────────────────────────────────
 

@@ -79,7 +79,7 @@ export class TutorialService {
         },
         {
           title: 'Choose Your Duration',
-          description: 'Select 25 minutes (classic pomodoro), 50 minutes (deep work), or set a custom duration for your session.',
+          description: 'Select 25 minutes (classic pomodoro), 45 minutes (deep work), or a full hour for your session.',
           image: 'assets/images/tutorial/tut2.png'
         },
         {
