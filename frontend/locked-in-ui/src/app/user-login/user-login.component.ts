@@ -5,6 +5,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
 import { PlannerComponent } from '../planner/planner.component';
 import { AuthService } from '../auth.service';
+import { AnalyticsService } from '../analytics.service';
 import { environment } from '../../environments/environment';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 
@@ -42,7 +43,7 @@ export class UserLoginComponent {
   forgotPwDone = false;
   forgotPwError = '';
 
-  constructor(private http: HttpClient, private router: Router, private authService: AuthService) { }
+  constructor(private http: HttpClient, private router: Router, private authService: AuthService, private analytics: AnalyticsService) { }
 
   ngOnInit() {
     if (this.isBrowser()) {
@@ -113,6 +114,8 @@ export class UserLoginComponent {
               }
             }
 
+            this.analytics.identify(resultData.username ?? '');
+            this.analytics.track('user_login');
             this.authService.onLoginComplete();
             this.notifyAppToRefreshData();
             window.location.href = '/timer';

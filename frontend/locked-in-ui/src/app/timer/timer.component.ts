@@ -10,6 +10,7 @@ import { HeartService } from '../heart.service';
 import { PremiumService } from '../premium.service';
 import { TutorialService, TutorialStep } from '../tutorial-modal/tutorial.service';
 import { TutorialModalComponent } from '../tutorial-modal/tutorial-modal.component';
+import { AnalyticsService } from '../analytics.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -138,7 +139,8 @@ export class TimerComponent implements OnInit, OnDestroy {
     public heartService: HeartService,
     private premiumService: PremiumService,
     private renderer: Renderer2,
-    private tutorialService: TutorialService
+    private tutorialService: TutorialService,
+    private analytics: AnalyticsService
   ) {
     if (isPlatformBrowser(this.platformId)) {
       this.audio = new Audio('/assets/sounds/soundbit.wav');
@@ -718,6 +720,7 @@ export class TimerComponent implements OnInit, OnDestroy {
 
     if (!this.authService.isLoggedIn()) {
       this.goldEarned = 0;
+      this.analytics.track('session_completed', { durationMinutes: this.sessionDurationMinutes, goldEarned: 0, loggedIn: false });
       this.showCompletionScreen = true;
       this.completedPomodoros = 0;
       this.pausedMidPomodoro = false;
@@ -763,6 +766,7 @@ export class TimerComponent implements OnInit, OnDestroy {
               this.showRankUpBadge = false;
             }
             this.completeAudio?.play().catch(() => {});
+            this.analytics.track('session_completed', { durationMinutes: this.sessionDurationMinutes, goldEarned: this.goldEarned, loggedIn: true });
             this.showCompletionScreen = true;
             this.scheduleAutoAdvance();
             if (this.xpEarned > 0) this.startXpAnimation();
@@ -771,6 +775,7 @@ export class TimerComponent implements OnInit, OnDestroy {
       this.subscriptions.push(rewardSub);
     } else {
       this.goldEarned = 0;
+      this.analytics.track('session_completed', { durationMinutes: this.sessionDurationMinutes, goldEarned: 0, loggedIn: true });
       this.showCompletionScreen = true;
       this.scheduleAutoAdvance();
     }

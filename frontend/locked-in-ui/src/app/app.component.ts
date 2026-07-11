@@ -25,6 +25,7 @@ import { catchError } from 'rxjs/operators';
 import { of, filter, Subscription } from 'rxjs';
 import { UserPreferencesService } from './user-preferences.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { AnalyticsService } from './analytics.service';
 
 @Component({
   standalone: true,
@@ -166,12 +167,15 @@ availablePfps = [
     private questionnaireService: QuestionnaireService,
     private premiumService: PremiumService,
     private premiumModalService: PremiumModalService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private analytics: AnalyticsService
   ) {}
 
 
   ngOnInit(): void {
   if (isPlatformBrowser(this.platformId)) {
+    this.analytics.init();
+
     // Subscribe to global premium modal open requests
     this.premiumModalSub = this.premiumModalService.openModal$.subscribe(() => {
       this.showPremiumModal = true;
@@ -187,6 +191,7 @@ availablePfps = [
 
     // Load user data if logged in
     if (this.authService.isLoggedIn()) {
+      this.analytics.identify(this.authService.getUsername());
       this.loadUserDataFromBackend();
     } else {
       // If not logged in, use localStorage fallbacks
@@ -304,7 +309,8 @@ private loadUserDataFromBackend(): void {
   private setupRouterListener(): void {
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
-    ).subscribe(() => {
+    ).subscribe((event) => {
+      this.analytics.pageview((event as NavigationEnd).urlAfterRedirects);
       if (this.authService.isLoggedIn()) {
         console.log('Navigation completed, refreshing user data');
         this.refreshUserData();
@@ -403,6 +409,7 @@ toggleNavVisibility(): void {
   subscribePremium(plan: 'monthly' | 'annual'): void {
     if (this.premiumCheckingOut) return;
     this.premiumCheckingOut = true;
+    this.analytics.track('checkout_started', { plan });
     this.premiumService.createCheckout(plan).subscribe({
       next: ({ checkoutUrl }) => { window.location.href = checkoutUrl; },
       error: () => { this.premiumCheckingOut = false; }
@@ -481,8 +488,8 @@ ngAfterViewInit() {
   }
 
   onSignOut(): void {
+    this.analytics.reset();
     this.authService.signOut();
-    // Reset user data on sign out
     this.goldBalance = 0;
     this.currentStreak = 0;
     this.longestStreak = 0;

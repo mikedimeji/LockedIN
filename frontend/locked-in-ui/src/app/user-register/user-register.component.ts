@@ -4,6 +4,7 @@ import { CommonModule, NgIf } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router,RouterOutlet, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { AnalyticsService } from '../analytics.service';
 
 @Component({
   selector: 'app-user-register',
@@ -31,7 +32,7 @@ export class UserRegisterComponent {
   successMessage: string = 'Account created! Please log in.';
   isLoading: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private analytics: AnalyticsService) {}
 
   validatePassword(password: string): boolean {
     const minLength = 8;
@@ -66,6 +67,7 @@ export class UserRegisterComponent {
           localStorage.setItem('selectedTheme', 'assets/videos/witch.gif');
           localStorage.setItem('isVideoBackground', 'true');
 
+          this.analytics.track('user_signup', { username: this.username });
           this.RegisterSuccess = true;
           this.isLoading = false;
           
