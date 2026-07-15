@@ -1,13 +1,143 @@
-<div class="about-container">
-  <h1 class="about-title">About This App</h1>
-  <p class="about-text">
-    Welcome to our retro-themed pomodoro app! This project is designed to bring you back to the nostalgic era of 8-bit and 9-bit gaming.
-    Whether you're here to use the timer or just explore, we hope you enjoy the pixel-perfect aesthetics and the classic vibes.
-  </p>
-  <p class="about-text">
-    Built with love for all things retro, this app combines the simplicity of old-school design with modern functionality.
-    Enjoy your stay, and feel free to reach out with any feedback!
-  </p>
-  <p class="about-signature">- The Dev Team</p>
-</div>
+<div class="page">
 
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" routerLink="/">TOKISPIRIT</a>
+      <nav class="header-nav" [class.open]="mobileMenuOpen">
+        <a routerLink="/" (click)="mobileMenuOpen=false">Home</a>
+        <a routerLink="/pricing" (click)="mobileMenuOpen=false">Pricing</a>
+        <a routerLink="/about" class="nav-active" (click)="mobileMenuOpen=false">About</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn-ghost" routerLink="/login">Log In</a>
+        <a class="btn-primary" routerLink="/register">Sign Up Free</a>
+      </div>
+      <button class="hamburger" (click)="mobileMenuOpen=!mobileMenuOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="about-hero">
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+      <p class="section-tag">ABOUT</p>
+      <h1 class="hero-title">Built for focused minds</h1>
+      <p class="hero-sub">
+        TokiSpirit started as a simple idea: what if studying felt less like a chore
+        and more like an adventure? We blended the Pomodoro technique with pixel
+        art aesthetics and a light reward system — and TokiSpirit was born.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Mission ── -->
+  <section class="mission-section">
+    <div class="section-inner">
+      <div class="mission-grid">
+        <div class="mission-block">
+          <div class="block-icon">◆</div>
+          <h3>Our Mission</h3>
+          <p>To make deep focus accessible and enjoyable for every student and learner — regardless of experience, background, or study style.</p>
+        </div>
+        <div class="mission-block">
+          <div class="block-icon">⏱</div>
+          <h3>The Method</h3>
+          <p>We're built on the Pomodoro Technique — 25 minutes of focus, 5 minutes of rest. It's been proven to improve concentration and reduce burnout.</p>
+        </div>
+        <div class="mission-block">
+          <div class="block-icon">🎨</div>
+          <h3>The Aesthetic</h3>
+          <p>Your study space matters. That's why we obsess over every wallpaper, animation, and pixel — so your workspace feels as good as your progress.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Story ── -->
+  <section class="story-section">
+    <div class="section-inner story-inner">
+      <div class="story-text">
+        <p class="section-tag">THE STORY</p>
+        <h2 class="section-title">Why we built this</h2>
+        <p>
+          Existing productivity apps felt cold and corporate. Spreadsheets. Harsh timers.
+          Minimalist to the point of joyless. We wanted something different — an app that
+          acknowledged that studying is hard, and tried to make it a little more fun.
+        </p>
+        <p>
+          So we built TokiSpirit. Every animated theme was chosen to create a mood.
+          The gold rewards system keeps you motivated. The pixel mascot keeps you company.
+          And the stats dashboard shows you how far you've come.
+        </p>
+        <p>
+          We're indie developers who love studying and love design. This is our small
+          contribution to the world of focused work.
+        </p>
+      </div>
+      <div class="story-values">
+        <div class="value-item">
+          <span class="value-num">50+</span>
+          <span class="value-lbl">Animated themes</span>
+        </div>
+        <div class="value-item">
+          <span class="value-num">$0</span>
+          <span class="value-lbl">To get started</span>
+        </div>
+        <div class="value-item">
+          <span class="value-num">∞</span>
+          <span class="value-lbl">Free sessions</span>
+        </div>
+        <div class="value-item">
+          <span class="value-num">1</span>
+          <span class="value-lbl">Mission: your focus</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-band">
+    <div class="cta-glow"></div>
+    <div class="section-inner cta-inner">
+      <h2 class="cta-title">Start your first session</h2>
+      <p class="cta-sub">Free forever. No setup. Just focus.</p>
+      <div class="cta-btns">
+        <a class="btn-cta" routerLink="/timer">Open the App →</a>
+        <a class="btn-outline" routerLink="/pricing">See Pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="footer-logo">TOKISPIRIT</span>
+          <span class="footer-tagline">Focus deeper. Study smarter.</span>
+        </div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <div class="footer-col-title">Product</div>
+            <a routerLink="/timer">App</a>
+            <a routerLink="/pricing">Pricing</a>
+            <a routerLink="/about">About</a>
+          </div>
+          <div class="footer-col">
+            <div class="footer-col-title">Account</div>
+            <a routerLink="/login">Log In</a>
+            <a routerLink="/register">Sign Up</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 TokiSpirit. All rights reserved.</span>
+        <span class="footer-made">Made with ◆ for focused minds</span>
+      </div>
+    </div>
+  </footer>
+
+</div>

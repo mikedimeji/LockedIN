@@ -1,0 +1,195 @@
+<div class="page">
+
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" routerLink="/">TOKISPIRIT</a>
+      <nav class="header-nav" [class.open]="mobileMenuOpen">
+        <a routerLink="/" (click)="mobileMenuOpen=false">Home</a>
+        <a routerLink="/pricing" class="nav-active" (click)="mobileMenuOpen=false">Pricing</a>
+        <a routerLink="/about" (click)="mobileMenuOpen=false">About</a>
+      </nav>
+      <div class="header-actions">
+        <a class="btn-ghost" routerLink="/login">Log In</a>
+        <a class="btn-primary" routerLink="/register">Sign Up Free</a>
+      </div>
+      <button class="hamburger" (click)="mobileMenuOpen=!mobileMenuOpen">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Hero ── -->
+  <section class="pricing-hero">
+    <div class="hero-glow"></div>
+    <div class="hero-inner">
+      <p class="section-tag">PRICING</p>
+      <h1 class="hero-title">Simple, transparent pricing</h1>
+      <p class="hero-sub">Start free. Upgrade when you're ready. No hidden fees.</p>
+
+      <!-- Monthly / Annual toggle -->
+      <div class="billing-toggle">
+        <span [class.active]="!annual" (click)="annual=false">Monthly</span>
+        <button class="toggle-switch" [class.on]="annual" (click)="annual=!annual">
+          <span class="toggle-knob"></span>
+        </button>
+        <span [class.active]="annual" (click)="annual=true">
+          Annual <span class="save-badge">Save 33%</span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Plan cards ── -->
+  <section class="plans-section">
+    <div class="section-inner">
+      <div class="plans-row">
+
+        <!-- Free -->
+        <div class="plan-card">
+          <div class="plan-header">
+            <div class="plan-name">FREE</div>
+            <div class="plan-price-wrap">
+              <span class="plan-price">$0</span>
+              <span class="plan-period">/forever</span>
+            </div>
+            <p class="plan-desc">Everything you need to start building focus habits.</p>
+          </div>
+          <a class="plan-btn plan-btn-free" routerLink="/register">Get Started — It's Free</a>
+          <ul class="plan-features">
+            <li class="feat-head">Included</li>
+            <li><span class="ic ic-yes">✓</span> Unlimited Pomodoro sessions</li>
+            <li><span class="ic ic-yes">✓</span> 10 free themes</li>
+            <li><span class="ic ic-yes">✓</span> Todo planner (up to 5 topics)</li>
+            <li><span class="ic ic-yes">✓</span> Streak & session tracking</li>
+            <li><span class="ic ic-yes">✓</span> Basic stats dashboard</li>
+            <li><span class="ic ic-yes">✓</span> Ambience sounds</li>
+            <li><span class="ic ic-yes">✓</span> 3 starter avatars</li>
+            <li><span class="ic ic-yes">✓</span> 150 gold welcome gift</li>
+            <li class="feat-no"><span class="ic ic-no">–</span> All 50+ themes</li>
+            <li class="feat-no"><span class="ic ic-no">–</span> Unlimited planner topics</li>
+            <li class="feat-no"><span class="ic ic-no">–</span> Advanced analytics</li>
+            <li class="feat-no"><span class="ic ic-no">–</span> Calendar time blocking</li>
+            <li class="feat-no"><span class="ic ic-no">–</span> Premium avatars</li>
+          </ul>
+        </div>
+
+        <!-- Premium -->
+        <div class="plan-card plan-card-premium">
+          <div class="plan-badge">MOST POPULAR</div>
+          <div class="plan-header">
+            <div class="plan-name premium">PREMIUM</div>
+            <div class="plan-price-wrap">
+              <span class="plan-price">{{ annual ? '$6.67' : '$9.99' }}</span>
+              <span class="plan-period">/month</span>
+            </div>
+            <div class="plan-billed-note" *ngIf="annual">Billed as $79.99/yr</div>
+            <div class="plan-billed-note" *ngIf="!annual">or $79.99/yr — save 33%</div>
+            <p class="plan-desc">For learners who want the full TokiSpirit experience.</p>
+          </div>
+          <a class="plan-btn plan-btn-premium" routerLink="/timer">Start Free — Upgrade Anytime</a>
+          <ul class="plan-features">
+            <li class="feat-head">Everything in Free, plus:</li>
+            <li><span class="ic ic-gold">◆</span> All 50+ animated themes</li>
+            <li><span class="ic ic-gold">◆</span> Unlimited planner topics</li>
+            <li><span class="ic ic-gold">◆</span> Advanced analytics & focus score</li>
+            <li><span class="ic ic-gold">◆</span> Calendar time blocking</li>
+            <li><span class="ic ic-gold">◆</span> Premium avatars & cosmetics</li>
+            <li><span class="ic ic-gold">◆</span> No ads, ever</li>
+            <li><span class="ic ic-gold">◆</span> Priority support</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="stripe-note">Secure payment via Stripe · Cancel anytime · All payments are final</p>
+    </div>
+  </section>
+
+  <!-- ── Comparison table ── -->
+  <section class="comparison-section">
+    <div class="section-inner">
+      <p class="section-tag">COMPARISON</p>
+      <h2 class="section-title">Everything side by side</h2>
+      <div class="table-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th class="feat-col">Feature</th>
+              <th>Free</th>
+              <th class="th-premium">Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of comparisonRows">
+              <td class="feat-col">{{ row.feature }}</td>
+              <td>
+                <span *ngIf="row.free" class="badge-yes">✓</span>
+                <span *ngIf="!row.free" class="badge-no">–</span>
+              </td>
+              <td>
+                <span class="badge-gold">◆</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="faq-section">
+    <div class="section-inner">
+      <p class="section-tag">FAQ</p>
+      <h2 class="section-title">Billing & subscription questions</h2>
+      <div class="faq-list">
+        <div class="faq-item" *ngFor="let item of faqItems" [class.open]="item.open">
+          <button class="faq-q" (click)="toggleFaq(item)">
+            {{ item.q }}
+            <span class="faq-arrow">{{ item.open ? '−' : '+' }}</span>
+          </button>
+          <div class="faq-a" [class.visible]="item.open">{{ item.a }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-band">
+    <div class="cta-glow"></div>
+    <div class="section-inner cta-inner">
+      <h2 class="cta-title">Ready to focus?</h2>
+      <p class="cta-sub">Start with the free plan today. No credit card needed.</p>
+      <a class="btn-cta" routerLink="/register">Create Free Account →</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="footer-logo">TOKISPIRIT</span>
+          <span class="footer-tagline">Focus deeper. Study smarter.</span>
+        </div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <div class="footer-col-title">Product</div>
+            <a routerLink="/timer">App</a>
+            <a routerLink="/pricing">Pricing</a>
+            <a routerLink="/about">About</a>
+          </div>
+          <div class="footer-col">
+            <div class="footer-col-title">Account</div>
+            <a routerLink="/login">Log In</a>
+            <a routerLink="/register">Sign Up</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 TokiSpirit. All rights reserved.</span>
+        <span class="footer-made">Made with ◆ for focused minds</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
