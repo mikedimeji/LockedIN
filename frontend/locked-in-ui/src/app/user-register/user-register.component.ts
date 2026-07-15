@@ -25,11 +25,11 @@ export class UserRegisterComponent {
   private apiUrl = `${environment.apiUrl}/home/auth`;
   invalidRegister: boolean = false;
   RegisterSuccess: boolean = false;
+  showWelcomeGift: boolean = false;
   username: string = "";
   password: string = "";
   email: string = "";
   errorMessage: string = '';
-  successMessage: string = 'Account created! Please log in.';
   isLoading: boolean = false;
 
   constructor(private http: HttpClient, private router: Router, private analytics: AnalyticsService) {}
@@ -69,11 +69,12 @@ export class UserRegisterComponent {
 
           this.analytics.track('user_signup', { username: this.username });
           this.RegisterSuccess = true;
+          this.showWelcomeGift = true;
           this.isLoading = false;
-          
+
           setTimeout(() => {
             this.router.navigateByUrl('/login');
-          }, 2000);
+          }, 4000);
           
         } else if (resultData.message === "Email Taken") {
           this.isLoading = false;
@@ -100,6 +101,10 @@ export class UserRegisterComponent {
           }
         }
     );
+  }
+
+  goToLogin() {
+    this.router.navigateByUrl('/login');
   }
 
   closeRegisterScreen() {

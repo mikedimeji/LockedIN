@@ -1,3 +1,22 @@
+<!-- Welcome gift overlay (shown after successful registration) -->
+<div *ngIf="showWelcomeGift" class="welcome-overlay">
+  <div class="welcome-card">
+    <div class="welcome-hud">
+      <span class="welcome-logo">TOKISPIRIT</span>
+      <span class="welcome-sep">·</span>
+      <span class="welcome-tag">WELCOME GIFT</span>
+    </div>
+    <div class="welcome-coin-wrap">
+      <img src="assets/images/coin/coin2.gif" alt="Gold Coin" class="welcome-coin">
+    </div>
+    <div class="welcome-amount">+150</div>
+    <div class="welcome-gold-label">GOLD AWARDED</div>
+    <p class="welcome-msg">Welcome to TokiSpirit! Your gold is ready — use it to unlock themes and avatars.</p>
+    <button class="welcome-btn" (click)="goToLogin()">LET'S GO →</button>
+    <p class="welcome-hint">Redirecting to login...</p>
+  </div>
+</div>
+
 <div *ngIf="isLoading" class="loading-overlay">
   <div class="loading-spinner">
     <div class="spinner"></div>
@@ -5,15 +24,14 @@
   </div>
 </div>
 
-<div class="register-container" (click)="onBackdropClick($event)">
+<div class="register-container" [class.blurred]="showWelcomeGift" (click)="onBackdropClick($event)">
   <div id="formContent" (click)="$event.stopPropagation()">
     <button class="close-button" (click)="closeRegisterScreen()">✕</button>
-    
+
     <div class="alert alert-warning" *ngIf="invalidRegister">{{errorMessage}}</div>
-    <div class="alert alert-success" *ngIf="RegisterSuccess">{{successMessage}}</div>
-    
+
     <h2>Register</h2>
-    
+
     <form>
       <input type="text"
              id="username"
@@ -38,12 +56,12 @@
              placeholder="Password"
              (ngModelChange)="clearError()"
              required>
-      
-      <input type="submit" 
-             (click)="handleRegister()" 
+
+      <input type="submit"
+             (click)="handleRegister()"
              value="Register">
     </form>
-    
+
     <div class="auth-link">
       Already have an account? <a routerLink="/login">Login</a>
     </div>

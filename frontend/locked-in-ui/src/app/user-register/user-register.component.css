@@ -225,15 +225,165 @@ input[type="submit"]:active {
   color: rgba(82, 113, 255, 1);
 }
 
+/* Register form fades behind the welcome modal */
+.register-container.blurred {
+  filter: blur(4px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ── Welcome gift overlay ── */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.welcome-card {
+  background: rgba(6, 12, 28, 0.97);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 22px;
+  padding: 36px 36px 28px;
+  max-width: 360px;
+  width: 88%;
+  text-align: center;
+  box-shadow:
+    0 0 60px rgba(255, 215, 0, 0.12),
+    0 24px 64px rgba(0, 0, 0, 0.8);
+  animation: slideUp 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.welcome-hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.welcome-logo {
+  font-family: bitF1, sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: rgba(255, 215, 0, 0.85);
+}
+
+.welcome-sep {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+}
+
+.welcome-tag {
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255, 215, 0, 0.55);
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+.welcome-coin-wrap {
+  margin-bottom: 14px;
+}
+
+.welcome-coin {
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 0 14px rgba(255, 215, 0, 0.6));
+  animation: coinBounce 1.2s ease-in-out infinite;
+}
+
+@keyframes coinBounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.welcome-amount {
+  font-family: bitF1, sans-serif;
+  font-size: 52px;
+  color: #ffd700;
+  letter-spacing: 2px;
+  line-height: 1;
+  text-shadow:
+    0 0 20px rgba(255, 215, 0, 0.7),
+    0 0 40px rgba(255, 215, 0, 0.3);
+  animation: goldPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+@keyframes goldPop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.welcome-gold-label {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255, 215, 0, 0.5);
+  margin: 6px 0 20px;
+}
+
+.welcome-msg {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.3px;
+  margin: 0 0 24px;
+}
+
+.welcome-btn {
+  width: 100%;
+  font-family: bitF1, sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 12px 0;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.18), rgba(255, 215, 0, 0.08));
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  border-radius: 28px;
+  color: #ffd700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.welcome-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.28), rgba(255, 215, 0, 0.15));
+  border-color: rgba(255, 215, 0, 0.75);
+  box-shadow: 0 0 28px rgba(255, 215, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.welcome-hint {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   #formContent {
     padding: 40px 30px;
   }
-  
+
   #formContent h2 {
     font-size: 24px;
   }
+
+  .welcome-card {
+    padding: 28px 24px 22px;
+  }
+
+  .welcome-amount { font-size: 44px; }
 }
 
 
