@@ -32,16 +32,24 @@
   
   <!-- Include the Spotify Web Playback SDK -->
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
+
+  <!-- Datafast Analytics -->
+  <script
+    defer
+    data-website-id="dfid_OK8J4iB4ELKWAa39lrgdI"
+    data-domain="tokispirit.com"
+    src="https://datafa.st/js/script.js">
+  </script>
   
   <!-- Ensure the Content Security Policy allows the required sources -->
   <meta http-equiv="Content-Security-Policy" content="
   default-src 'self' https://sdk.scdn.co https://fonts.googleapis.com https://fonts.gstatic.com;
-  script-src 'self' 'unsafe-inline' https://sdk.scdn.co https://*.clarity.ms;
+  script-src 'self' 'unsafe-inline' https://sdk.scdn.co https://*.clarity.ms https://datafa.st;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' https://i.scdn.co https://*.scdn.co data:;
   media-src 'self' https://*.scdn.co;
-  connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080 https://lockedin-backend.onrender.com https://lockedin-production-c669.up.railway.app https://*.clarity.ms https://us.i.posthog.com https://us-assets.i.posthog.com;
+  connect-src 'self' https://api.spotify.com https://accounts.spotify.com https://*.spotify.com wss://*.spotify.com http://localhost:8080 https://lockedin-backend.onrender.com https://lockedin-production-c669.up.railway.app https://*.clarity.ms https://us.i.posthog.com https://us-assets.i.posthog.com https://datafa.st;
   object-src 'none';
   base-uri 'self';
   form-action 'self';
