@@ -1145,3 +1145,53 @@
   color: #ffd700;
   text-shadow: 0 0 12px rgba(255,200,0,0.7);
 }
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  .timer {
+    min-width: unset;
+    width: calc(100vw - 32px);
+    max-width: 420px;
+    padding: 22px 20px 26px;
+    margin-top: 8%;
+  }
+
+  .time-display { font-size: 60px; }
+  .time-input   { font-size: 60px; width: 85px; }
+  .t-sep        { font-size: 60px; }
+
+  .controls button {
+    padding: 12px 36px;
+    font-size: 13px;
+  }
+
+  .expanded-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .expanded-controls button {
+    padding: 11px 26px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .timer {
+    padding: 18px 14px 22px;
+    margin-top: 6%;
+  }
+
+  .time-display { font-size: 52px; }
+  .time-input   { font-size: 52px; width: 74px; }
+  .t-sep        { font-size: 52px; }
+
+  .controls button {
+    padding: 11px 28px;
+    font-size: 12px;
+    letter-spacing: 1.8px;
+  }
+
+  .heart-warning-dialog { max-width: calc(100vw - 32px); }
+}

@@ -1843,3 +1843,68 @@ body.timer-fullscreen-active .hero {
   letter-spacing: 0.5px;
   white-space: nowrap;
 }
+
+/* ── Mobile responsive ── */
+@media (max-width: 768px) {
+  /* Stats bar: tighten and hide the feedback text button */
+  .stats-display { gap: 10px; padding: 6px 12px; top: 8px; left: 8px; }
+  .feedback-button { display: none !important; }
+
+  /* Profile pill: hide username, tighten up */
+  .profile-display { gap: 8px; padding: 4px 10px 4px 4px; top: 8px; right: 8px; }
+  .username { display: none; }
+  .profile-pic { width: 28px; height: 28px; }
+  .logout-button { font-size: 9px; padding: 3px 8px; letter-spacing: 0.8px; }
+
+  /* Auth buttons: smaller for mobile */
+  .auth-buttons { top: 10px; right: 10px; gap: 6px; }
+  .register-button, .login-button {
+    padding: 7px 14px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  /* Nav: bigger touch targets, cap at viewport width */
+  .retro-nav-container { bottom: 16px; }
+  .retro-nav {
+    max-width: calc(100vw - 28px);
+    padding: 9px 12px;
+  }
+  .retro-nav:hover {
+    max-width: calc(100vw - 28px);
+    padding: 9px 12px;
+  }
+  .retro-nav .nav-item { padding: 8px 5px; margin: 0 1px; }
+  .retro-nav .nav-item img { width: 18px; height: 18px; }
+
+  /* Show nav labels always on mobile (hover is unreliable on touch) */
+  .retro-nav .nav-item span {
+    opacity: 0.65;
+    max-height: 14px;
+    margin-top: 4px;
+    font-size: 7px;
+  }
+
+  /* Premium modal: allow vertical scroll */
+  .premium-modal-overlay {
+    align-items: flex-start;
+    padding: 20px 12px;
+    overflow-y: auto;
+  }
+  .premium-modal-panel { padding: 32px 20px 24px; }
+
+  /* PFP selector: fit on screen */
+  .pfp-selector-panel { max-height: 88vh; }
+}
+
+@media (max-width: 480px) {
+  /* Auth: even smaller */
+  .register-button, .login-button { padding: 6px 12px; font-size: 10px; }
+
+  /* Premium plan cards: stack vertically on small phones */
+  .pm-plan-row { flex-direction: column; gap: 10px; }
+  .pm-plan-card { max-width: 100%; }
+
+  /* Stats: slightly tighter */
+  .stats-display { gap: 8px; padding: 5px 10px; }
+}
