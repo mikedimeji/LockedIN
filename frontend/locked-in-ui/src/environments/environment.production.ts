@@ -3,5 +3,5 @@ export const environment = {
   apiUrl: 'https://lockedin-production-c669.up.railway.app/api',
   appName: 'TokiSpirit',
   spotifyRedirectUri: 'http://localhost:4200/timer',
-  posthogToken: 'phx_KU94WcqsiKsXDyzg7vEukjJ6Dm4Vj88f3sTs58sizBPyaf3L'
+  posthogToken: 'phc_unYJxryx6GTqA6oNEJFf3dgewEA55eDMX92NYLLTS2hs'
 };
