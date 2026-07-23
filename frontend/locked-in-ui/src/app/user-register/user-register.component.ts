@@ -26,6 +26,7 @@ export class UserRegisterComponent {
   invalidRegister: boolean = false;
   RegisterSuccess: boolean = false;
   showWelcomeGift: boolean = false;
+  claimed: boolean = false;
   username: string = "";
   password: string = "";
   email: string = "";
@@ -71,10 +72,6 @@ export class UserRegisterComponent {
           this.RegisterSuccess = true;
           this.showWelcomeGift = true;
           this.isLoading = false;
-
-          setTimeout(() => {
-            this.router.navigateByUrl('/login');
-          }, 4000);
           
         } else if (resultData.message === "Email Taken") {
           this.isLoading = false;
@@ -101,6 +98,12 @@ export class UserRegisterComponent {
           }
         }
     );
+  }
+
+  claimReward() {
+    if (this.claimed) return;
+    this.claimed = true;
+    setTimeout(() => { this.router.navigateByUrl('/login'); }, 1800);
   }
 
   goToLogin() {

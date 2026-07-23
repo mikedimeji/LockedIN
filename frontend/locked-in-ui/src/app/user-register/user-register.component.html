@@ -1,19 +1,34 @@
 <!-- Welcome gift overlay (shown after successful registration) -->
 <div *ngIf="showWelcomeGift" class="welcome-overlay">
-  <div class="welcome-card">
+  <div class="welcome-card" [class.claimed]="claimed">
+
     <div class="welcome-hud">
       <span class="welcome-logo">TOKISPIRIT</span>
       <span class="welcome-sep">·</span>
-      <span class="welcome-tag">WELCOME GIFT</span>
+      <span class="welcome-tag">WELCOME BONUS</span>
     </div>
+
     <div class="welcome-coin-wrap">
       <img src="assets/images/coin/coin2.gif" alt="Gold Coin" class="welcome-coin">
+      <div *ngIf="claimed" class="sparkle-ring"></div>
     </div>
-    <div class="welcome-amount">+150</div>
-    <div class="welcome-gold-label">GOLD AWARDED</div>
-    <p class="welcome-msg">Welcome to TokiSpirit! Your gold is ready — use it to unlock themes and avatars.</p>
-    <button class="welcome-btn" (click)="goToLogin()">LET'S GO →</button>
-    <p class="welcome-hint">Redirecting to login...</p>
+
+    <div class="welcome-amount" [class.pop]="claimed">+200</div>
+    <div class="welcome-gold-label">GOLD</div>
+
+    <p class="welcome-msg" *ngIf="!claimed">
+      Thanks for joining TokiSpirit!<br>
+      Claim your welcome bonus and start unlocking themes &amp; avatars.
+    </p>
+    <p class="welcome-msg claimed-msg" *ngIf="claimed">
+      Reward claimed! Heading to login...
+    </p>
+
+    <button class="welcome-btn" [class.claimed-btn]="claimed" (click)="claimReward()" [disabled]="claimed">
+      <span *ngIf="!claimed">⚡ CLAIM REWARD</span>
+      <span *ngIf="claimed">✓ CLAIMED</span>
+    </button>
+
   </div>
 </div>
 

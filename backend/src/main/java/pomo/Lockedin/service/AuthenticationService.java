@@ -55,7 +55,7 @@ public class AuthenticationService implements UserDetailsService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
-                .gold(150)
+                .gold(200)
                 .build();
         userDao.createUser(user);
 
